@@ -1,17 +1,12 @@
 /*
-
 Frontend JavaScript engine
 for mobile app
 */
 
-
 let token = "";
-
 let username = "";
-
 let socket = null;
 
-let receiver = "";
 
 // ================================
 // Register User
@@ -19,274 +14,189 @@ let receiver = "";
 
 async function register(){
 
-
-let user =
-document.getElementById(
-"username"
-).value;
+    let user = document.getElementById("username").value.trim();
+    let phone = document.getElementById("phone").value.trim();
+    let password = document.getElementById("password").value;
 
 
-let phone =
-document.getElementById(
-"phone"
-).value;
+    let response = await fetch("/register", {
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            username:user,
+            phone:phone,
+            password:password
+
+        })
+
+    });
 
 
-
-let password =
-document.getElementById(
-"password"
-).value;
+    let result = await response.json();
 
 
-
-let response =
-await fetch("/register",
-{
-
-method:"POST",
-
-headers:
-{
-"Content-Type":
-"application/json"
-},
-
-
-body:JSON.stringify({
-
-username:user,
-
-phone:phone,
-
-password:password
-
-})
-
-});
-
-
-
-let result =
-await response.json();
-
-
-
-document.getElementById(
-"authMessage"
-).innerHTML =
-result.message;
-
+    document.getElementById("authMessage").innerHTML =
+    result.message;
 
 }
+
+
 
 // ================================
 // Login User
 // ================================
 
-
 async function login(){
 
-
-let phone =
-document.getElementById(
-"phone"
-).value;
+    let phone =
+    document.getElementById("phone").value.trim();
 
 
-
-let password =
-document.getElementById(
-"password"
-).value;
+    let password =
+    document.getElementById("password").value;
 
 
 
-let response =
-await fetch("/login",
-{
+    let response = await fetch("/login",{
 
-method:"POST",
+        method:"POST",
 
-headers:
-{
+        headers:{
+            "Content-Type":"application/json"
+        },
 
-"Content-Type":
-"application/json"
+        body:JSON.stringify({
 
-},
+            phone:phone,
+            password:password
 
+        })
 
-body:JSON.stringify({
-
-phone:phone,
-
-password:password
-
-})
+    });
 
 
-});
+    let result = await response.json();
 
 
 
-let result =
-await response.json();
+    if(result.access_token){
+
+        token = result.access_token;
+
+        username = result.username.trim();
 
 
-
-if(result.access_token){
-
-
-token =
-result.access_token;
+        localStorage.setItem(
+            "token",
+            token
+        );
 
 
-
-username =
-result.username;
+        openChat();
 
 
+    }
 
-localStorage.setItem(
-"token",
-token
-);
+    else{
 
+        alert("Login failed");
 
-
-openChat();
-
-
-}
-
-else{
-
-
-alert(
-"Login failed"
-);
-
+    }
 
 }
 
 
 
-}
+
 // ================================
 // Open Chat
 // ================================
 
-
 function openChat(){
 
-
-document
-.getElementById("auth")
-.classList
-.add("hidden");
-
+    document
+    .getElementById("auth")
+    .classList
+    .add("hidden");
 
 
-document
-.getElementById("chat")
-.classList
-.remove("hidden");
+    document
+    .getElementById("chat")
+    .classList
+    .remove("hidden");
 
 
-
-connectSocket();
-
+    connectSocket();
 
 }
+
+
+
 
 
 // ================================
 // Upload File
 // ================================
 
-
 async function uploadFile(){
 
-
-let fileInput =
-document.getElementById(
-"file"
-);
+    let file =
+    document.getElementById("file").files[0];
 
 
-let file =
-fileInput.files[0];
+    if(!file){
+        return;
+    }
 
 
-if(!file){
+    let formData = new FormData();
 
-return;
-
-}
-
-
-
-let formData =
-new FormData();
+    formData.append(
+        "file",
+        file
+    );
 
 
 
-formData.append(
-"file",
-file
-);
+    let response = await fetch("/upload",{
+
+        method:"POST",
+
+        body:formData
+
+    });
 
 
 
-let response =
-await fetch(
-"/upload",
-{
-
-method:"POST",
-
-body:formData
-
-}
-);
+    let result = await response.json();
 
 
 
-let result =
-await response.json();
+    socket.send(JSON.stringify({
+
+        type:"file",
+
+        receiver:
+        document
+        .getElementById("receiver")
+        .value
+        .trim(),
 
 
+        filename:result.filename,
 
-socket.send(
+        path:result.path,
 
-JSON.stringify({
-
-type:"file",
-
-receiver:
-document
-.getElementById(
-"receiver"
-)
-.value,
+        filetype:result.type
 
 
-filename:
-result.filename,
-
-
-path:
-result.path,
-
-
-filetype:
-result.type
-
-})
-
-);
-
+    }));
 
 }
 
@@ -296,485 +206,319 @@ result.type
 // WebSocket Connection
 // ================================
 
-
 function connectSocket(){
 
 
-// Detect HTTP or HTTPS automatically
-let wsProtocol =
-window.location.protocol === "https:"
-? "wss://"
-: "ws://";
+    let protocol =
+    window.location.protocol === "https:"
+    ? "wss://"
+    : "ws://";
 
 
-// Use current server address
-let wsUrl =
-wsProtocol
-+ window.location.host
-+ "/ws/"
-+ encodeURIComponent(username);
 
+    let wsUrl =
+    protocol +
+    window.location.host +
+    "/ws/" +
+    encodeURIComponent(username);
 
 
-console.log(
-"Connecting to:",
-wsUrl
-);
 
+    console.log(
+        "Connecting:",
+        wsUrl
+    );
 
 
-socket = new WebSocket(wsUrl);
 
+    socket = new WebSocket(wsUrl);
 
 
-socket.onopen = function(){
 
+    socket.onopen=function(){
 
-document
-.getElementById("status")
-.innerHTML =
-"🟢 Online";
+        document
+        .getElementById("status")
+        .innerHTML="🟢 Online";
 
 
-console.log(
-"WebSocket connected"
-);
+        console.log(
+            "WebSocket connected"
+        );
 
-};
+    };
 
 
 
-socket.onclose = function(){
+    socket.onmessage=function(event){
 
 
-document
-.getElementById("status")
-.innerHTML =
-"🔴 Disconnected";
+        let data =
+        JSON.parse(event.data);
 
 
-console.log(
-"Connection lost. Reconnecting..."
-);
 
+        console.log(data);
 
-setTimeout(
 
-connectSocket,
 
-5000
+        if(data.type==="message"){
 
-);
+            displayMessage(
+                data.sender,
+                data.message
+            );
 
+        }
 
-};
 
 
+        if(data.type==="typing"){
 
-socket.onerror = function(error){
+            document
+            .getElementById("typing")
+            .innerHTML =
+            data.typing
+            ?
+            data.sender+" is typing..."
+            :
+            "";
 
-console.log(
-"WebSocket error:",
-error
-);
+        }
 
-};
 
 
+        if(data.type==="delivered"){
 
-socket.onmessage=function(event){
+            console.log(
+                "Delivered:",
+                data.message_id
+            );
 
+        }
 
-let data =
-JSON.parse(event.data);
 
 
+        if(data.type==="read"){
 
-console.log(
-data
-);
+            console.log(
+                "Read:",
+                data.message_id
+            );
 
+        }
 
 
-if(data.type==="message"){
+    };
 
 
-displayMessage(
 
-data.sender,
+    socket.onclose=function(){
 
-data.message
+        document
+        .getElementById("status")
+        .innerHTML="🔴 Disconnected";
 
-);
 
-}
+        setTimeout(
+            connectSocket,
+            5000
+        );
 
+    };
 
 
-if(data.type==="typing"){
 
+    socket.onerror=function(error){
 
-document
-.getElementById("typing")
-.innerHTML =
+        console.log(
+            "WebSocket error",
+            error
+        );
 
-data.typing
-?
-data.sender+" is typing..."
-:
-"";
-
-}
-
-
-
-if(data.type==="delivered"){
-
-
-console.log(
-"Delivered:",
-data.message_id
-);
+    };
 
 
 }
 
 
 
-if(data.type==="read"){
-
-
-console.log(
-"Read:",
-data.message_id
-);
-
-
-}
-
-
-
-};
-
-
-}
-
-
-// New message
-
-if(data.type==="message"){
-
-
-displayMessage(
-
-data.sender,
-
-data.message
-
-);
-
-
-}
-
-
-
-
-
-// Typing indicator
-
-if(data.type==="typing"){
-
-
-if(data.typing){
-
-
-document
-.getElementById(
-"typing"
-)
-.innerHTML =
-data.sender
-+" is typing...";
-
-
-}
-
-else{
-
-
-document
-.getElementById(
-"typing"
-)
-.innerHTML="";
-
-
-}
-
-
-}
-
-
-
-
-
-// Delivery receipt
-
-if(data.type==="delivered"){
-
-
-console.log(
-
-"Message delivered:",
-data.message_id
-
-);
-
-
-
-
-// Read receipt
-
-if(data.type==="read"){
-
-
-console.log(
-
-"Message read:",
-data.message_id
-
-);
-
-
-}
-
-
-socket.onclose=function(){
-
-
-document
-.getElementById(
-"status"
-)
-.innerHTML =
-"🔴 Disconnected";
-
-
-
-// reconnect after 5 seconds
-
-setTimeout(
-
-connectSocket,
-
-5000
-
-);
-
-
-};
-
-
-}
 
 // ================================
 // Send Message
 // ================================
 
-
 function sendMessage(){
 
 
-receiver =
-document
-.getElementById(
-"receiver"
-)
-.value;
+    let receiver =
+    document
+    .getElementById("receiver")
+    .value
+    .trim();
 
 
 
-let message =
-document
-.getElementById(
-"message"
-)
-.value;
+    let message =
+    document
+    .getElementById("message")
+    .value
+    .trim();
 
 
 
+    if(!receiver || !message || !socket){
 
-if(!receiver || !message){
+        return;
 
-return;
-
-}
-
-
-let payload={
-
-
-type:"message",
-
-
-receiver:receiver,
-
-
-message:message
-
-
-};
-
-
-socket.send(
-
-JSON.stringify(payload)
-
-);
-
-
-displayMessage(
-
-"You",
-
-message
-
-);
+    }
 
 
 
-document
-.getElementById(
-"message"
-)
-.value="";
+    socket.send(JSON.stringify({
 
+        type:"message",
+
+        receiver:receiver,
+
+        message:message
+
+    }));
+
+
+
+    displayMessage(
+        "You",
+        message
+    );
+
+
+
+    document
+    .getElementById("message")
+    .value="";
 
 
 }
+
+
+
+
 
 // ================================
 // Display Message
 // ================================
 
-
-function displayMessage(
-sender,
-message
-){
+function displayMessage(sender,message){
 
 
-let list =
-document
-.getElementById(
-"messages"
-);
+    let list =
+    document.getElementById("messages");
 
 
 
-let item =
-document.createElement(
-"li"
-);
+    let item =
+    document.createElement("li");
 
 
 
-item.innerHTML =
-"<b>"
-+sender+
-"</b>: "
-+message;
+    item.innerHTML =
+    "<b>"+sender+"</b>: "+message;
 
 
 
-list.appendChild(
-item
-);
-
-
+    list.appendChild(item);
 
 }
 
-// ================================
-// Enter key send
-// ================================
 
+
+
+// ================================
+// Enter Key Send
+// ================================
 
 function enterSend(event){
 
+    if(event.key==="Enter"){
 
-if(event.key==="Enter"){
+        sendMessage();
 
-sendMessage();
+    }
 
 }
 
-}
+
+
 
 // ================================
-// Load previous messages
+// Load Messages
 // ================================
 
 async function loadMessages(){
 
 
-let receiver =
-document
-.getElementById(
-"receiver"
-)
-.value;
+    let receiver =
+    document
+    .getElementById("receiver")
+    .value
+    .trim();
 
 
 
-let response =
-await fetch(
-"/messages/"
-+
-username
-+
-"/"
-+
-receiver
-);
+    if(!receiver){
+        return;
+    }
 
 
 
-let data =
-await response.json();
+    let response =
+    await fetch(
+        "/messages/"
+        +
+        encodeURIComponent(username)
+        +
+        "/"
+        +
+        encodeURIComponent(receiver)
+    );
 
 
 
-document
-.getElementById(
-"messages"
-)
-.innerHTML="";
+    let data =
+    await response.json();
 
 
 
-data.messages.forEach(
-msg=>{
+    document
+    .getElementById("messages")
+    .innerHTML="";
 
 
-displayMessage(
 
-msg.sender,
-
-msg.message
-
-);
+    data.messages.forEach(msg=>{
 
 
-});
+        displayMessage(
+
+            msg.sender,
+
+            msg.message
+
+        );
+
+
+    });
 
 
 }
 
-// ================================
-// Typing detection
-// ================================
 
+
+
+// ================================
+// Typing Detection
+// ================================
 
 document
 .getElementById("message")
@@ -783,31 +527,25 @@ document
 function(){
 
 
-if(socket){
+    if(socket){
 
 
-socket.send(
+        socket.send(JSON.stringify({
 
-JSON.stringify({
+            type:"typing",
 
-type:"typing",
-
-receiver:
-document
-.getElementById(
-"receiver"
-)
-.value,
+            receiver:
+            document
+            .getElementById("receiver")
+            .value
+            .trim(),
 
 
-typing:true
+            typing:true
 
-})
+        }));
 
-);
-
-
-}
+    }
 
 
 });
