@@ -49,11 +49,6 @@ import shutil
 
 import json
 
-
-
-
-
-
 from database import (
 
     initialize_database,
@@ -95,13 +90,6 @@ from models import (
 
 
 from websocket_manager import manager
-
-
-
-
-
-
-
 # =====================================
 # APP CREATION
 # =====================================
@@ -112,12 +100,6 @@ app = FastAPI(
     title="Mobile Chat Application"
 
 )
-
-
-
-
-
-
 
 # =====================================
 # STATIC FILES
@@ -143,12 +125,6 @@ app.mount(
 )
 
 
-
-
-
-
-
-
 # =====================================
 # CORS
 # =====================================
@@ -169,25 +145,12 @@ app.add_middleware(
 )
 
 
-
-
-
-
-
-
 # =====================================
 # DATABASE STARTUP
 # =====================================
 
 
 initialize_database()
-
-
-
-
-
-
-
 
 # =====================================
 # HOME PAGE
@@ -207,13 +170,6 @@ async def home(request: Request):
         context={}
 
     )
-
-
-
-
-
-
-
 
 # =====================================
 # FILE UPLOAD
@@ -290,15 +246,6 @@ async def upload_file(
         "type":file.content_type
 
     }
-
-
-
-
-
-
-
-
-
 # =====================================
 # REGISTER
 # =====================================
@@ -321,14 +268,6 @@ def register(
         user.password
 
     )
-
-
-
-
-
-
-
-
 
 # =====================================
 # LOGIN
@@ -365,9 +304,6 @@ def login(
         )
 
 
-
-
-
     token = create_access_token(
 
         account["id"],
@@ -391,13 +327,6 @@ def login(
 
     }
 
-
-
-
-
-
-
-
 # =====================================
 # ONLINE USERS
 # =====================================
@@ -415,13 +344,6 @@ def online():
         manager.online_users()
 
     }
-
-
-
-
-
-
-
 
 # =====================================
 # MESSAGE HISTORY
@@ -507,14 +429,6 @@ def messages(
 
     }
 
-
-
-
-
-
-
-
-
 # =====================================
 # WEBSOCKET
 # =====================================
@@ -559,13 +473,6 @@ async def websocket_endpoint(
 
 
             msg_type=data.get("type")
-
-
-
-
-
-
-
 
             # =========================
             # PRIVATE MESSAGE
@@ -632,9 +539,6 @@ async def websocket_endpoint(
 
 
 
-
-
-
                 await manager.send_private_message(
 
                     receiver,
@@ -659,12 +563,6 @@ async def websocket_endpoint(
                 )
 
 
-
-
-
-
-
-
             # =========================
             # TYPING
             # =========================
@@ -685,11 +583,6 @@ async def websocket_endpoint(
 
 
 
-
-
-
-
-
             # =========================
             # READ RECEIPT
             # =========================
@@ -705,13 +598,6 @@ async def websocket_endpoint(
                     data["message_id"]
 
                 )
-
-
-
-
-
-
-
 
             # =========================
             # WEBRTC PRIVATE CALL
@@ -752,12 +638,6 @@ async def websocket_endpoint(
                 )
 
 
-
-
-
-
-
-
             # =========================
             # CREATE GROUP CALL
             # =========================
@@ -791,13 +671,6 @@ async def websocket_endpoint(
                     })
 
                 )
-
-
-
-
-
-
-
 
             # =========================
             # JOIN GROUP CALL
@@ -841,12 +714,6 @@ async def websocket_endpoint(
                 )
 
 
-
-
-
-
-
-
             # =========================
             # GROUP WEBRTC SIGNALS
             # =========================
@@ -875,12 +742,6 @@ async def websocket_endpoint(
                 )
 
 
-
-
-
-
-
-
             # =========================
             # END CALL
             # =========================
@@ -902,13 +763,6 @@ async def websocket_endpoint(
 
                     )
 
-
-
-
-
-
-
-
             # =========================
             # LEAVE CALL
             # =========================
@@ -926,10 +780,6 @@ async def websocket_endpoint(
                 )
 
 
-
-
-
-
     except WebSocketDisconnect:
 
 
@@ -940,13 +790,6 @@ async def websocket_endpoint(
             websocket
 
         )
-
-
-
-
-
-
-
 
 
 # =====================================
