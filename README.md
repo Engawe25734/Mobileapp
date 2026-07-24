@@ -76,10 +76,97 @@ Supported uploads:
 
 Install required packages:
 
-```bash
 pip install fastapi
 pip install uvicorn
 pip install python-multipart
 pip install jinja2
 pip install passlib
 pip install python-jose
+System Requirements
+Hardware Requirements
+
+Minimum:
+
+Dual-core processor
+4GB RAM
+500MB free storage
+
+Recommended:
+
+Quad-core processor
+8GB RAM
+1GB free storage
+Software Requirements
+
+Operating Systems:
+
+Windows 10/11
+Linux
+macOS
+
+Required software:
+
+Python 3.10 or newer
+Web browser:
+Google Chrome
+Microsoft Edge
+Firefox
+
+Project Structure
+Mobileapp/
+
+│
+├── server.py
+├── websocket_manager.py
+├── database.py
+├── auth.py
+├── models.py
+│
+├── templates/
+│   └── index.html
+│
+├── static/
+│   ├── style.css
+│   └── app.js
+│
+├── uploads/
+│
+└── chat.db
+
+Running the Application
+1. Clone or download project
+   git clone <repository-url>
+.Navcigate into the project:
+  cd Mobileapp
+2. Install dependencies
+   pip install -r requirements.txt
+3. Start the server
+   uvicorn server:app --host 0.0.0.0 --port 8000
+   Successful startup:
+   Application startup complete
+   Uvicorn running on http://0.0.0.0:8000
+4. Open Application
+
+Open browser:
+http://localhost:8000
+Database
+
+The application automatically creates:
+chat.db
+Database stores:
+
+Users
+Conversations
+Messages
+Attachments
+
+Future Improvements
+Push notifications
+End-to-end encryption
+User profile pictures
+Message reactions
+Cloud file storage
+Mobile Android/iOS deployment
+
+
+
