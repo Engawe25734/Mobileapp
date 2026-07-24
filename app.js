@@ -354,7 +354,25 @@ event.data
 
 console.log(data);
 
+if(data.type==="file"){
 
+
+displayMessage(
+
+data.sender,
+
+"📎 File: "
++
+data.filename
++
+"\n"
++
+data.path
+
+);
+
+
+}
 
 
 // New message
