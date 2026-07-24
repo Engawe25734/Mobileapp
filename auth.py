@@ -17,9 +17,10 @@ from passlib.context import CryptContext
 
 from jose import jwt, JWTError
 
+
 from database import (
-create_user,
-get_user_by_phone
+    create_user,
+    get_user_by_phone
 )
 
 
@@ -27,7 +28,6 @@ get_user_by_phone
 # ------------------------------------
 # Security configuration
 # ------------------------------------
-
 
 SECRET_KEY = "CHANGE_THIS_TO_A_RANDOM_SECRET_KEY"
 
@@ -40,8 +40,11 @@ TOKEN_EXPIRE_MINUTES = 60
 # Password encryption engine
 
 password_context = CryptContext(
-schemes=["bcrypt"],
-deprecated="auto"
+
+    schemes=["bcrypt"],
+
+    deprecated="auto"
+
 )
 
 
@@ -50,31 +53,36 @@ deprecated="auto"
 # Password functions
 # ------------------------------------
 
-
 def hash_password(password: str):
 
-"""
-Converts plain password into encrypted hash
-"""
+    """
+    Converts plain password into encrypted hash
+    """
 
-return password_context.hash(password)
+    return password_context.hash(
+        password
+    )
 
 
 
 
 def verify_password(
-plain_password,
-hashed_password
+    plain_password,
+    hashed_password
 ):
 
-"""
-Checks if password matches stored hash
-"""
+    """
+    Checks if password matches stored hash
+    """
 
-return password_context.verify(
-plain_password,
-hashed_password
-)
+    return password_context.verify(
+
+        plain_password,
+
+        hashed_password
+
+    )
+
 
 
 
@@ -82,48 +90,56 @@ hashed_password
 # User registration
 # ------------------------------------
 
-
 def register_user(
-username,
-phone,
-password
+    username,
+    phone,
+    password
 ):
 
-
-# Check existing user
-
-existing_user = get_user_by_phone(phone)
-
-
-if existing_user:
-
-return {
-"status": "error",
-"message": "Phone number already registered"
-}
+    existing_user = get_user_by_phone(
+        phone
+    )
 
 
+    if existing_user:
 
-password_hash = hash_password(password)
+        return {
+
+            "status": "error",
+
+            "message": "Phone number already registered"
+
+        }
 
 
 
-user_id = create_user(
-username,
-phone,
-password_hash
-)
+    password_hash = hash_password(
+        password
+    )
 
 
-return {
 
-"status": "success",
+    user_id = create_user(
 
-"message": "Account created",
+        username,
 
-"user_id": user_id
+        phone,
 
-}
+        password_hash
+
+    )
+
+
+
+    return {
+
+        "status": "success",
+
+        "message": "Account created",
+
+        "user_id": user_id
+
+    }
 
 
 
@@ -132,33 +148,36 @@ return {
 # User login
 # ------------------------------------
 
-
 def authenticate_user(
-phone,
-password
+    phone,
+    password
 ):
 
-
-user = get_user_by_phone(phone)
-
-
-
-if not user:
-
-return None
+    user = get_user_by_phone(
+        phone
+    )
 
 
+    if not user:
 
-if not verify_password(
-password,
-user["password_hash"]
-):
-
-return None
+        return None
 
 
 
-return user
+    if not verify_password(
+
+        password,
+
+        user["password_hash"]
+
+    ):
+
+        return None
+
+
+
+    return user
+
 
 
 
@@ -166,41 +185,43 @@ return user
 # JWT creation
 # ------------------------------------
 
-
 def create_access_token(
-user_id,
-username
+    user_id,
+    username
 ):
 
+    expiration = datetime.utcnow() + timedelta(
 
-expiration = datetime.utcnow() + timedelta(
-minutes=TOKEN_EXPIRE_MINUTES
-)
+        minutes=TOKEN_EXPIRE_MINUTES
 
-
-payload = {
-
-"user_id": user_id,
-
-"username": username,
-
-"exp": expiration
-
-}
+    )
 
 
-token = jwt.encode(
+    payload = {
 
-payload,
+        "user_id": user_id,
 
-SECRET_KEY,
+        "username": username,
 
-algorithm=ALGORITHM
+        "exp": expiration
 
-)
+    }
 
 
-return token
+
+    token = jwt.encode(
+
+        payload,
+
+        SECRET_KEY,
+
+        algorithm=ALGORITHM
+
+    )
+
+
+    return token
+
 
 
 
@@ -209,31 +230,31 @@ return token
 # JWT verification
 # ------------------------------------
 
+def verify_token(
+    token
+):
 
-def verify_token(token):
+    try:
 
+        payload = jwt.decode(
 
-try:
+            token,
 
-payload = jwt.decode(
+            SECRET_KEY,
 
-token,
+            algorithms=[ALGORITHM]
 
-SECRET_KEY,
-
-algorithms=[ALGORITHM]
-
-)
-
-
-return payload
+        )
 
 
+        return payload
 
-except JWTError:
 
 
-return None
+    except JWTError:
+
+        return None
+
 
 
 
@@ -242,65 +263,79 @@ return None
 # Test authentication
 # ------------------------------------
 
-
 if __name__ == "__main__":
 
 
-from database import initialize_database
+    from database import initialize_database
 
 
-initialize_database()
+    initialize_database()
 
 
-print("\n--- Creating Test User ---")
+    print(
+        "\n--- Creating Test User ---"
+    )
 
 
-result = register_user(
+    result = register_user(
 
-"Alex",
+        "Alex",
 
-"5551234567",
+        "5551234567",
 
-"password123"
+        "password123"
 
-)
-
-
-print(result)
+    )
 
 
-
-print("\n--- Testing Login ---")
-
-
-user = authenticate_user(
-
-"5551234567",
-
-"password123"
-
-)
+    print(result)
 
 
-if user:
+
+    print(
+        "\n--- Testing Login ---"
+    )
 
 
-token = create_access_token(
 
-user["id"],
+    user = authenticate_user(
 
-user["username"]
+        "5551234567",
 
-)
+        "password123"
 
-
-print("Login successful")
-
-print("JWT Token:")
-
-print(token)
+    )
 
 
-else:
 
-print("Login failed")
+    if user:
+
+
+        token = create_access_token(
+
+            user["id"],
+
+            user["username"]
+
+        )
+
+
+        print(
+            "Login successful"
+        )
+
+
+        print(
+            "JWT Token:"
+        )
+
+
+        print(token)
+
+
+
+    else:
+
+        print(
+            "Login failed"
+        )
