@@ -4,49 +4,46 @@ server.py
 Main FastAPI backend for WhatsApp Clone.
 """
 
-from fastapi import UploadFile, File
-import shutil
-import os
 
-
-from database import save_attachment
 from fastapi import (
-FastAPI,
-WebSocket,
-WebSocketDisconnect,
-HTTPException,
-Request
+    FastAPI,
+    WebSocket,
+    WebSocketDisconnect,
+    HTTPException,
+    Request,
+    UploadFile,
+    File
 )
 
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-
 from fastapi.middleware.cors import CORSMiddleware
 
+import shutil
+import os
 import json
 
 
 from database import (
-initialize_database,
-save_message,
-update_user_status,
-get_user_by_phone,
-get_user_messages,
-get_or_create_chat
+    initialize_database,
+    save_message,
+    get_user_by_phone,
+    get_user_messages,
+    get_or_create_chat,
+    save_attachment
 )
 
 
 from auth import (
-register_user,
-authenticate_user,
-create_access_token,
-verify_token
+    register_user,
+    authenticate_user,
+    create_access_token
 )
 
 
 from models import (
-RegisterRequest,
-LoginRequest
+    RegisterRequest,
+    LoginRequest
 )
 
 
@@ -59,47 +56,49 @@ from websocket_manager import manager
 # ------------------------------------
 
 app = FastAPI(
-title="mobile app API"
+    title="mobile app API"
 )
+
+
 templates = Jinja2Templates(
-directory="templates"
+    directory="templates"
 )
+
 
 
 app.mount(
-"/static",
-StaticFiles(directory="static"),
-name="static"
+    "/static",
+    StaticFiles(directory="static"),
+    name="static"
 )
 
 
-# Allow frontend connections
+
+# ------------------------------------
+# CORS
+# ------------------------------------
 
 app.add_middleware(
 
-CORSMiddleware,
+    CORSMiddleware,
 
-allow_origins=["*"],
+    allow_origins=["*"],
 
-allow_credentials=True,
+    allow_credentials=True,
 
-allow_methods=["*"],
+    allow_methods=["*"],
 
-allow_headers=["*"]
+    allow_headers=["*"]
 
 )
 
 
 
+# ------------------------------------
 # Initialize database
+# ------------------------------------
 
 initialize_database()
-
-
-
-# Stores connected users
-
-connected_users = {}
 
 
 
@@ -110,12 +109,17 @@ connected_users = {}
 @app.get("/")
 async def home(request: Request):
 
-return templates.TemplateResponse(
-"index.html",
-{
-"request": request
-}
-}
+    return templates.TemplateResponse(
+
+        "index.html",
+
+        {
+            "request": request
+        }
+
+    )
+
+
 
 # ------------------------------------
 # File upload endpoint
@@ -123,130 +127,127 @@ return templates.TemplateResponse(
 
 @app.post("/upload")
 async def upload_file(
-file: UploadFile = File(...)
+    file: UploadFile = File(...)
 ):
 
-
-upload_folder="uploads"
-
-
-os.makedirs(
-upload_folder,
-exist_ok=True
-)
+    upload_folder = "uploads"
 
 
-file_path = (
-upload_folder
-+ "/"
-+ file.filename
-)
+    os.makedirs(
+        upload_folder,
+        exist_ok=True
+    )
 
 
-with open(
-file_path,
-"wb"
-) as buffer:
+    file_path = os.path.join(
+        upload_folder,
+        file.filename
+    )
 
 
-shutil.copyfileobj(
-file.file,
-buffer
-)
+    with open(
+        file_path,
+        "wb"
+    ) as buffer:
+
+        shutil.copyfileobj(
+            file.file,
+            buffer
+        )
 
 
-return {
-
-"filename":
-file.filename,
-
-
-"path":
-file_path,
+    save_attachment(
+        file.filename,
+        file_path,
+        file.content_type
+    )
 
 
-"type":
-file.content_type
+    return {
 
-}
+        "filename": file.filename,
+
+        "path": file_path,
+
+        "type": file.content_type
+
+    }
+
+
 
 
 # ------------------------------------
-# Register endpoint
+# Register
 # ------------------------------------
 
 @app.post("/register")
 def register(
-user:RegisterRequest
+    user: RegisterRequest
 ):
 
-result = register_user(
+    result = register_user(
 
-user.username,
+        user.username,
 
-user.phone,
+        user.phone,
 
-user.password
+        user.password
 
-)
+    )
 
 
-return result
+    return result
 
 
 
 
 # ------------------------------------
-# Login endpoint
+# Login
 # ------------------------------------
 
 @app.post("/login")
 def login(
-user:LoginRequest
+    user: LoginRequest
 ):
 
+    account = authenticate_user(
 
-account = authenticate_user(
+        user.phone,
 
-user.phone,
+        user.password
 
-user.password
-
-)
-
-
-if not account:
+    )
 
 
-raise HTTPException(
+    if not account:
 
-status_code=401,
+        raise HTTPException(
 
-detail="Invalid credentials"
+            status_code=401,
 
-)
+            detail="Invalid credentials"
 
-
-
-token = create_access_token(
-
-account["id"],
-
-account["username"]
-
-)
+        )
 
 
-return {
+    token = create_access_token(
 
-"access_token": token,
+        account["id"],
 
-"token_type": "bearer",
+        account["username"]
 
-"username":
-account["username"]
+    )
 
-}
+
+    return {
+
+        "access_token": token,
+
+        "token_type": "bearer",
+
+        "username": account["username"]
+
+    }
 
 
 
@@ -258,71 +259,86 @@ account["username"]
 @app.get("/online")
 def online_users():
 
-return {
+    return {
 
-"users":
-manager.online_users()
+        "users":
+        manager.online_users()
 
-}
+    }
+
+
+
+
+# ------------------------------------
+# Message history
+# ------------------------------------
+
 @app.get("/messages/{user1}/{user2}")
 def message_history(
-user1:str,
-user2:str
+
+    user1: str,
+
+    user2: str
+
 ):
 
 
-first_user = get_user_by_phone(
-user1
-)
+    first_user = get_user_by_phone(
+        user1
+    )
 
 
-second_user = get_user_by_phone(
-user2
-)
+    second_user = get_user_by_phone(
+        user2
+    )
 
 
-if not first_user or not second_user:
+    if not first_user or not second_user:
 
-return {
-"messages":[]
-}
+        return {
 
+            "messages": []
 
-
-messages = get_user_messages(
-
-first_user["id"],
-
-second_user["id"]
-
-)
+        }
 
 
 
-result=[]
+    messages = get_user_messages(
+
+        first_user["id"],
+
+        second_user["id"]
+
+    )
 
 
-for msg in messages:
 
-result.append({
-
-"sender":
-msg["username"],
-
-"message":
-msg["message"],
-
-"timestamp":
-msg["timestamp"]
-
-})
+    result = []
 
 
-return {
+    for msg in messages:
 
-"messages":result
+        result.append({
 
-}
+            "sender":
+            msg["username"],
+
+            "message":
+            msg["message"],
+
+            "timestamp":
+            msg["timestamp"]
+
+        })
+
+
+
+    return {
+
+        "messages": result
+
+    }
+
 
 
 
@@ -334,196 +350,236 @@ return {
 @app.websocket("/ws/{username}")
 async def websocket_endpoint(
 
-websocket: WebSocket,
+    websocket: WebSocket,
 
-username: str
+    username: str
 
 ):
 
 
-await manager.connect(
+    await manager.connect(
 
-username,
+        username,
 
-websocket
+        websocket
 
-)
+    )
 
 
+    try:
 
-try:
 
-while True:
+        while True:
 
 
-raw = await websocket.receive_text()
+            raw = await websocket.receive_text()
 
 
+            data = json.loads(raw)
 
-data = json.loads(raw)
 
+            message_type = data.get(
+                "type"
+            )
 
 
-message_type = data.get(
-"type"
-)
 
+            # -------------------------
+            # Normal message
+            # -------------------------
 
+            if message_type == "message":
 
-# -------------------------
-# Normal message
-# -------------------------
 
-if message_type == "message":
+                receiver = data["receiver"]
 
 
-receiver = data["receiver"]
+                text = data["message"]
 
-text = data["message"]
 
 
+                sender_account = get_user_by_phone(
 
-sender_account = (
-get_user_by_phone(username)
-)
+                    username
 
-elif message_type == "file":
+                )
 
 
-await manager.send_private_message(
 
-data["receiver"],
+                if sender_account:
 
-{
 
-"type":"file",
+                    receiver_account = get_user_by_phone(
 
-"sender":username,
+                        receiver
 
-"filename":
-data["filename"],
+                    )
 
 
-"path":
-data["path"],
 
+                    if receiver_account:
 
-"filetype":
-data["filetype"]
 
-}
+                        chat_id = get_or_create_chat(
 
-)
+                            sender_account["id"],
 
-if sender_account:
+                            receiver_account["id"]
 
+                        )
 
-receiver_account = get_user_by_phone(
-receiver
-)
 
+                        message_id = save_message(
 
-chat_id = get_or_create_chat(
+                            chat_id,
 
-sender_account["id"],
+                            sender_account["id"],
 
-receiver_account["id"]
+                            text
 
-)
+                        )
 
 
-message_id = save_message(
+                    else:
 
-chat_id,
+                        message_id = None
 
-sender_account["id"],
 
-text
 
-)
-)
+                else:
 
+                    message_id = None
 
 
-await manager.send_private_message(
 
-receiver,
+                await manager.send_private_message(
 
-{
+                    receiver,
 
-"type":
-"message",
+                    {
 
-"sender":
-username,
+                        "type": "message",
 
-"message":
-text,
+                        "sender": username,
 
-"message_id":
-message_id
+                        "message": text,
 
-}
+                        "message_id": message_id
 
-)
+                    }
 
+                )
 
 
-# delivery receipt
 
-await manager.send_delivery_receipt(
+                if message_id:
 
-username,
 
-message_id
+                    await manager.send_delivery_receipt(
 
-)
+                        username,
 
+                        message_id
 
+                    )
 
 
-# -------------------------
-# Typing status
-# -------------------------
 
-elif message_type == "typing":
 
+            # -------------------------
+            # File message
+            # -------------------------
 
-await manager.send_typing_status(
+            elif message_type == "file":
 
-data["receiver"],
 
-username,
+                await manager.send_private_message(
 
-data["typing"]
+                    data["receiver"],
 
-)
+                    {
 
+                        "type": "file",
 
+                        "sender": username,
 
+                        "filename": data["filename"],
 
-# -------------------------
-# Read receipt
-# -------------------------
+                        "path": data["path"],
 
-elif message_type == "read":
+                        "filetype": data["filetype"]
 
+                    }
 
-await manager.send_read_receipt(
+                )
 
-data["receiver"],
 
-data["message_id"]
 
-)
 
+            # -------------------------
+            # Typing status
+            # -------------------------
 
+            elif message_type == "typing":
 
-except WebSocketDisconnect:
 
+                await manager.send_typing_status(
 
-await manager.disconnect(
+                    data["receiver"],
 
-username
+                    username,
 
-)
+                    data["typing"]
+
+                )
+
+
+
+
+            # -------------------------
+            # Read receipt
+            # -------------------------
+
+            elif message_type == "read":
+
+
+                await manager.send_read_receipt(
+
+                    data["receiver"],
+
+                    data["message_id"]
+
+                )
+
+
+
+
+    except WebSocketDisconnect:
+
+
+        await manager.disconnect(
+
+            username
+
+        )
+
+
+
+# ------------------------------------
+# Run server
+# ------------------------------------
+
+if __name__ == "__main__":
+
+    import uvicorn
+
+
+    uvicorn.run(
+
+        app,
+
+        host="127.0.0.1",
+
+        port=8000
+
+    )
