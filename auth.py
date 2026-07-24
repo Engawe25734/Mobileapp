@@ -1,7 +1,7 @@
 """
 auth.py
 
-Authentication system for WhatsApp Clone.
+Authentication system for mobile app.
 
 Features:
 - Secure password hashing
