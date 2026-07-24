@@ -174,7 +174,9 @@ http://localhost:8000
 Database
 
 The application automatically creates:
+
 chat.db
+
 Database stores:
 
 Users
