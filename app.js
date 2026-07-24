@@ -1,7 +1,7 @@
-app.js
+/*
 
 Frontend JavaScript engine
-for WhatsApp Clone
+for mobile app
 */
 
 
@@ -12,9 +12,6 @@ let username = "";
 let socket = null;
 
 let receiver = "";
-
-
-
 
 // ================================
 // Register User
@@ -82,10 +79,6 @@ result.message;
 
 
 }
-
-
-
-
 
 // ================================
 // Login User
@@ -180,13 +173,6 @@ alert(
 
 
 }
-
-
-
-
-
-
-
 // ================================
 // Open Chat
 // ================================
@@ -446,9 +432,6 @@ data.message_id
 );
 
 
-}
-
-
 
 
 // Read receipt
@@ -465,16 +448,6 @@ data.message_id
 
 
 }
-
-
-
-
-
-};
-
-
-
-
 
 
 socket.onclose=function(){
@@ -504,12 +477,6 @@ connectSocket,
 
 
 }
-
-
-
-
-
-
 
 // ================================
 // Send Message
@@ -545,9 +512,6 @@ return;
 }
 
 
-
-
-
 let payload={
 
 
@@ -563,16 +527,11 @@ message:message
 };
 
 
-
-
-
 socket.send(
 
 JSON.stringify(payload)
 
 );
-
-
 
 
 displayMessage(
@@ -594,10 +553,6 @@ document
 
 
 }
-
-
-
-
 
 // ================================
 // Display Message
@@ -640,12 +595,6 @@ item
 
 
 }
-
-
-
-
-
-
 
 // ================================
 // Enter key send
@@ -722,10 +671,6 @@ msg.message
 
 
 }
-
-
-
-
 
 // ================================
 // Typing detection
