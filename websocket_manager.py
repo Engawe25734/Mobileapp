@@ -1,17 +1,18 @@
 """
 websocket_manager.py
 
-Real-time WebSocket manager
-for Mobile Chat App.
+Real-Time WebSocket Manager
+Mobile Chat App Backend
 
 Supports:
-- Private messaging
-- Multiple device connections
+- Multiple users
+- Multiple devices per user
+- Private messages
 - Online status
-- Typing indicator
+- Typing indicators
 - Read receipts
-- WebRTC audio/video calls
-- Group call rooms
+- WebRTC signaling
+- Group audio/video call rooms
 """
 
 
@@ -25,16 +26,18 @@ import json
 
 
 
+
 class ConnectionManager:
 
 
     def __init__(self):
 
+
         # username -> multiple websocket connections
         self.active_connections: Dict[str, Set[WebSocket]] = {}
 
 
-        # room_id -> usernames
+        # call_room -> usernames
         self.call_rooms: Dict[str, Set[str]] = {}
 
 
@@ -42,14 +45,16 @@ class ConnectionManager:
 
 
 
-    # =================================
+
+    # ======================================
     # CONNECT USER
-    # =================================
+    # ======================================
+
 
     async def connect(
         self,
-        username,
-        websocket
+        username: str,
+        websocket: WebSocket
     ):
 
 
@@ -85,24 +90,20 @@ class ConnectionManager:
 
 
 
-    # =================================
+
+    # ======================================
     # DISCONNECT USER
-    # =================================
+    # ======================================
+
 
     async def disconnect(
         self,
-        username,
-        websocket=None
+        username: str,
+        websocket: WebSocket
     ):
 
 
-        if username not in self.active_connections:
-
-            return
-
-
-
-        if websocket:
+        if username in self.active_connections:
 
 
             self.active_connections[username].discard(
@@ -111,84 +112,212 @@ class ConnectionManager:
 
 
 
-        if len(self.active_connections[username]) == 0:
+            # Remove user completely
+            # when no devices remain
+
+            if len(self.active_connections[username]) == 0:
 
 
-            del self.active_connections[username]
-
-
-
-            await self.remove_from_all_rooms(
-                username
-            )
+                del self.active_connections[username]
 
 
 
-            await self.broadcast_status(
-                username,
-                "offline"
-            )
+                await self.remove_from_all_rooms(
+                    username
+                )
+
+
+
+                await self.broadcast_status(
+                    username,
+                    "offline"
+                )
 
 
 
 
 
 
-    # =================================
-    # PRIVATE MESSAGE
-    # =================================
+
+    # ======================================
+    # SEND MESSAGE TO USER
+    # ======================================
+
 
     async def send_private_message(
         self,
-        receiver,
-        data
+        username: str,
+        data: dict
     ):
 
 
         connections = self.active_connections.get(
-            receiver,
+            username,
             set()
         )
 
 
 
-        sent = False
+        for websocket in connections:
 
-
-
-        for websocket in list(connections):
 
             try:
 
+
                 await websocket.send_text(
+
                     json.dumps(data)
+
                 )
-
-
-                sent = True
 
 
             except Exception:
 
 
-                connections.discard(
-                    websocket
-                )
-
-
-
-        return sent
+                pass
 
 
 
 
 
 
-    # =================================
-    # JOIN GROUP CALL ROOM
-    # =================================
 
-    async def join_call_room(
+    # ======================================
+    # ONLINE STATUS
+    # ======================================
+
+
+    async def broadcast_status(
+        self,
+        username,
+        status
+    ):
+
+
+        message = {
+
+
+            "type":"status",
+
+
+            "username":username,
+
+
+            "status":status
+
+
+        }
+
+
+
+        for connections in self.active_connections.values():
+
+
+            for websocket in connections:
+
+
+                try:
+
+
+                    await websocket.send_text(
+
+                        json.dumps(message)
+
+                    )
+
+
+                except Exception:
+
+
+                    pass
+
+
+
+
+
+
+
+    # ======================================
+    # TYPING INDICATOR
+    # ======================================
+
+
+    async def send_typing_status(
+        self,
+        receiver,
+        sender,
+        typing
+    ):
+
+
+        await self.send_private_message(
+
+            receiver,
+
+            {
+
+
+                "type":"typing",
+
+
+                "sender":sender,
+
+
+                "typing":typing
+
+
+            }
+
+        )
+
+
+
+
+
+
+
+
+    # ======================================
+    # READ RECEIPTS
+    # ======================================
+
+
+    async def send_read_receipt(
+        self,
+        receiver,
+        message_id
+    ):
+
+
+        await self.send_private_message(
+
+            receiver,
+
+            {
+
+
+                "type":"read",
+
+
+                "message_id":message_id
+
+
+            }
+
+        )
+
+
+
+
+
+
+
+    # ======================================
+    # CREATE GROUP CALL ROOM
+    # ======================================
+
+
+    async def create_room(
         self,
         room,
         username
@@ -201,11 +330,37 @@ class ConnectionManager:
 
 
 
-        # maximum participants
-        if len(self.call_rooms[room]) >= 10:
+        self.call_rooms[room].add(
+            username
+        )
 
 
-            return False
+
+        print(
+            f"📞 {username} created room {room}"
+        )
+
+
+
+
+
+
+
+    # ======================================
+    # JOIN GROUP CALL
+    # ======================================
+
+
+    async def join_room(
+        self,
+        room,
+        username
+    ):
+
+
+        if room not in self.call_rooms:
+
+            self.call_rooms[room] = set()
 
 
 
@@ -216,22 +371,21 @@ class ConnectionManager:
 
 
         print(
-            f"📞 {username} joined room {room}"
+            f"👥 {username} joined {room}"
         )
 
 
-        return True
 
 
 
 
 
+    # ======================================
+    # LEAVE GROUP CALL
+    # ======================================
 
-    # =================================
-    # LEAVE GROUP CALL ROOM
-    # =================================
 
-    async def leave_call_room(
+    async def leave_room(
         self,
         room,
         username
@@ -247,26 +401,21 @@ class ConnectionManager:
 
 
 
-            if len(self.call_rooms[room]) == 0:
-
+            if not self.call_rooms[room]:
 
                 del self.call_rooms[room]
 
 
 
-        print(
-            f"❌ {username} left room {room}"
-        )
 
 
 
 
 
+    # ======================================
+    # REMOVE USER FROM ALL CALLS
+    # ======================================
 
-
-    # =================================
-    # REMOVE USER FROM ALL ROOMS
-    # =================================
 
     async def remove_from_all_rooms(
         self,
@@ -274,7 +423,7 @@ class ConnectionManager:
     ):
 
 
-        empty_rooms = []
+        empty=[]
 
 
 
@@ -287,17 +436,15 @@ class ConnectionManager:
 
 
 
-            if len(users) == 0:
+            if len(users)==0:
 
-
-                empty_rooms.append(
-                    room
-                )
+                empty.append(room)
 
 
 
-        for room in empty_rooms:
 
+
+        for room in empty:
 
             del self.call_rooms[room]
 
@@ -307,11 +454,13 @@ class ConnectionManager:
 
 
 
-    # =================================
-    # BROADCAST GROUP CALL SIGNAL
-    # =================================
 
-    async def broadcast_call_signal(
+    # ======================================
+    # BROADCAST GROUP CALL SIGNAL
+    # ======================================
+
+
+    async def broadcast_room(
         self,
         room,
         sender,
@@ -332,14 +481,13 @@ class ConnectionManager:
             **data,
 
 
-            "sender": sender,
+            "sender":sender,
 
 
-            "room": room
+            "room":room
 
 
         }
-
 
 
 
@@ -367,166 +515,19 @@ class ConnectionManager:
 
 
 
-    # =================================
-    # ONLINE STATUS
-    # =================================
 
-    async def broadcast_status(
-        self,
-        username,
-        status
-    ):
+    # ======================================
+    # GET ONLINE USERS
+    # ======================================
 
-
-        message = {
-
-
-            "type":"status",
-
-
-            "username":username,
-
-
-            "status":status
-
-
-        }
-
-
-
-
-
-        for connections in self.active_connections.values():
-
-
-            for websocket in list(connections):
-
-
-                try:
-
-
-                    await websocket.send_text(
-
-                        json.dumps(message)
-
-                    )
-
-
-                except Exception:
-
-
-                    pass
-
-
-
-
-
-
-
-    # =================================
-    # TYPING STATUS
-    # =================================
-
-    async def send_typing_status(
-        self,
-        receiver,
-        sender,
-        typing
-    ):
-
-
-        await self.send_private_message(
-
-            receiver,
-
-            {
-
-                "type":"typing",
-
-                "sender":sender,
-
-                "typing":typing
-
-            }
-
-        )
-
-
-
-
-
-
-
-    # =================================
-    # DELIVERY RECEIPT
-    # =================================
-
-    async def send_delivery_receipt(
-        self,
-        receiver,
-        message_id
-    ):
-
-
-        await self.send_private_message(
-
-            receiver,
-
-            {
-
-                "type":"delivered",
-
-                "message_id":message_id
-
-            }
-
-        )
-
-
-
-
-
-
-    # =================================
-    # READ RECEIPT
-    # =================================
-
-    async def send_read_receipt(
-        self,
-        receiver,
-        message_id
-    ):
-
-
-        await self.send_private_message(
-
-            receiver,
-
-            {
-
-                "type":"read",
-
-                "message_id":message_id
-
-            }
-
-        )
-
-
-
-
-
-
-
-    # =================================
-    # ONLINE USERS
-    # =================================
 
     def online_users(self):
 
 
         return list(
+
             self.active_connections.keys()
+
         )
 
 
@@ -535,9 +536,10 @@ class ConnectionManager:
 
 
 
-    # =================================
-    # GET ROOM USERS
-    # =================================
+    # ======================================
+    # GET ROOM MEMBERS
+    # ======================================
+
 
     def get_room_users(
         self,
@@ -562,6 +564,7 @@ class ConnectionManager:
 
 
 
-# GLOBAL INSTANCE
+
+# GLOBAL CONNECTION MANAGER
 
 manager = ConnectionManager()
