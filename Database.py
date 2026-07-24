@@ -360,3 +360,90 @@ return messages
 if __name__ == "__main__":
 
 initialize_database()
+# ------------------------------------
+# Chat functions
+# ------------------------------------
+
+
+def get_or_create_chat(user_one, user_two):
+
+conn = get_connection()
+
+cursor = conn.cursor()
+
+
+cursor.execute("""
+SELECT id FROM chats
+WHERE
+(user_one=? AND user_two=?)
+OR
+(user_one=? AND user_two=?)
+
+""",
+(
+user_one,
+user_two,
+user_two,
+user_one
+))
+
+
+chat = cursor.fetchone()
+
+
+
+if chat:
+
+conn.close()
+
+return chat["id"]
+
+
+
+cursor.execute("""
+INSERT INTO chats
+(
+user_one,
+user_two
+)
+
+VALUES (?,?)
+
+""",
+(
+user_one,
+user_two
+))
+
+
+conn.commit()
+
+
+chat_id = cursor.lastrowid
+
+
+conn.close()
+
+
+return chat_id
+
+
+
+
+
+def get_user_messages(
+user_one,
+user_two
+):
+
+
+chat_id = get_or_create_chat(
+user_one,
+user_two
+)
+
+
+return get_chat_messages(
+chat_id
+)
+
