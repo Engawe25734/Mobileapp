@@ -56,14 +56,18 @@ from websocket_manager import manager
 # ------------------------------------
 
 app = FastAPI(
-    title="mobile app API"
+    title="Mobile Chat App API"
 )
 
+
+
+# ------------------------------------
+# Templates and Static files
+# ------------------------------------
 
 templates = Jinja2Templates(
     directory="templates"
 )
-
 
 
 app.mount(
@@ -100,22 +104,26 @@ app.add_middleware(
 
 initialize_database()
 
+
+
 # ------------------------------------
-# Home route
+# Home page
 # ------------------------------------
 
 @app.get("/")
 async def home(request: Request):
 
     return templates.TemplateResponse(
-        name="index.html",
-        context={
+        "index.html",
+        {
             "request": request
         }
     )
 
+
+
 # ------------------------------------
-# File upload endpoint
+# File upload
 # ------------------------------------
 
 @app.post("/upload")
@@ -124,7 +132,6 @@ async def upload_file(
 ):
 
     upload_folder = "uploads"
-
 
     os.makedirs(
         upload_folder,
@@ -149,7 +156,9 @@ async def upload_file(
         )
 
 
+    # message_id is None until attached to a chat message
     save_attachment(
+        None,
         file.filename,
         file_path,
         file.content_type
@@ -168,7 +177,6 @@ async def upload_file(
 
 
 
-
 # ------------------------------------
 # Register
 # ------------------------------------
@@ -178,7 +186,7 @@ def register(
     user: RegisterRequest
 ):
 
-    result = register_user(
+    return register_user(
 
         user.username,
 
@@ -187,10 +195,6 @@ def register(
         user.password
 
     )
-
-
-    return result
-
 
 
 
@@ -244,7 +248,6 @@ def login(
 
 
 
-
 # ------------------------------------
 # Online users
 # ------------------------------------
@@ -261,39 +264,26 @@ def online_users():
 
 
 
-
 # ------------------------------------
 # Message history
 # ------------------------------------
 
 @app.get("/messages/{user1}/{user2}")
 def message_history(
-
     user1: str,
-
     user2: str
-
 ):
 
+    first_user = get_user_by_phone(user1)
 
-    first_user = get_user_by_phone(
-        user1
-    )
-
-
-    second_user = get_user_by_phone(
-        user2
-    )
+    second_user = get_user_by_phone(user2)
 
 
     if not first_user or not second_user:
 
         return {
-
             "messages": []
-
         }
-
 
 
     messages = get_user_messages(
@@ -305,7 +295,6 @@ def message_history(
     )
 
 
-
     result = []
 
 
@@ -313,17 +302,13 @@ def message_history(
 
         result.append({
 
-            "sender":
-            msg["username"],
+            "sender": msg["username"],
 
-            "message":
-            msg["message"],
+            "message": msg["message"],
 
-            "timestamp":
-            msg["timestamp"]
+            "timestamp": msg["timestamp"]
 
         })
-
 
 
     return {
@@ -334,84 +319,58 @@ def message_history(
 
 
 
-
-
 # ------------------------------------
 # WebSocket Chat
 # ------------------------------------
 
 @app.websocket("/ws/{username}")
 async def websocket_endpoint(
-
     websocket: WebSocket,
-
     username: str
-
 ):
 
-
     await manager.connect(
-
         username,
-
         websocket
-
     )
 
 
     try:
 
-
         while True:
 
-
             raw = await websocket.receive_text()
-
 
             data = json.loads(raw)
 
 
-            message_type = data.get(
-                "type"
-            )
+            message_type = data.get("type")
 
 
-
-            # -------------------------
-            # Normal message
-            # -------------------------
 
             if message_type == "message":
 
-
                 receiver = data["receiver"]
-
 
                 text = data["message"]
 
 
-
                 sender_account = get_user_by_phone(
-
                     username
-
                 )
 
+
+                message_id = None
 
 
                 if sender_account:
 
-
                     receiver_account = get_user_by_phone(
-
                         receiver
-
                     )
 
 
-
                     if receiver_account:
-
 
                         chat_id = get_or_create_chat(
 
@@ -431,18 +390,6 @@ async def websocket_endpoint(
                             text
 
                         )
-
-
-                    else:
-
-                        message_id = None
-
-
-
-                else:
-
-                    message_id = None
-
 
 
                 await manager.send_private_message(
@@ -465,56 +412,7 @@ async def websocket_endpoint(
 
 
 
-                if message_id:
-
-
-                    await manager.send_delivery_receipt(
-
-                        username,
-
-                        message_id
-
-                    )
-
-
-
-
-            # -------------------------
-            # File message
-            # -------------------------
-
-            elif message_type == "file":
-
-
-                await manager.send_private_message(
-
-                    data["receiver"],
-
-                    {
-
-                        "type": "file",
-
-                        "sender": username,
-
-                        "filename": data["filename"],
-
-                        "path": data["path"],
-
-                        "filetype": data["filetype"]
-
-                    }
-
-                )
-
-
-
-
-            # -------------------------
-            # Typing status
-            # -------------------------
-
             elif message_type == "typing":
-
 
                 await manager.send_typing_status(
 
@@ -528,13 +426,7 @@ async def websocket_endpoint(
 
 
 
-
-            # -------------------------
-            # Read receipt
-            # -------------------------
-
             elif message_type == "read":
-
 
                 await manager.send_read_receipt(
 
@@ -546,20 +438,16 @@ async def websocket_endpoint(
 
 
 
-
     except WebSocketDisconnect:
 
-
         await manager.disconnect(
-
             username
-
         )
 
 
 
 # ------------------------------------
-# Run server
+# Run locally
 # ------------------------------------
 
 if __name__ == "__main__":
