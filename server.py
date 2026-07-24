@@ -322,14 +322,29 @@ get_user_by_phone(username)
 if sender_account:
 
 
+receiver_account = get_user_by_phone(
+receiver
+)
+
+
+chat_id = get_or_create_chat(
+
+sender_account["id"],
+
+receiver_account["id"]
+
+)
+
+
 message_id = save_message(
 
-1,
+chat_id,
 
 sender_account["id"],
 
 text
 
+)
 )
 
 
