@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>WhatsApp Clone</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="/static/style.css">
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+<!-- ======================
+AUTH SCREEN
+======================= -->
+
+<div id="auth">
+
+
+<h2>WhatsApp Clone</h2>
+
+
+<input
+id="username"
+placeholder="Username"
+/>
+
+
+<input
+id="phone"
+placeholder="Phone Number"
+/>
+
+
+<input
+id="password"
+type="password"
+placeholder="Password"
+/>
+
+
+
+<button onclick="register()">
+Create Account
+</button>
+
+
+
+<button onclick="login()">
+Login
+</button>
+
+
+<p id="authMessage"></p>
+
+
+</div>
+
+
+
+
+
+<!-- ======================
+CHAT SCREEN
+======================= -->
+
+
+<div id="chat" class="hidden">
+
+
+
+<div class="header">
+
+
+<h3>
+WhatsApp Clone
+</h3>
+
+
+<span id="status">
+Offline
+</span>
+
+
+</div>
+
+
+
+
+
+<div class="chat-area">
+
+
+<div class="contacts">
+
+
+<h4>
+Contacts
+</h4>
+
+
+
+<input
+id="receiver"
+placeholder="Receiver username"
+/>
+
+
+
+</div>
+
+
+
+
+
+<div class="messages">
+
+
+<ul id="messages">
+
+</ul>
+
+
+
+<div id="typing">
+
+</div>
+
+
+<div class="input-area">
+
+
+<input
+
+id="message"
+
+placeholder="Type message..."
+
+onkeypress="enterSend(event)"
+
+>
+
+
+
+<button onclick="sendMessage()">
+
+Send
+
+</button>
+
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<script src="/static/app.js"></script>
+
+
+</body>
+
+</html>
