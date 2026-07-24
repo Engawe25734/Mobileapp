@@ -1,14 +1,17 @@
-/*
+ /*
 style.css
 
-Frontend styling
 Mobile Chat Application
+Frontend Styling
 */
 
 
 * {
-    box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
+
+    box-sizing:border-box;
+
+    font-family:Arial, Helvetica, sans-serif;
+
 }
 
 
@@ -32,13 +35,16 @@ body {
 
 
 
-/* Main App */
+
+
+/* Main application */
+
 
 .app {
 
-    width:420px;
+    width:430px;
 
-    min-height:700px;
+    height:750px;
 
     background:white;
 
@@ -65,7 +71,9 @@ body {
 
 
 
-/* Login/Register */
+
+/* Authentication */
+
 
 #auth {
 
@@ -80,16 +88,6 @@ body {
 #auth h2 {
 
     color:#075e54;
-
-    margin-bottom:15px;
-
-}
-
-
-
-#auth p {
-
-    color:#666;
 
 }
 
@@ -110,20 +108,9 @@ input {
 
     border:1px solid #ccc;
 
-    outline:none;
-
     font-size:15px;
 
 }
-
-
-
-input:focus {
-
-    border-color:#128c7e;
-
-}
-
 
 
 
@@ -136,7 +123,7 @@ button {
 
     padding:12px;
 
-    margin-top:10px;
+    margin-top:8px;
 
     border:none;
 
@@ -146,9 +133,9 @@ button {
 
     color:white;
 
-    font-size:15px;
-
     cursor:pointer;
+
+    font-size:14px;
 
 }
 
@@ -165,13 +152,14 @@ button:hover {
 
 
 
+
 /* Header */
 
 
 .header {
 
 
-    height:70px;
+    height:65px;
 
     background:#075e54;
 
@@ -189,35 +177,18 @@ button:hover {
 
 
 
-.header h3 {
-
-    margin:0;
-
-}
 
 
 
-
-#status {
-
-    font-size:13px;
-
-}
-
-
-
-
-
-
-
-/* Chat area */
+/* Chat layout */
 
 
 .chat-area {
 
+
     display:flex;
 
-    height:520px;
+    height:560px;
 
 }
 
@@ -226,21 +197,23 @@ button:hover {
 
 
 
-/* User section */
+/* Contacts */
 
 
 .contacts {
 
 
-    width:150px;
+    width:140px;
 
     background:#f5f5f5;
 
     padding:10px;
 
-    border-right:1px solid #ddd;
+    overflow-y:auto;
 
 }
+
+
 
 
 
@@ -248,18 +221,9 @@ button:hover {
 
     color:#075e54;
 
-}
-
-
-
-.contacts p {
-
-    font-size:12px;
-
-    color:#666;
+    font-size:14px;
 
 }
-
 
 
 
@@ -283,14 +247,6 @@ button:hover {
 
 
 
-.messages h4 {
-
-    margin:5px;
-
-    color:#075e54;
-
-}
-
 
 
 #messages {
@@ -298,16 +254,13 @@ button:hover {
 
     flex:1;
 
+    overflow-y:auto;
+
     list-style:none;
 
     padding:5px;
 
-    margin:0;
-
-    overflow-y:auto;
-
 }
-
 
 
 
@@ -320,13 +273,11 @@ button:hover {
 
     padding:10px;
 
-    margin:8px 0;
+    margin:7px 0;
 
     border-radius:12px;
 
     max-width:85%;
-
-    word-wrap:break-word;
 
 }
 
@@ -334,14 +285,10 @@ button:hover {
 
 
 
-
-
-/* Typing */
-
-
 #typing {
 
-    height:25px;
+
+    height:20px;
 
     color:#777;
 
@@ -355,7 +302,7 @@ button:hover {
 
 
 
-/* Message input */
+/* Text input */
 
 
 .input-area {
@@ -374,8 +321,6 @@ button:hover {
 
     flex:1;
 
-    margin:0;
-
 }
 
 
@@ -383,9 +328,108 @@ button:hover {
 .input-area button {
 
 
-    width:120px;
+    width:90px;
 
-    margin:0;
+}
+
+
+
+
+
+
+
+
+/* ==========================
+VIDEO CALL SECTION
+========================== */
+
+
+.video-container {
+
+
+    margin-top:10px;
+
+    background:#222;
+
+    border-radius:10px;
+
+    padding:5px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:5px;
+
+}
+
+
+
+.video-container h4 {
+
+
+    color:white;
+
+    text-align:center;
+
+    margin:5px;
+
+}
+
+
+
+video {
+
+
+    width:100%;
+
+    height:120px;
+
+    background:black;
+
+    border-radius:8px;
+
+    object-fit:cover;
+
+}
+
+
+
+
+
+
+
+/* Call buttons */
+
+
+.contacts button {
+
+
+    font-size:12px;
+
+}
+
+
+
+.contacts button:nth-child(5){
+
+    background:#007bff;
+
+}
+
+
+
+.contacts button:nth-child(6){
+
+    background:#28a745;
+
+}
+
+
+
+.contacts button:nth-child(7){
+
+    background:#dc3545;
 
 }
 
@@ -399,11 +443,11 @@ button:hover {
 .file-area {
 
 
-    margin-top:15px;
+    border-top:1px solid #ddd;
+
+    margin-top:10px;
 
     padding-top:10px;
-
-    border-top:1px solid #ddd;
 
 }
 
@@ -417,15 +461,6 @@ button:hover {
 
 
 
-.file-area input {
-
-    font-size:13px;
-
-}
-
-
-
-
 
 
 /* Features */
@@ -434,9 +469,9 @@ button:hover {
 .features {
 
 
-    background:#f8f8f8;
-
     padding:10px;
+
+    background:#f8f8f8;
 
     border-top:1px solid #ddd;
 
@@ -446,8 +481,6 @@ button:hover {
 
 .features h4 {
 
-    margin:5px;
-
     color:#075e54;
 
 }
@@ -456,7 +489,7 @@ button:hover {
 
 .features p {
 
-    margin:3px;
+    margin:4px;
 
     font-size:13px;
 
@@ -468,37 +501,47 @@ button:hover {
 
 
 
-/* Mobile view */
+/* Mobile */
 
 
 @media(max-width:500px){
 
 
-    .app {
-
-        width:100%;
-
-        height:100vh;
-
-        border-radius:0;
-
-    }
+.app {
 
 
+    width:100%;
 
-    .chat-area {
+    height:100vh;
 
-        height:calc(100vh - 200px);
+    border-radius:0;
 
-    }
+}
 
 
 
-    .contacts {
+.chat-area {
 
-        width:130px;
+    height:calc(100vh - 180px);
 
-    }
+}
+
+
+
+.contacts {
+
+    width:120px;
+
+}
+
+
+
+video {
+
+    height:100px;
+
+}
+
 
 
 }
