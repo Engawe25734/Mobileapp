@@ -7,7 +7,7 @@ Features:
 - User registration
 - Login
 - Private messaging
-- File upload
+- File uploads
 - Message history
 - WebSocket communication
 - WebRTC audio/video calls
@@ -27,9 +27,7 @@ from fastapi import (
 
 
 from fastapi.templating import Jinja2Templates
-
 from fastapi.staticfiles import StaticFiles
-
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -49,13 +47,11 @@ from database import (
 )
 
 
-
 from auth import (
     register_user,
     authenticate_user,
     create_access_token
 )
-
 
 
 from models import (
@@ -64,12 +60,16 @@ from models import (
 )
 
 
-
 from websocket_manager import manager
 
 
 
 
+
+
+# ==================================
+# CREATE APPLICATION
+# ==================================
 
 app = FastAPI(
     title="Mobile Chat App API"
@@ -79,10 +79,15 @@ app = FastAPI(
 
 
 
+
+
+# ==================================
+# STATIC + TEMPLATES
+# ==================================
+
 templates = Jinja2Templates(
     directory="templates"
 )
-
 
 
 app.mount(
@@ -94,6 +99,12 @@ app.mount(
 
 
 
+
+
+
+# ==================================
+# CORS
+# ==================================
 
 app.add_middleware(
 
@@ -113,6 +124,12 @@ app.add_middleware(
 
 
 
+
+
+# ==================================
+# DATABASE
+# ==================================
+
 initialize_database()
 
 
@@ -120,8 +137,14 @@ initialize_database()
 
 
 
+
+# ==================================
+# HOME PAGE
+# ==================================
+
 @app.get("/")
 async def home(request: Request):
+
 
     return templates.TemplateResponse(
 
@@ -138,37 +161,52 @@ async def home(request: Request):
 
 
 
-# ==========================
-# FILE UPLOAD
-# ==========================
 
+# ==================================
+# FILE UPLOAD
+# ==================================
 
 @app.post("/upload")
 async def upload_file(
+
     file: UploadFile = File(...)
+
 ):
 
-    folder="uploads"
+
+    folder = "uploads"
 
 
     os.makedirs(
+
         folder,
+
         exist_ok=True
+
     )
 
 
-    path=os.path.join(
+    filepath = os.path.join(
+
         folder,
+
         file.filename
+
     )
 
 
-    with open(path,"wb") as buffer:
+
+    with open(filepath, "wb") as buffer:
+
 
         shutil.copyfileobj(
+
             file.file,
+
             buffer
+
         )
+
 
 
     save_attachment(
@@ -177,18 +215,19 @@ async def upload_file(
 
         file.filename,
 
-        path,
+        filepath,
 
         file.content_type
 
     )
 
 
+
     return {
 
         "filename":file.filename,
 
-        "path":path,
+        "path":filepath,
 
         "type":file.content_type
 
@@ -199,15 +238,18 @@ async def upload_file(
 
 
 
-# ==========================
-# AUTH
-# ==========================
 
+# ==================================
+# REGISTER
+# ==================================
 
 @app.post("/register")
 def register(
+
     user:RegisterRequest
+
 ):
+
 
     return register_user(
 
@@ -223,12 +265,21 @@ def register(
 
 
 
+
+
+# ==================================
+# LOGIN
+# ==================================
+
 @app.post("/login")
 def login(
+
     user:LoginRequest
+
 ):
 
-    account=authenticate_user(
+
+    account = authenticate_user(
 
         user.phone.strip(),
 
@@ -237,7 +288,9 @@ def login(
     )
 
 
+
     if not account:
+
 
         raise HTTPException(
 
@@ -249,13 +302,14 @@ def login(
 
 
 
-    token=create_access_token(
+    token = create_access_token(
 
         account["id"],
 
         account["username"]
 
     )
+
 
 
     return {
@@ -273,12 +327,19 @@ def login(
 
 
 
+
+# ==================================
+# ONLINE USERS
+# ==================================
+
 @app.get("/online")
 def online():
+
 
     return {
 
         "users":
+
         manager.online_users()
 
     }
@@ -288,36 +349,48 @@ def online():
 
 
 
-# ==========================
-# MESSAGE HISTORY
-# ==========================
 
+# ==================================
+# MESSAGE HISTORY
+# ==================================
 
 @app.get("/messages/{user1}/{user2}")
 def messages(
+
     user1:str,
+
     user2:str
+
 ):
 
-    first=get_user_by_username(
-        user1
+
+    first = get_user_by_username(
+
+        user1.strip()
+
     )
 
 
-    second=get_user_by_username(
-        user2
+    second = get_user_by_username(
+
+        user2.strip()
+
     )
+
 
 
     if not first or not second:
 
+
         return {
+
             "messages":[]
+
         }
 
 
 
-    data=get_user_messages(
+    history = get_user_messages(
 
         first["id"],
 
@@ -329,7 +402,9 @@ def messages(
     result=[]
 
 
-    for msg in data:
+
+    for msg in history:
+
 
         result.append({
 
@@ -340,6 +415,7 @@ def messages(
             "timestamp":msg["timestamp"]
 
         })
+
 
 
     return {
@@ -355,10 +431,9 @@ def messages(
 
 
 
-# ==========================
-# WEBSOCKET
-# ==========================
-
+# ==================================
+# WEBSOCKET SERVER
+# ==================================
 
 @app.websocket("/ws/{username}")
 async def websocket_endpoint(
@@ -390,7 +465,7 @@ async def websocket_endpoint(
         while True:
 
 
-            raw=await websocket.receive_text()
+            raw = await websocket.receive_text()
 
 
             data=json.loads(raw)
@@ -401,40 +476,49 @@ async def websocket_endpoint(
 
 
 
-            # --------------------------
-            # PRIVATE MESSAGE
-            # --------------------------
+
+
+
+            # =========================
+            # CHAT MESSAGE
+            # =========================
 
             if msg_type=="message":
 
 
-                receiver=data["receiver"]
+                receiver=data["receiver"].strip()
 
-                text=data["message"]
+                text=data["message"].strip()
 
 
-                sender_account=get_user_by_username(
+
+                sender=get_user_by_username(
+
                     username
+
                 )
 
 
-                receiver_account=get_user_by_username(
+                receiver_user=get_user_by_username(
+
                     receiver
+
                 )
+
 
 
                 message_id=None
 
 
 
-                if sender_account and receiver_account:
+                if sender and receiver_user:
 
 
                     chat_id=get_or_create_chat(
 
-                        sender_account["id"],
+                        sender["id"],
 
-                        receiver_account["id"]
+                        receiver_user["id"]
 
                     )
 
@@ -443,7 +527,7 @@ async def websocket_endpoint(
 
                         chat_id,
 
-                        sender_account["id"],
+                        sender["id"],
 
                         text
 
@@ -457,13 +541,13 @@ async def websocket_endpoint(
 
                     {
 
-                    "type":"message",
+                        "type":"message",
 
-                    "sender":username,
+                        "sender":username,
 
-                    "message":text,
+                        "message":text,
 
-                    "message_id":message_id
+                        "message_id":message_id
 
                     }
 
@@ -473,9 +557,12 @@ async def websocket_endpoint(
 
 
 
-            # --------------------------
+
+
+
+            # =========================
             # TYPING
-            # --------------------------
+            # =========================
 
             elif msg_type=="typing":
 
@@ -494,9 +581,12 @@ async def websocket_endpoint(
 
 
 
-            # --------------------------
-            # READ
-            # --------------------------
+
+
+
+            # =========================
+            # READ RECEIPT
+            # =========================
 
             elif msg_type=="read":
 
@@ -515,9 +605,10 @@ async def websocket_endpoint(
 
 
 
-            # --------------------------
+
+            # =========================
             # CREATE GROUP CALL
-            # --------------------------
+            # =========================
 
             elif msg_type=="create_call":
 
@@ -525,7 +616,8 @@ async def websocket_endpoint(
                 room=data["room"]
 
 
-                await manager.join_call_room(
+
+                joined = await manager.join_call_room(
 
                     room,
 
@@ -534,71 +626,95 @@ async def websocket_endpoint(
                 )
 
 
-                await websocket.send_text(json.dumps({
 
-                    "type":"call_created",
-
-                    "room":room
-
-                }))
+                if joined:
 
 
+                    await websocket.send_text(json.dumps({
+
+                        "type":"call_created",
+
+                        "room":room,
+
+                        "users":
+
+                        manager.get_room_users(room)
+
+                    }))
 
 
 
 
 
-            # --------------------------
+            # =========================
             # JOIN GROUP CALL
-            # --------------------------
+            # =========================
 
             elif msg_type=="join_call":
 
 
-                await manager.join_call_room(
+                room=data["room"]
 
-                    data["room"],
+
+
+                joined = await manager.join_call_room(
+
+                    room,
 
                     username
 
                 )
 
 
-                await manager.broadcast_call_signal(
 
-                    data["room"],
-
-                    username,
-
-                    {
-
-                    "type":"user_joined",
-
-                    "user":username
-
-                    }
-
-                )
+                if joined:
 
 
+                    await manager.broadcast_call_signal(
+
+                        room,
+
+                        username,
+
+                        {
+
+                            "type":"user_joined",
+
+                            "user":username
+
+                        }
+
+                    )
+
+
+
+                    await websocket.send_text(json.dumps({
+
+                        "type":"room_users",
+
+                        "users":
+
+                        manager.get_room_users(room)
+
+                    }))
 
 
 
 
 
-            # --------------------------
-            # GROUP WEBRTC SIGNALS
-            # --------------------------
+
+
+            # =========================
+            # WEBRTC GROUP SIGNALS
+            # =========================
 
             elif msg_type in [
 
-                "group_offer",
+                "offer",
 
-                "group_answer",
+                "answer",
 
-                "group_candidate",
-
-                "end_call"
+                "candidate"
 
             ]:
 
@@ -619,20 +735,83 @@ async def websocket_endpoint(
 
 
 
-            # --------------------------
-            # LEAVE CALL
-            # --------------------------
+
+            # =========================
+            # END CALL
+            # =========================
+
+            elif msg_type=="end_call":
+
+
+                room=data.get("room")
+
+
+
+                if room:
+
+
+                    await manager.broadcast_call_signal(
+
+                        room,
+
+                        username,
+
+                        {
+
+                            "type":"end_call",
+
+                            "user":username
+
+                        }
+
+                    )
+
+
+
+
+
+
+
+
+            # =========================
+            # LEAVE CALL ROOM
+            # =========================
 
             elif msg_type=="leave_call":
 
 
+                room=data["room"]
+
+
+
                 await manager.leave_call_room(
 
-                    data["room"],
+                    room,
 
                     username
 
                 )
+
+
+
+                await manager.broadcast_call_signal(
+
+                    room,
+
+                    username,
+
+                    {
+
+                        "type":"user_left",
+
+                        "user":username
+
+                    }
+
+                )
+
+
+
 
 
 
@@ -653,6 +832,11 @@ async def websocket_endpoint(
 
 
 
+
+
+# ==================================
+# START SERVER
+# ==================================
 
 if __name__=="__main__":
 
