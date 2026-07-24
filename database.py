@@ -1,15 +1,16 @@
 """
 database.py
 
-Server-side database configuration for mobile app.
+Database manager for Mobile Chat App.
 
-Creates and manages:
+Supports:
 - Users
 - Private chats
 - Messages
 - Attachments
 - Groups
 - Group members
+- Group audio/video call rooms
 """
 
 
@@ -17,13 +18,14 @@ import sqlite3
 from datetime import datetime
 
 
+
 DATABASE_FILE = "chat.db"
 
 
 
-# ------------------------------------
-# Database connection
-# ------------------------------------
+# ==============================
+# Connection
+# ==============================
 
 def get_connection():
 
@@ -38,9 +40,10 @@ def get_connection():
 
 
 
-# ------------------------------------
-# Initialize database tables
-# ------------------------------------
+
+# ==============================
+# Initialize Database
+# ==============================
 
 def initialize_database():
 
@@ -49,8 +52,9 @@ def initialize_database():
     cursor = conn.cursor()
 
 
+
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS users (
+    CREATE TABLE IF NOT EXISTS users(
 
         id INTEGER PRIMARY KEY AUTOINCREMENT,
 
@@ -65,6 +69,21 @@ def initialize_database():
         last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
 
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS chats(
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        user_one INTEGER,
+
+        user_two INTEGER,
+
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 
     )
     """)
@@ -72,52 +91,21 @@ def initialize_database():
 
 
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS chats (
+    CREATE TABLE IF NOT EXISTS messages(
 
         id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-        user_one INTEGER NOT NULL,
+        chat_id INTEGER,
 
-        user_two INTEGER NOT NULL,
+        sender_id INTEGER,
 
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        message TEXT,
 
-        FOREIGN KEY(user_one)
-        REFERENCES users(id),
-
-        FOREIGN KEY(user_two)
-        REFERENCES users(id)
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 
     )
     """)
 
-
-
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS messages (
-
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-        chat_id INTEGER NOT NULL,
-
-        sender_id INTEGER NOT NULL,
-
-        message TEXT NOT NULL,
-
-        delivered INTEGER DEFAULT 0,
-
-        read INTEGER DEFAULT 0,
-
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-        FOREIGN KEY(chat_id)
-        REFERENCES chats(id),
-
-        FOREIGN KEY(sender_id)
-        REFERENCES users(id)
-
-    )
-    """)
 
 
 
@@ -134,29 +122,26 @@ def initialize_database():
 
         filetype TEXT,
 
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-        FOREIGN KEY(message_id)
-        REFERENCES messages(id)
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 
     )
     """)
 
 
 
+
+    # GROUPS
+
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS groups (
+    CREATE TABLE IF NOT EXISTS groups(
 
         id INTEGER PRIMARY KEY AUTOINCREMENT,
 
         name TEXT NOT NULL,
 
-        created_by INTEGER NOT NULL,
+        created_by INTEGER,
 
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-        FOREIGN KEY(created_by)
-        REFERENCES users(id)
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 
     )
     """)
@@ -164,19 +149,48 @@ def initialize_database():
 
 
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS group_members (
+    CREATE TABLE IF NOT EXISTS group_members(
 
         id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-        group_id INTEGER NOT NULL,
+        group_id INTEGER,
 
-        user_id INTEGER NOT NULL,
+        user_id INTEGER
 
-        FOREIGN KEY(group_id)
-        REFERENCES groups(id),
+    )
+    """)
 
-        FOREIGN KEY(user_id)
-        REFERENCES users(id)
+
+
+
+    # VIDEO CALL ROOMS
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS call_rooms(
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        room_name TEXT UNIQUE,
+
+        created_by INTEGER,
+
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+
+    )
+    """)
+
+
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS call_participants(
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        room_id INTEGER,
+
+        user_id INTEGER,
+
+        joined_at DATETIME DEFAULT CURRENT_TIMESTAMP
 
     )
     """)
@@ -188,28 +202,23 @@ def initialize_database():
     conn.close()
 
 
-    print(
-        "✅ Database initialized successfully"
-    )
+    print("✅ Database initialized successfully")
 
 
 
 
 
-# ------------------------------------
-# User functions
-# ------------------------------------
+
+# ==============================
+# Users
+# ==============================
 
 
-def create_user(
-    username,
-    phone,
-    password_hash
-):
+def create_user(username, phone, password_hash):
 
-    conn = get_connection()
+    conn=get_connection()
 
-    cursor = conn.cursor()
+    cursor=conn.cursor()
 
 
     cursor.execute(
@@ -220,9 +229,7 @@ def create_user(
         phone,
         password_hash
         )
-
-        VALUES (?,?,?)
-
+        VALUES(?,?,?)
         """,
         (
             username,
@@ -235,7 +242,7 @@ def create_user(
     conn.commit()
 
 
-    user_id = cursor.lastrowid
+    user_id=cursor.lastrowid
 
 
     conn.close()
@@ -247,43 +254,11 @@ def create_user(
 
 
 
-def get_user_by_phone(phone):
-
-    conn = get_connection()
-
-    cursor = conn.cursor()
-
-
-    cursor.execute(
-        """
-        SELECT *
-        FROM users
-        WHERE phone=?
-        """,
-        (phone,)
-    )
-
-
-    user = cursor.fetchone()
-
-
-    conn.close()
-
-
-    return user
-
-
-
-
-
-# ADDED FUNCTION
-# Used by chat system
-
 def get_user_by_username(username):
 
-    conn = get_connection()
+    conn=get_connection()
 
-    cursor = conn.cursor()
+    cursor=conn.cursor()
 
 
     cursor.execute(
@@ -296,7 +271,7 @@ def get_user_by_username(username):
     )
 
 
-    user = cursor.fetchone()
+    user=cursor.fetchone()
 
 
     conn.close()
@@ -308,161 +283,57 @@ def get_user_by_username(username):
 
 
 
-def update_user_status(
-    user_id,
-    status
-):
 
-    conn = get_connection()
+def get_user_by_phone(phone):
 
-    cursor = conn.cursor()
+    conn=get_connection()
+
+    cursor=conn.cursor()
 
 
     cursor.execute(
         """
-        UPDATE users
-
-        SET online=?,
-        last_seen=?
-
-        WHERE id=?
-
+        SELECT *
+        FROM users
+        WHERE phone=?
         """,
-        (
-            status,
-            datetime.now(),
-            user_id
-        )
+        (phone,)
     )
 
 
-    conn.commit()
-
-    conn.close()
-
-
-
-
-
-# ------------------------------------
-# Message functions
-# ------------------------------------
-
-
-def save_message(
-    chat_id,
-    sender_id,
-    message
-):
-
-    conn = get_connection()
-
-    cursor = conn.cursor()
-
-
-    cursor.execute(
-        """
-        INSERT INTO messages
-        (
-        chat_id,
-        sender_id,
-        message
-        )
-
-        VALUES(?,?,?)
-
-        """,
-        (
-            chat_id,
-            sender_id,
-            message
-        )
-    )
-
-
-    conn.commit()
-
-
-    message_id = cursor.lastrowid
+    user=cursor.fetchone()
 
 
     conn.close()
 
 
-    return message_id
+    return user
 
 
 
 
 
-def get_chat_messages(chat_id):
 
-    conn = get_connection()
+# ==============================
+# Private Chat
+# ==============================
 
-    cursor = conn.cursor()
+
+def get_or_create_chat(user_one,user_two):
+
+    conn=get_connection()
+
+    cursor=conn.cursor()
+
 
 
     cursor.execute(
         """
-        SELECT
-        messages.id,
-        users.username,
-        messages.message,
-        messages.delivered,
-        messages.read,
-        messages.timestamp
-
-        FROM messages
-
-        JOIN users
-
-        ON messages.sender_id = users.id
-
-        WHERE chat_id=?
-
-        ORDER BY timestamp ASC
-
-        """,
-        (chat_id,)
-    )
-
-
-    messages = cursor.fetchall()
-
-
-    conn.close()
-
-
-    return messages
-
-
-
-
-
-# ------------------------------------
-# Chat functions
-# ------------------------------------
-
-
-def get_or_create_chat(
-    user_one,
-    user_two
-):
-
-    conn = get_connection()
-
-    cursor = conn.cursor()
-
-
-    cursor.execute(
-        """
-        SELECT id
-        FROM chats
+        SELECT id FROM chats
         WHERE
         (user_one=? AND user_two=?)
         OR
         (user_one=? AND user_two=?)
-
         """,
         (
             user_one,
@@ -473,7 +344,7 @@ def get_or_create_chat(
     )
 
 
-    chat = cursor.fetchone()
+    chat=cursor.fetchone()
 
 
 
@@ -489,13 +360,9 @@ def get_or_create_chat(
     cursor.execute(
         """
         INSERT INTO chats
-        (
-        user_one,
-        user_two
-        )
+        (user_one,user_two)
 
         VALUES(?,?)
-
         """,
         (
             user_one,
@@ -504,10 +371,11 @@ def get_or_create_chat(
     )
 
 
+
     conn.commit()
 
 
-    chat_id = cursor.lastrowid
+    chat_id=cursor.lastrowid
 
 
     conn.close()
@@ -519,28 +387,318 @@ def get_or_create_chat(
 
 
 
-def get_user_messages(
-    user_one,
-    user_two
-):
+def save_message(chat_id,sender_id,message):
 
-    chat_id = get_or_create_chat(
+    conn=get_connection()
+
+    cursor=conn.cursor()
+
+
+
+    cursor.execute(
+        """
+        INSERT INTO messages
+        (
+        chat_id,
+        sender_id,
+        message
+        )
+        VALUES(?,?,?)
+        """,
+        (
+            chat_id,
+            sender_id,
+            message
+        )
+    )
+
+
+
+    conn.commit()
+
+
+    msg_id=cursor.lastrowid
+
+
+    conn.close()
+
+
+    return msg_id
+
+
+
+
+
+def get_user_messages(user_one,user_two):
+
+    chat_id=get_or_create_chat(
         user_one,
         user_two
     )
 
 
-    return get_chat_messages(
-        chat_id
+    conn=get_connection()
+
+    cursor=conn.cursor()
+
+
+    cursor.execute(
+        """
+        SELECT
+        users.username,
+        messages.message,
+        messages.timestamp
+
+        FROM messages
+
+        JOIN users
+
+        ON users.id=messages.sender_id
+
+        WHERE chat_id=?
+
+        ORDER BY timestamp
+
+        """,
+        (chat_id,)
     )
 
 
+    data=cursor.fetchall()
+
+
+    conn.close()
+
+
+    return data
 
 
 
-# ------------------------------------
+
+
+# ==============================
+# Groups
+# ==============================
+
+
+def create_group(name,creator_id):
+
+    conn=get_connection()
+
+    cursor=conn.cursor()
+
+
+    cursor.execute(
+        """
+        INSERT INTO groups
+        (name,created_by)
+
+        VALUES(?,?)
+        """,
+        (
+            name,
+            creator_id
+        )
+    )
+
+
+    conn.commit()
+
+
+    group_id=cursor.lastrowid
+
+
+    conn.close()
+
+
+    add_group_member(
+        group_id,
+        creator_id
+    )
+
+
+    return group_id
+
+
+
+
+
+def add_group_member(group_id,user_id):
+
+    conn=get_connection()
+
+    cursor=conn.cursor()
+
+
+    cursor.execute(
+        """
+        INSERT INTO group_members
+        (group_id,user_id)
+
+        VALUES(?,?)
+        """,
+        (
+            group_id,
+            user_id
+        )
+    )
+
+
+    conn.commit()
+
+    conn.close()
+
+
+
+
+
+def get_group_members(group_id):
+
+    conn=get_connection()
+
+    cursor=conn.cursor()
+
+
+    cursor.execute(
+        """
+        SELECT users.username
+
+        FROM group_members
+
+        JOIN users
+
+        ON users.id=group_members.user_id
+
+        WHERE group_id=?
+
+        """,
+        (group_id,)
+    )
+
+
+    users=cursor.fetchall()
+
+
+    conn.close()
+
+
+    return users
+
+
+
+
+
+
+# ==============================
+# Group Call Rooms
+# ==============================
+
+
+def create_call_room(room_name,user_id):
+
+    conn=get_connection()
+
+    cursor=conn.cursor()
+
+
+    cursor.execute(
+        """
+        INSERT INTO call_rooms
+        (
+        room_name,
+        created_by
+        )
+
+        VALUES(?,?)
+        """,
+        (
+            room_name,
+            user_id
+        )
+    )
+
+
+    conn.commit()
+
+
+    room_id=cursor.lastrowid
+
+
+    conn.close()
+
+
+    return room_id
+
+
+
+
+
+
+def join_call_room(room_id,user_id):
+
+    conn=get_connection()
+
+    cursor=conn.cursor()
+
+
+    cursor.execute(
+        """
+        INSERT INTO call_participants
+        (
+        room_id,
+        user_id
+        )
+
+        VALUES(?,?)
+        """,
+        (
+            room_id,
+            user_id
+        )
+    )
+
+
+    conn.commit()
+
+    conn.close()
+
+
+
+
+
+
+def leave_call_room(room_id,user_id):
+
+    conn=get_connection()
+
+    cursor=conn.cursor()
+
+
+    cursor.execute(
+        """
+        DELETE FROM call_participants
+
+        WHERE room_id=?
+        AND user_id=?
+
+        """,
+        (
+            room_id,
+            user_id
+        )
+    )
+
+
+    conn.commit()
+
+    conn.close()
+
+
+
+
+# ==============================
 # Attachments
-# ------------------------------------
+# ==============================
 
 
 def save_attachment(
@@ -550,9 +708,9 @@ def save_attachment(
     filetype
 ):
 
-    conn = get_connection()
+    conn=get_connection()
 
-    cursor = conn.cursor()
+    cursor=conn.cursor()
 
 
     cursor.execute(
@@ -566,7 +724,6 @@ def save_attachment(
         )
 
         VALUES(?,?,?,?)
-
         """,
         (
             message_id,
@@ -585,10 +742,6 @@ def save_attachment(
 
 
 
-# ------------------------------------
-# Run database setup
-# ------------------------------------
-
-if __name__ == "__main__":
+if __name__=="__main__":
 
     initialize_database()
