@@ -17,8 +17,6 @@ from datetime import datetime
 
 DATABASE = "phone_storage.db"
 
-
-
 # ------------------------------------
 # Database initialization
 # ------------------------------------
@@ -75,10 +73,6 @@ def init_storage():
         "📱 Local phone storage ready"
     )
 
-
-
-
-
 # ------------------------------------
 # Save received message
 # ------------------------------------
@@ -122,10 +116,6 @@ def save_message(
 
     conn.close()
 
-
-
-
-
 # ------------------------------------
 # Save offline message
 # ------------------------------------
@@ -168,11 +158,6 @@ def save_offline_message(
     print(
         "💾 Message stored offline"
     )
-
-
-
-
-
 # ------------------------------------
 # Get queued messages
 # ------------------------------------
@@ -204,10 +189,6 @@ def get_offline_messages():
 
     return messages
 
-
-
-
-
 # ------------------------------------
 # Delete sent queue item
 # ------------------------------------
@@ -236,10 +217,6 @@ def remove_offline_message(
     conn.commit()
 
     conn.close()
-
-
-
-
 # ------------------------------------
 # Show local history
 # ------------------------------------
