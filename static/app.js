@@ -1,39 +1,47 @@
 /*
-Frontend JavaScript engine
-Mobile Chat App
+Mobile Chat App Frontend
 
 Features:
 - Authentication
-- Messaging
-- File upload
+- Real-time messaging
+- WebSocket connection
 - Audio calls
 - Video calls
+- Group calls
 */
 
 
-let token = "";
-
 let username = "";
+
+let token = "";
 
 let socket = null;
 
 
 
-// WebRTC
+// ===============================
+// WEBRTC
+// ===============================
 
-let peerConnection = null;
 
 let localStream = null;
+
+
+// multiple users
+let peers = {};
 
 
 
 const rtcConfig = {
 
-    iceServers: [
+
+    iceServers:[
 
         {
+
             urls:
             "stun:stun.l.google.com:19302"
+
         }
 
     ]
@@ -42,60 +50,66 @@ const rtcConfig = {
 
 
 
+// ===============================
+// REGISTER
+// ===============================
 
-
-// ================================
-// Register
-// ================================
 
 async function register(){
 
 
-let usernameInput =
-document.getElementById("username").value.trim();
+    let username =
+    document.getElementById("username").value.trim();
 
 
-let phone =
-document.getElementById("phone").value.trim();
+    let phone =
+    document.getElementById("phone").value.trim();
 
 
-let password =
-document.getElementById("password").value;
-
-
-
-let response =
-await fetch("/register",{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":"application/json"
-
-},
-
-body:JSON.stringify({
-
-username:usernameInput,
-
-phone:phone,
-
-password:password
-
-})
-
-});
+    let password =
+    document.getElementById("password").value;
 
 
 
-let result =
-await response.json();
+    let response =
+    await fetch("/register",{
+
+
+        method:"POST",
+
+
+        headers:{
+
+
+            "Content-Type":"application/json"
+
+        },
+
+
+        body:JSON.stringify({
+
+            username,
+
+            phone,
+
+            password
+
+        })
+
+
+    });
 
 
 
-document.getElementById("authMessage").innerHTML =
-result.message;
+    let result =
+    await response.json();
+
+
+
+    document.getElementById(
+        "authMessage"
+    ).innerHTML =
+    result.message || "Account created";
 
 
 }
@@ -105,113 +119,117 @@ result.message;
 
 
 
-// ================================
-// Login
-// ================================
+
+// ===============================
+// LOGIN
+// ===============================
+
 
 async function login(){
 
 
-let phone =
-document.getElementById("phone").value.trim();
+    let phone =
+    document.getElementById("phone").value;
+
+
+    let password =
+    document.getElementById("password").value;
 
 
 
-let password =
-document.getElementById("password").value;
+
+    let response =
+    await fetch("/login",{
+
+
+        method:"POST",
+
+
+        headers:{
+
+
+            "Content-Type":"application/json"
+
+        },
+
+
+        body:JSON.stringify({
+
+            phone,
+
+            password
+
+        })
+
+    });
 
 
 
-let response =
-await fetch("/login",{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":"application/json"
-
-},
-
-body:JSON.stringify({
-
-phone:phone,
-
-password:password
-
-})
-
-});
+    let data =
+    await response.json();
 
 
 
-let result =
-await response.json();
+    if(data.access_token){
 
 
-
-if(result.access_token){
-
-
-token =
-result.access_token;
+        token=data.access_token;
 
 
-username =
-result.username.trim();
+        username=data.username;
 
 
-
-localStorage.setItem(
-"token",
-token
-);
-
+        localStorage.setItem(
+            "token",
+            token
+        );
 
 
-openChat();
+        openChat();
 
+
+    }
+
+    else{
+
+
+        alert("Login failed");
+
+
+    }
 
 
 }
 
-else{
-
-
-alert("Login failed");
-
-
-}
-
-
-}
 
 
 
 
 
-// ================================
-// Open Chat
-// ================================
+
+// ===============================
+// OPEN CHAT
+// ===============================
+
 
 function openChat(){
 
 
-document
-.getElementById("auth")
-.classList
-.add("hidden");
+    document
+    .getElementById("auth")
+    .classList
+    .add("hidden");
 
 
 
-document
-.getElementById("chat")
-.classList
-.remove("hidden");
+    document
+    .getElementById("chat")
+    .classList
+    .remove("hidden");
 
 
 
-connectSocket();
+    connectSocket();
 
 
 }
@@ -221,251 +239,218 @@ connectSocket();
 
 
 
-// ================================
-// WebSocket
-// ================================
+
+// ===============================
+// WEBSOCKET
+// ===============================
+
 
 function connectSocket(){
 
 
-let protocol =
-window.location.protocol === "https:"
-?
-"wss://"
-:
-"ws://";
+    let protocol =
+    window.location.protocol==="https:"
+    ?
+    "wss://"
+    :
+    "ws://";
 
 
 
-socket =
-new WebSocket(
+    socket =
+    new WebSocket(
 
-protocol +
+        protocol +
 
-window.location.host +
+        window.location.host +
 
-"/ws/" +
+        "/ws/" +
 
-encodeURIComponent(username)
+        username
 
-);
+    );
 
 
 
 
-socket.onopen=function(){
 
+    socket.onopen=function(){
 
-document.getElementById("status").innerHTML =
-"🟢 Online";
 
+        document
+        .getElementById("status")
+        .innerHTML="🟢 Online";
 
-};
 
+    };
 
 
 
 
-socket.onmessage = async function(event){
 
+    socket.onmessage=async function(event){
 
-let data =
-JSON.parse(event.data);
 
 
+        let data =
+        JSON.parse(event.data);
 
-console.log(data);
 
 
+        console.log(data);
 
 
-if(data.type==="message"){
 
 
-displayMessage(
 
-data.sender,
+        if(data.type==="message"){
 
-data.message
 
-);
+            displayMessage(
 
+                data.sender,
 
-}
+                data.message
 
+            );
 
 
+        }
 
 
-// incoming call
 
-if(data.type==="call_request"){
 
 
-let answer =
-confirm(
+        if(data.type==="typing"){
 
-data.sender+
-" is calling. Accept?"
 
-);
+            document
+            .getElementById("typing")
+            .innerHTML =
+            data.sender+
+            " typing...";
 
 
+        }
 
-if(answer){
 
 
-createPeerConnection();
 
 
-}
 
 
-}
+        if(data.type==="offer"){
 
 
+            await receiveCall(data);
 
 
+        }
 
 
-if(data.type==="offer"){
 
 
-await receiveOffer(data);
 
 
-}
+        if(data.type==="answer"){
 
 
+            let pc =
+            peers[data.sender];
 
 
+            if(pc){
 
 
-if(data.type==="answer"){
+                await pc.setRemoteDescription(
 
+                    new RTCSessionDescription(
+                        data.answer
+                    )
 
-await peerConnection.setRemoteDescription(
+                );
 
-new RTCSessionDescription(
+            }
 
-data.answer
 
-)
+        }
 
-);
 
 
-}
 
 
 
 
+        if(data.type==="candidate"){
 
-if(data.type==="candidate"){
 
+            let pc =
+            peers[data.sender];
 
-if(peerConnection){
 
 
-await peerConnection.addIceCandidate(
+            if(pc){
 
-data.candidate
 
-);
+                await pc.addIceCandidate(
 
+                    data.candidate
 
-}
+                );
 
-}
 
+            }
 
 
+        }
 
-if(data.type==="end_call"){
 
 
-endCall();
 
 
-}
 
+        if(data.type==="user_joined"){
 
 
-};
+            console.log(
+                data.user+
+                " joined call"
+            );
 
 
+        }
 
 
 
-socket.onclose=function(){
 
 
-document.getElementById("status").innerHTML =
-"🔴 Disconnected";
+        if(data.type==="end_call"){
 
 
-};
+            endCall();
 
-}
 
+        }
 
 
 
 
-// ================================
-// Create WebRTC Connection
-// ================================
+    };
 
-function createPeerConnection(){
 
 
-peerConnection =
-new RTCPeerConnection(
-rtcConfig
-);
 
 
 
-peerConnection.onicecandidate =
-event=>{
+    socket.onclose=function(){
 
 
-if(event.candidate){
+        document
+        .getElementById("status")
+        .innerHTML="🔴 Offline";
 
 
-socket.send(JSON.stringify({
-
-type:"candidate",
-
-receiver:
-document.getElementById("receiver").value,
-
-candidate:event.candidate
-
-
-}));
-
-
-}
-
-
-};
-
-
-
-
-peerConnection.ontrack =
-event=>{
-
-
-document
-.getElementById("remoteVideo")
-.srcObject =
-event.streams[0];
-
-
-};
-
+    };
 
 
 }
@@ -475,14 +460,53 @@ event.streams[0];
 
 
 
-// ================================
-// Start Audio Call
-// ================================
 
-async function startAudioCall(){
+// ===============================
+// SEND MESSAGE
+// ===============================
 
 
-await makeCall(false);
+function sendMessage(){
+
+
+
+    let receiver =
+    document.getElementById("receiver").value;
+
+
+
+    let message =
+    document.getElementById("message").value;
+
+
+
+    if(!receiver || !message)
+        return;
+
+
+
+    socket.send(JSON.stringify({
+
+        type:"message",
+
+        receiver,
+
+        message
+
+    }));
+
+
+
+    displayMessage(
+        "You",
+        message
+    );
+
+
+
+    document.getElementById(
+        "message"
+    ).value="";
 
 
 }
@@ -491,100 +515,209 @@ await makeCall(false);
 
 
 
-// ================================
-// Start Video Call
-// ================================
+
+
+
+function displayMessage(
+    sender,
+    message
+){
+
+
+    let li =
+    document.createElement("li");
+
+
+
+    li.innerHTML =
+    "<b>"+
+    sender+
+    "</b>: "+
+    message;
+
+
+
+    document
+    .getElementById("messages")
+    .appendChild(li);
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// CREATE PEER CONNECTION
+// ===============================
+
+
+function createPeer(user){
+
+
+
+    let pc =
+    new RTCPeerConnection(
+        rtcConfig
+    );
+
+
+
+    peers[user]=pc;
+
+
+
+
+
+    pc.onicecandidate=function(event){
+
+
+        if(event.candidate){
+
+
+            socket.send(JSON.stringify({
+
+                type:"candidate",
+
+                receiver:user,
+
+                candidate:event.candidate
+
+
+            }));
+
+
+        }
+
+
+    };
+
+
+
+
+
+    pc.ontrack=function(event){
+
+
+        let video =
+        document.createElement("video");
+
+
+
+        video.autoplay=true;
+
+
+        video.srcObject =
+        event.streams[0];
+
+
+
+        document
+        .getElementById("remoteVideo")
+        .appendChild(video);
+
+
+    };
+
+
+
+    return pc;
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// START VIDEO CALL
+// ===============================
+
 
 async function startVideoCall(){
 
 
-await makeCall(true);
-
-
-}
-
-
-
-
-
-async function makeCall(video){
-
-
-let receiver =
-document.getElementById("receiver").value.trim();
+    let receiver =
+    document.getElementById(
+        "receiver"
+    ).value;
 
 
 
-if(!receiver){
+    localStream =
+    await navigator.mediaDevices.getUserMedia({
 
-alert("Enter receiver username");
+        audio:true,
 
-return;
+        video:true
 
-}
-
-
-
-localStream =
-await navigator.mediaDevices.getUserMedia({
-
-audio:true,
-
-video:video
-
-});
+    });
 
 
 
-document
-.getElementById("localVideo")
-.srcObject =
-localStream;
+
+    document
+    .getElementById("localVideo")
+    .srcObject =
+    localStream;
 
 
 
-createPeerConnection();
+
+
+    let pc =
+    createPeer(receiver);
 
 
 
-localStream.getTracks()
-.forEach(track=>{
+    localStream.getTracks()
+    .forEach(track=>{
 
 
-peerConnection.addTrack(
+        pc.addTrack(
 
-track,
+            track,
 
-localStream
+            localStream
 
-);
-
-
-});
+        );
 
 
-
-let offer =
-await peerConnection.createOffer();
+    });
 
 
 
-await peerConnection.setLocalDescription(
-offer
-);
+
+
+    let offer =
+    await pc.createOffer();
 
 
 
-socket.send(JSON.stringify({
+    await pc.setLocalDescription(
+        offer
+    );
 
-type:"offer",
 
-receiver:receiver,
 
-offer:offer
 
-}));
 
+    socket.send(JSON.stringify({
+
+        type:"offer",
+
+        receiver,
+
+        offer
+
+
+    }));
 
 
 }
@@ -594,85 +727,105 @@ offer:offer
 
 
 
-// ================================
-// Receive Call Offer
-// ================================
-
-async function receiveOffer(data){
 
 
-createPeerConnection();
+// ===============================
+// RECEIVE CALL
+// ===============================
 
 
-
-localStream =
-await navigator.mediaDevices.getUserMedia({
-
-audio:true,
-
-video:true
-
-});
+async function receiveCall(data){
 
 
 
-document
-.getElementById("localVideo")
-.srcObject =
-localStream;
+    let sender=data.sender;
 
 
 
-localStream.getTracks()
-.forEach(track=>{
-
-
-peerConnection.addTrack(
-
-track,
-
-localStream
-
-);
-
-
-});
+    let pc =
+    createPeer(sender);
 
 
 
-await peerConnection.setRemoteDescription(
-
-new RTCSessionDescription(
-
-data.offer
-
-)
-
-);
 
 
+    localStream =
+    await navigator.mediaDevices.getUserMedia({
 
-let answer =
-await peerConnection.createAnswer();
+        audio:true,
+
+        video:true
+
+    });
 
 
 
-await peerConnection.setLocalDescription(
-answer
-);
+
+
+    document
+    .getElementById("localVideo")
+    .srcObject =
+    localStream;
 
 
 
-socket.send(JSON.stringify({
 
-type:"answer",
 
-receiver:data.sender,
+    localStream.getTracks()
+    .forEach(track=>{
 
-answer:answer
 
-}));
+        pc.addTrack(
 
+            track,
+
+            localStream
+
+        );
+
+
+    });
+
+
+
+
+
+    await pc.setRemoteDescription(
+
+        new RTCSessionDescription(
+            data.offer
+        )
+
+    );
+
+
+
+
+
+    let answer =
+    await pc.createAnswer();
+
+
+
+
+    await pc.setLocalDescription(
+        answer
+    );
+
+
+
+
+
+    socket.send(JSON.stringify({
+
+        type:"answer",
+
+        receiver:sender,
+
+        answer
+
+
+    }));
 
 
 }
@@ -682,240 +835,130 @@ answer:answer
 
 
 
-// ================================
-// End Call
-// ================================
+
+
+// ===============================
+// CREATE GROUP CALL
+// ===============================
+
+
+function createGroupCall(){
+
+
+    let room =
+    "room_"+Date.now();
+
+
+
+    socket.send(JSON.stringify({
+
+        type:"create_call",
+
+        room
+
+
+    }));
+
+
+
+    alert(
+        "Room created: "+room
+    );
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// JOIN GROUP CALL
+// ===============================
+
+
+function joinGroupCall(){
+
+
+    let room =
+    prompt(
+        "Enter room ID"
+    );
+
+
+
+    socket.send(JSON.stringify({
+
+        type:"join_call",
+
+        room
+
+
+    }));
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// END CALL
+// ===============================
+
 
 function endCall(){
 
 
 
-if(localStream){
+    if(localStream){
 
 
-localStream
-.getTracks()
-.forEach(track=>track.stop());
+        localStream
+        .getTracks()
+        .forEach(
+            t=>t.stop()
+        );
 
 
-}
-
-
-
-if(peerConnection){
-
-
-peerConnection.close();
-
-peerConnection=null;
-
-
-}
-
-
-
-document
-.getElementById("localVideo")
-.srcObject=null;
-
-
-document
-.getElementById("remoteVideo")
-.srcObject=null;
+    }
 
 
 
 
-if(socket){
+    Object.values(peers)
+    .forEach(pc=>{
 
 
-socket.send(JSON.stringify({
-
-type:"end_call",
-
-receiver:
-document.getElementById("receiver").value
+        pc.close();
 
 
-}));
+    });
+
+
+
+    peers={};
+
+
+
+    if(socket){
+
+
+        socket.send(JSON.stringify({
+
+            type:"end_call"
+
+        }));
+
+
+    }
 
 
 }
-
-
-}
-
-
-
-
-
-
-// ================================
-// Send Message
-// ================================
-
-function sendMessage(){
-
-
-let receiver =
-document.getElementById("receiver").value.trim();
-
-
-
-let message =
-document.getElementById("message").value.trim();
-
-
-
-if(!receiver || !message){
-
-return;
-
-}
-
-
-
-socket.send(JSON.stringify({
-
-type:"message",
-
-receiver:receiver,
-
-message:message
-
-}));
-
-
-
-displayMessage(
-"You",
-message
-);
-
-
-
-document.getElementById("message").value="";
-
-
-}
-
-
-
-
-
-// ================================
-// Display Messages
-// ================================
-
-function displayMessage(sender,message){
-
-
-let item =
-document.createElement("li");
-
-
-
-item.innerHTML =
-"<b>"+
-sender+
-"</b>: "+
-message;
-
-
-
-document
-.getElementById("messages")
-.appendChild(item);
-
-
-}
-
-
-
-
-
-
-// ================================
-// Load History
-// ================================
-
-async function loadMessages(){
-
-
-let receiver =
-document.getElementById("receiver").value.trim();
-
-
-
-let response =
-await fetch(
-
-"/messages/"+
-encodeURIComponent(username)+
-"/"+
-encodeURIComponent(receiver)
-
-);
-
-
-
-let data =
-await response.json();
-
-
-
-document.getElementById("messages").innerHTML="";
-
-
-
-data.messages.forEach(msg=>{
-
-
-displayMessage(
-
-msg.sender,
-
-msg.message
-
-);
-
-
-});
-
-
-}
-
-
-
-
-
-// ================================
-// Typing Indicator
-// ================================
-
-document
-.getElementById("message")
-.addEventListener(
-"input",
-function(){
-
-
-if(socket){
-
-
-socket.send(JSON.stringify({
-
-type:"typing",
-
-receiver:
-document.getElementById("receiver").value,
-
-typing:true
-
-}));
-
-
-}
-
-
-});
