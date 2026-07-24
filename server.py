@@ -21,7 +21,9 @@ from database import (
 initialize_database,
 save_message,
 update_user_status,
-get_user_by_phone
+get_user_by_phone,
+get_user_messages,
+get_or_create_chat
 )
 
 
