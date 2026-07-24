@@ -194,6 +194,65 @@ return {
 manager.online_users()
 
 }
+@app.get("/messages/{user1}/{user2}")
+def message_history(
+user1:str,
+user2:str
+):
+
+
+first_user = get_user_by_phone(
+user1
+)
+
+
+second_user = get_user_by_phone(
+user2
+)
+
+
+if not first_user or not second_user:
+
+return {
+"messages":[]
+}
+
+
+
+messages = get_user_messages(
+
+first_user["id"],
+
+second_user["id"]
+
+)
+
+
+
+result=[]
+
+
+for msg in messages:
+
+result.append({
+
+"sender":
+msg["username"],
+
+"message":
+msg["message"],
+
+"timestamp":
+msg["timestamp"]
+
+})
+
+
+return {
+
+"messages":result
+
+}
 
 
 
