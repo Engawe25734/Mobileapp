@@ -1,21 +1,22 @@
 """
 websocket_manager.py
 
-Real-time WebSocket connection manager
+Real-time WebSocket manager
 for Mobile Chat App.
 
-Handles:
-- User connections
-- Private messages
-- Typing status
-- Message receipts
-- WebRTC audio/video calls
+Supports:
+- Private chat
+- Online status
+- Typing indicator
+- Read receipts
+- Audio/video call signaling
+- Group call rooms
 """
 
 
 from fastapi import WebSocket
 
-from typing import Dict
+from typing import Dict, Set
 
 import json
 
@@ -33,27 +34,30 @@ class ConnectionManager:
         self.active_connections: Dict[str, WebSocket] = {}
 
 
+        # room -> usernames
+
+        self.call_rooms: Dict[str, Set[str]] = {}
 
 
 
 
-    # --------------------------------
-    # Connect User
-    # --------------------------------
+
+
+    # =================================
+    # CONNECT USER
+    # =================================
+
 
     async def connect(
         self,
-        username: str,
-        websocket: WebSocket
+        username,
+        websocket
     ):
-
 
         await websocket.accept()
 
 
-
         self.active_connections[username] = websocket
-
 
 
         print(
@@ -61,13 +65,9 @@ class ConnectionManager:
         )
 
 
-
         await self.broadcast_status(
-
             username,
-
             "online"
-
         )
 
 
@@ -75,14 +75,14 @@ class ConnectionManager:
 
 
 
+    # =================================
+    # DISCONNECT USER
+    # =================================
 
-    # --------------------------------
-    # Disconnect User
-    # --------------------------------
 
     async def disconnect(
         self,
-        username: str
+        username
     ):
 
 
@@ -92,19 +92,14 @@ class ConnectionManager:
             del self.active_connections[username]
 
 
-
             print(
                 f"🔴 {username} disconnected"
             )
 
 
-
             await self.broadcast_status(
-
                 username,
-
                 "offline"
-
             )
 
 
@@ -112,10 +107,10 @@ class ConnectionManager:
 
 
 
+    # =================================
+    # PRIVATE MESSAGE
+    # =================================
 
-    # --------------------------------
-    # Send Private Message
-    # --------------------------------
 
     async def send_private_message(
         self,
@@ -129,14 +124,11 @@ class ConnectionManager:
         )
 
 
-
         if websocket:
 
 
             await websocket.send_text(
-
                 json.dumps(data)
-
             )
 
 
@@ -152,10 +144,10 @@ class ConnectionManager:
 
 
 
+    # =================================
+    # CALL SIGNAL PRIVATE
+    # =================================
 
-    # --------------------------------
-    # WebRTC Signaling
-    # --------------------------------
 
     async def send_call_signal(
         self,
@@ -164,37 +156,155 @@ class ConnectionManager:
     ):
 
 
-        websocket = self.active_connections.get(
-            receiver
+        return await self.send_private_message(
+            receiver,
+            data
         )
 
 
 
-        if websocket:
 
 
-            await websocket.send_text(
 
-                json.dumps(data)
 
+
+    # =================================
+    # JOIN GROUP CALL ROOM
+    # =================================
+
+
+    async def join_call_room(
+        self,
+        room,
+        username
+    ):
+
+
+        if room not in self.call_rooms:
+
+            self.call_rooms[room] = set()
+
+
+
+        self.call_rooms[room].add(
+            username
+        )
+
+
+        print(
+            username,
+            "joined",
+            room
+        )
+
+
+
+
+
+
+
+
+    # =================================
+    # LEAVE GROUP CALL ROOM
+    # =================================
+
+
+    async def leave_call_room(
+        self,
+        room,
+        username
+    ):
+
+
+        if room in self.call_rooms:
+
+
+            self.call_rooms[room].discard(
+                username
             )
 
 
-            return True
+            if len(self.call_rooms[room]) == 0:
 
-
-
-        return False
-
+                del self.call_rooms[room]
 
 
 
 
 
 
-    # --------------------------------
-    # Broadcast Online Status
-    # --------------------------------
+
+    # =================================
+    # BROADCAST CALL SIGNAL
+    # =================================
+
+
+    async def broadcast_call_signal(
+        self,
+        room,
+        sender,
+        data
+    ):
+
+
+        if room not in self.call_rooms:
+
+            return
+
+
+
+        message = {
+
+            **data,
+
+            "sender":sender,
+
+            "room":room
+
+        }
+
+
+
+
+        for user in self.call_rooms[room]:
+
+
+            if user == sender:
+
+                continue
+
+
+
+            websocket = self.active_connections.get(
+                user
+            )
+
+
+
+            if websocket:
+
+
+                try:
+
+                    await websocket.send_text(
+                        json.dumps(message)
+                    )
+
+
+                except Exception:
+
+                    pass
+
+
+
+
+
+
+
+    # =================================
+    # ONLINE STATUS
+    # =================================
+
 
     async def broadcast_status(
         self,
@@ -204,20 +314,15 @@ class ConnectionManager:
 
 
 
-        message = {
-
+        message={
 
             "type":"status",
 
-
             "username":username,
-
 
             "status":status
 
-
         }
-
 
 
 
@@ -229,16 +334,12 @@ class ConnectionManager:
 
             try:
 
-
                 await websocket.send_text(
-
                     json.dumps(message)
-
                 )
 
 
             except Exception:
-
 
                 pass
 
@@ -248,9 +349,11 @@ class ConnectionManager:
 
 
 
-    # --------------------------------
-    # Typing Indicator
-    # --------------------------------
+
+    # =================================
+    # TYPING
+    # =================================
+
 
     async def send_typing_status(
         self,
@@ -266,11 +369,11 @@ class ConnectionManager:
 
             {
 
-                "type":"typing",
+            "type":"typing",
 
-                "sender":sender,
+            "sender":sender,
 
-                "typing":typing
+            "typing":typing
 
             }
 
@@ -282,9 +385,10 @@ class ConnectionManager:
 
 
 
-    # --------------------------------
-    # Delivery Receipt
-    # --------------------------------
+    # =================================
+    # DELIVERY RECEIPT
+    # =================================
+
 
     async def send_delivery_receipt(
         self,
@@ -299,9 +403,9 @@ class ConnectionManager:
 
             {
 
-                "type":"delivered",
+            "type":"delivered",
 
-                "message_id":message_id
+            "message_id":message_id
 
             }
 
@@ -313,9 +417,10 @@ class ConnectionManager:
 
 
 
-    # --------------------------------
-    # Read Receipt
-    # --------------------------------
+    # =================================
+    # READ RECEIPT
+    # =================================
+
 
     async def send_read_receipt(
         self,
@@ -330,9 +435,9 @@ class ConnectionManager:
 
             {
 
-                "type":"read",
+            "type":"read",
 
-                "message_id":message_id
+            "message_id":message_id
 
             }
 
@@ -344,17 +449,16 @@ class ConnectionManager:
 
 
 
-    # --------------------------------
-    # Online Users
-    # --------------------------------
+    # =================================
+    # ONLINE USERS
+    # =================================
+
 
     def online_users(self):
 
 
         return list(
-
             self.active_connections.keys()
-
         )
 
 
@@ -362,6 +466,31 @@ class ConnectionManager:
 
 
 
-# Global manager instance
+
+    # =================================
+    # CALL ROOM USERS
+    # =================================
+
+
+    def get_room_users(
+        self,
+        room
+    ):
+
+
+        return list(
+            self.call_rooms.get(
+                room,
+                []
+            )
+        )
+
+
+
+
+
+
+
+# GLOBAL OBJECT
 
 manager = ConnectionManager()
