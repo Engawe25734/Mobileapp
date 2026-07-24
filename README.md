@@ -77,12 +77,19 @@ Supported uploads:
 Install required packages:
 
 pip install fastapi
+
 pip install uvicorn
+
 pip install python-multipart
+
 pip install jinja2
+
 pip install passlib
+
 pip install python-jose
+
 System Requirements
+
 Hardware Requirements
 
 Minimum:
@@ -117,20 +124,35 @@ Mobileapp/
 
 │
 ├── server.py
+
 ├── websocket_manager.py
+
 ├── database.py
+
 ├── auth.py
+
 ├── models.py
+
 │
+
 ├── templates/
+
 │   └── index.html
+
 │
+
 ├── static/
+
 │   ├── style.css
+
 │   └── app.js
+
 │
+
 ├── uploads/
+
 │
+
 └── chat.db
 
 Running the Application
