@@ -21,8 +21,6 @@ from datetime import datetime
 
 DATABASE_FILE = "chat.db"
 
-
-
 # ==============================
 # Connection
 # ==============================
@@ -37,9 +35,6 @@ def get_connection():
     conn.row_factory = sqlite3.Row
 
     return conn
-
-
-
 
 # ==============================
 # Initialize Database
@@ -204,11 +199,6 @@ def initialize_database():
 
     print("✅ Database initialized successfully")
 
-
-
-
-
-
 # ==============================
 # Users
 # ==============================
@@ -250,10 +240,6 @@ def create_user(username, phone, password_hash):
 
     return user_id
 
-
-
-
-
 def get_user_by_username(username):
 
     conn=get_connection()
@@ -279,11 +265,6 @@ def get_user_by_username(username):
 
     return user
 
-
-
-
-
-
 def get_user_by_phone(phone):
 
     conn=get_connection()
@@ -308,11 +289,6 @@ def get_user_by_phone(phone):
 
 
     return user
-
-
-
-
-
 
 # ==============================
 # Private Chat
@@ -383,10 +359,6 @@ def get_or_create_chat(user_one,user_two):
 
     return chat_id
 
-
-
-
-
 def save_message(chat_id,sender_id,message):
 
     conn=get_connection()
@@ -413,7 +385,6 @@ def save_message(chat_id,sender_id,message):
     )
 
 
-
     conn.commit()
 
 
@@ -424,10 +395,6 @@ def save_message(chat_id,sender_id,message):
 
 
     return msg_id
-
-
-
-
 
 def get_user_messages(user_one,user_two):
 
@@ -471,11 +438,6 @@ def get_user_messages(user_one,user_two):
 
 
     return data
-
-
-
-
-
 # ==============================
 # Groups
 # ==============================
@@ -518,11 +480,6 @@ def create_group(name,creator_id):
 
 
     return group_id
-
-
-
-
-
 def add_group_member(group_id,user_id):
 
     conn=get_connection()
@@ -547,10 +504,6 @@ def add_group_member(group_id,user_id):
     conn.commit()
 
     conn.close()
-
-
-
-
 
 def get_group_members(group_id):
 
@@ -583,11 +536,6 @@ def get_group_members(group_id):
 
 
     return users
-
-
-
-
-
 
 # ==============================
 # Group Call Rooms
@@ -629,11 +577,6 @@ def create_call_room(room_name,user_id):
 
     return room_id
 
-
-
-
-
-
 def join_call_room(room_id,user_id):
 
     conn=get_connection()
@@ -662,11 +605,6 @@ def join_call_room(room_id,user_id):
 
     conn.close()
 
-
-
-
-
-
 def leave_call_room(room_id,user_id):
 
     conn=get_connection()
@@ -692,10 +630,6 @@ def leave_call_room(room_id,user_id):
     conn.commit()
 
     conn.close()
-
-
-
-
 # ==============================
 # Attachments
 # ==============================
@@ -737,10 +671,6 @@ def save_attachment(
     conn.commit()
 
     conn.close()
-
-
-
-
 
 if __name__=="__main__":
 
