@@ -376,7 +376,33 @@ sender_account = (
 get_user_by_phone(username)
 )
 
+elif message_type == "file":
 
+
+await manager.send_private_message(
+
+data["receiver"],
+
+{
+
+"type":"file",
+
+"sender":username,
+
+"filename":
+data["filename"],
+
+
+"path":
+data["path"],
+
+
+"filetype":
+data["filetype"]
+
+}
+
+)
 
 if sender_account:
 
