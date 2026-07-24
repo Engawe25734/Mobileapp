@@ -45,13 +45,6 @@ const rtcConfig = {
 
 };
 
-
-
-
-
-
-
-
 // ==============================
 // REGISTER USER
 // ==============================
@@ -117,9 +110,6 @@ async function register(){
     });
 
 
-
-
-
     let data =
     await response.json();
 
@@ -137,14 +127,6 @@ async function register(){
 
 
 }
-
-
-
-
-
-
-
-
 
 // ==============================
 // LOGIN USER
@@ -201,10 +183,6 @@ async function login(){
 
     });
 
-
-
-
-
     let data =
     await response.json();
 
@@ -223,10 +201,6 @@ async function login(){
 
         username =
         data.username;
-
-
-
-
 
         localStorage.setItem(
             "token",
@@ -253,15 +227,6 @@ async function login(){
 
 
 }
-
-
-
-
-
-
-
-
-
 // ==============================
 // OPEN CHAT
 // ==============================
@@ -280,10 +245,6 @@ function openChat(){
         "hidden"
     );
 
-
-
-
-
     document
     .getElementById(
         "chat-page"
@@ -293,24 +254,11 @@ function openChat(){
         "hidden"
     );
 
-
-
-
-
     connectSocket();
 
 
 
 }
-
-
-
-
-
-
-
-
-
 // ==============================
 // CONNECT WEBSOCKET
 // ==============================
@@ -326,10 +274,6 @@ function connectSocket(){
     "wss://"
     :
     "ws://";
-
-
-
-
 
     socket =
     new WebSocket(
@@ -348,12 +292,6 @@ function connectSocket(){
 
     );
 
-
-
-
-
-
-
     socket.onopen=function(){
 
 
@@ -367,14 +305,6 @@ function connectSocket(){
 
 
     };
-
-
-
-
-
-
-
-
     socket.onmessage =
     async function(event){
 
@@ -388,14 +318,6 @@ function connectSocket(){
 
 
         console.log(data);
-
-
-
-
-
-
-
-
         // MESSAGE RECEIVED
 
 
@@ -413,13 +335,6 @@ function connectSocket(){
 
 
         }
-
-
-
-
-
-
-
 
         // TYPING
 
@@ -457,13 +372,6 @@ function connectSocket(){
 
         }
 
-
-
-
-
-
-
-
         // CALL OFFER
 
 
@@ -476,12 +384,6 @@ function connectSocket(){
 
 
         }
-
-
-
-
-
-
 
 
         // CALL ANSWER
@@ -514,13 +416,6 @@ function connectSocket(){
 
         }
 
-
-
-
-
-
-
-
         // ICE CANDIDATE
 
 
@@ -547,13 +442,6 @@ function connectSocket(){
 
         }
 
-
-
-
-
-
-
-
         if(data.type==="end_call"){
 
 
@@ -566,14 +454,6 @@ function connectSocket(){
 
 
     };
-
-
-
-
-
-
-
-
 
     socket.onclose=function(){
 
@@ -592,13 +472,6 @@ function connectSocket(){
 
 
 }
-
-
-
-
-
-
-
 
 // ==============================
 // SEND MESSAGE
@@ -629,17 +502,8 @@ function sendMessage(){
     .value
     .trim();
 
-
-
-
-
     if(!receiver || !message)
         return;
-
-
-
-
-
 
     socket.send(JSON.stringify({
 
@@ -658,10 +522,6 @@ function sendMessage(){
     }));
 
 
-
-
-
-
     displayMessage(
 
         "You",
@@ -669,11 +529,6 @@ function sendMessage(){
         message
 
     );
-
-
-
-
-
 
     document
     .getElementById(
@@ -684,13 +539,6 @@ function sendMessage(){
 
 
 }
-
-
-
-
-
-
-
 
 // ==============================
 // DISPLAY MESSAGE
@@ -730,10 +578,6 @@ function displayMessage(
     .appendChild(
         li
     );
-
-
-
-
 
     li.scrollIntoView({
 
@@ -814,10 +658,6 @@ async function uploadFile(){
 }
 
 
-
-
-
-
 // =====================================
 // ENTER KEY SEND MESSAGE
 // =====================================
@@ -836,11 +676,6 @@ function enterSend(event){
 
 
 }
-
-
-
-
-
 
 // =====================================
 // LOAD OLD MESSAGES
@@ -915,11 +750,6 @@ async function loadMessages(){
 
 
 }
-
-
-
-
-
 
 // =====================================
 // TYPING STATUS
@@ -999,12 +829,6 @@ function(){
 
 
 });
-
-
-
-
-
-
 // =====================================
 // ONLINE USER CHECK
 // =====================================
@@ -1031,10 +855,6 @@ async function loadOnlineUsers(){
 
 
 }
-
-
-
-
 
 
 // =====================================
