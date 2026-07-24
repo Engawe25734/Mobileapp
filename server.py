@@ -108,13 +108,11 @@ initialize_database()
 async def home(request: Request):
 
     return templates.TemplateResponse(
-        "index.html",
-        {
+        name="index.html",
+        context={
             "request": request
         }
     )
-
-
 
 # ------------------------------------
 # File upload endpoint
