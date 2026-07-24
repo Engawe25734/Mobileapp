@@ -18,6 +18,7 @@
 <div class="app">
 
 
+
 <!-- ======================
 LOGIN / REGISTER
 ======================= -->
@@ -27,9 +28,11 @@ LOGIN / REGISTER
 
 <h2>📱 Mobile Chat App</h2>
 
+
 <p>
-Create an account or login to start messaging.
+Create an account or login to start chatting.
 </p>
+
 
 
 <input
@@ -38,10 +41,12 @@ placeholder="Enter username"
 />
 
 
+
 <input
 id="phone"
 placeholder="Enter phone number"
 />
+
 
 
 <input
@@ -53,20 +58,28 @@ placeholder="Enter password"
 
 
 <button onclick="register()">
+
 ➕ Create Account
+
 </button>
 
 
 
 <button onclick="login()">
+
 🔐 Login
+
 </button>
+
 
 
 <p id="authMessage"></p>
 
 
 </div>
+
+
+
 
 
 
@@ -81,7 +94,9 @@ CHAT SCREEN
 
 
 
-<!-- Header -->
+
+
+<!-- HEADER -->
 
 <div class="header">
 
@@ -89,6 +104,7 @@ CHAT SCREEN
 <h3>
 📱 Mobile Chat
 </h3>
+
 
 
 <span id="status">
@@ -102,7 +118,7 @@ CHAT SCREEN
 
 
 
-<!-- Chat layout -->
+
 
 <div class="chat-area">
 
@@ -110,19 +126,14 @@ CHAT SCREEN
 
 
 
-<!-- Contact Section -->
+<!-- CONTACTS -->
 
 <div class="contacts">
 
 
 <h4>
-👥 Chat With User
+👥 Contacts
 </h4>
-
-
-<p>
-Enter the username of the person you want to message.
-</p>
 
 
 
@@ -134,8 +145,46 @@ placeholder="Receiver username"
 
 
 <button onclick="loadMessages()">
-📜 Load Previous Messages
+
+📜 Load History
+
 </button>
+
+
+
+
+
+<!-- CALL BUTTONS -->
+
+<h4>
+📞 Calls
+</h4>
+
+
+
+<button onclick="startAudioCall()">
+
+📞 Audio Call
+
+</button>
+
+
+
+<button onclick="startVideoCall()">
+
+📹 Video Call
+
+</button>
+
+
+
+<button onclick="endCall()">
+
+❌ End Call
+
+</button>
+
+
 
 
 </div>
@@ -146,7 +195,9 @@ placeholder="Receiver username"
 
 
 
-<!-- Messages Section -->
+
+
+<!-- MESSAGE AREA -->
 
 <div class="messages">
 
@@ -157,9 +208,11 @@ placeholder="Receiver username"
 
 
 
+
 <ul id="messages">
 
 </ul>
+
 
 
 
@@ -171,21 +224,35 @@ placeholder="Receiver username"
 
 
 
-<!-- Message Input -->
-
-<div class="input-area">
 
 
-<input
-id="message"
-placeholder="Type your message here..."
->
+<!-- VIDEO CALL AREA -->
+
+<div class="video-container">
+
+
+<h4>
+🎥 Video Call
+</h4>
 
 
 
-<button onclick="sendMessage()">
-➤ Send Message
-</button>
+<video
+id="localVideo"
+autoplay
+muted>
+
+</video>
+
+
+
+
+<video
+id="remoteVideo"
+autoplay>
+
+</video>
+
 
 
 </div>
@@ -194,7 +261,40 @@ placeholder="Type your message here..."
 
 
 
-<!-- File Sharing -->
+
+
+
+
+<!-- TEXT MESSAGE -->
+
+<div class="input-area">
+
+
+<input
+id="message"
+placeholder="Type message..."
+>
+
+
+
+<button onclick="sendMessage()">
+
+➤ Send
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- FILE UPLOAD -->
 
 <div class="file-area">
 
@@ -213,24 +313,35 @@ id="file"
 
 
 <button onclick="uploadFile()">
+
 ⬆ Upload File
+
 </button>
 
 
-</div>
-
-
-
-</div>
-
 
 </div>
 
 
 
 
+</div>
 
-<!-- Features -->
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- FEATURES -->
 
 <div class="features">
 
@@ -240,28 +351,45 @@ id="file"
 </h4>
 
 
+
 <p>
 ✅ Private messaging
 </p>
+
 
 <p>
 ✅ Chat history
 </p>
 
+
 <p>
 ✅ File sharing
 </p>
 
+
 <p>
-✅ Online status
+✅ Online users
 </p>
+
 
 <p>
 ✅ Typing indicator
 </p>
 
 
-</div>
+<p>
+✅ Audio calling
+</p>
+
+
+<p>
+✅ Video calling
+</p>
+
+
+<p>
+✅ WebRTC connection
+</p>
 
 
 
@@ -269,8 +397,10 @@ id="file"
 
 
 
-</div>
 
+
+
+</div>
 
 
 
