@@ -3,7 +3,7 @@
 
 <head>
 
-<title>Mobile Chat</title>
+<title>Mobile Chat App</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -18,16 +18,16 @@
 <div class="app">
 
 
+<!-- ==========================
+LOGIN / REGISTER
+========================== -->
 
-<!-- =====================
-LOGIN
-===================== -->
 
 <div id="auth">
 
 
 <div class="logo">
-💬
+📱
 </div>
 
 
@@ -37,34 +37,36 @@ Mobile Chat
 
 
 <p>
-Connect with friends
+Create account or login
 </p>
 
 
 
 <input
 id="username"
-placeholder="Username"
->
+placeholder="Username">
+
 
 
 <input
 id="phone"
-placeholder="Phone Number"
->
+placeholder="Phone number">
+
 
 
 <input
 id="password"
 type="password"
-placeholder="Password"
->
+placeholder="Password">
+
+
 
 
 
 <button onclick="register()">
 Create Account
 </button>
+
 
 
 <button onclick="login()">
@@ -83,10 +85,9 @@ Login
 
 
 
-
-<!-- =====================
-CHAT APP
-===================== -->
+<!-- ==========================
+CHAT APPLICATION
+========================== -->
 
 
 <div id="chat" class="hidden">
@@ -95,8 +96,8 @@ CHAT APP
 
 
 
-
 <!-- HEADER -->
+
 
 <div class="header">
 
@@ -117,9 +118,7 @@ CHAT APP
 
 
 
-
-
-<div class="header-buttons">
+<div class="call-buttons">
 
 
 <button onclick="startAudioCall()">
@@ -132,13 +131,7 @@ CHAT APP
 </button>
 
 
-<button onclick="startGroupCall()">
-👥
-</button>
-
-
 </div>
-
 
 
 </div>
@@ -149,9 +142,10 @@ CHAT APP
 
 
 
+<!-- MAIN -->
 
 
-<div class="content">
+<div class="main">
 
 
 
@@ -159,81 +153,31 @@ CHAT APP
 
 <!-- CONTACTS -->
 
+
 <div class="contacts">
 
 
 <h4>
-Chats
+Contact
 </h4>
 
 
 
 <input
 id="receiver"
-placeholder="Username"
->
+placeholder="Username">
 
 
 
 <button onclick="loadMessages()">
-Open Chat
+Load
 </button>
 
-
-
-
-
-<hr>
-
-
-
-<h4>
-Group Call
-</h4>
-
-
-
-<input
-id="room"
-placeholder="Room ID"
->
-
-
-
-<button onclick="createGroupCall()">
-
-Create Room
-
-</button>
-
-
-
-<button onclick="joinGroupCall()">
-
-Join Room
-
-</button>
-
-
-
-<button onclick="leaveGroupCall()">
-
-Leave Room
-
-</button>
-
-
-
-
-
-<hr>
 
 
 
 <button onclick="endCall()">
-
 End Call
-
 </button>
 
 
@@ -247,12 +191,10 @@ End Call
 
 
 
+<!-- CHAT AREA -->
 
-<!-- CHAT WINDOW -->
 
 <div class="chat-window">
-
-
 
 
 
@@ -266,12 +208,9 @@ Conversation
 
 
 
-
 <ul id="messages">
 
 </ul>
-
-
 
 
 
@@ -288,29 +227,22 @@ Conversation
 
 <!-- VIDEO -->
 
+
 <div class="video-container">
 
 
 <video
-
 id="localVideo"
-
 autoplay
-
 muted>
-
 </video>
 
 
 
 <video
-
 id="remoteVideo"
-
 autoplay>
-
 </video>
-
 
 
 </div>
@@ -321,27 +253,21 @@ autoplay>
 
 
 
-<!-- MESSAGE INPUT -->
+<!-- MESSAGE -->
 
 
 <div class="message-box">
 
 
 <input
-
 id="message"
-
 placeholder="Type message..."
+onkeypress="if(event.key==='Enter')sendMessage()">
 
-onkeypress="enterSend(event)"
-
->
 
 
 <button onclick="sendMessage()">
-
 ➤
-
 </button>
 
 
@@ -352,31 +278,30 @@ onkeypress="enterSend(event)"
 
 
 
+<!-- FILE -->
 
 
-<!-- FILE UPLOAD -->
-
-
-<div class="file-box">
+<div class="file-area">
 
 
 <input
-
 type="file"
-
-id="file"
-
->
+id="file">
 
 
 
 <button onclick="uploadFile()">
-
 📎
-
 </button>
 
 
+</div>
+
+
+
+
+</div>
+
 
 </div>
 
@@ -385,22 +310,6 @@ id="file"
 
 
 
-</div>
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
-
-<!-- FEATURES -->
 
 
 <div class="features">
@@ -412,12 +321,7 @@ id="file"
 
 
 <span>
-✅ Files
-</span>
-
-
-<span>
-✅ Audio
+✅ Calls
 </span>
 
 
@@ -427,7 +331,7 @@ id="file"
 
 
 <span>
-✅ Group Call
+✅ Files
 </span>
 
 
@@ -441,11 +345,9 @@ id="file"
 
 
 
-
 <script src="/static/app.js"></script>
 
 
 </body>
-
 
 </html>
