@@ -142,23 +142,25 @@ Load Chat History
 
 
 <input
-
 id="message"
-
 placeholder="Type message..."
-
-onkeypress="enterSend(event)"
-
 >
 
 
+<input
+type="file"
+id="file"
+/>
 
-<button onclick="sendMessage()">
 
-Send
-
+<button onclick="uploadFile()">
+Upload
 </button>
 
+
+<button onclick="sendMessage()">
+Send
+</button>
 
 
 </div>
