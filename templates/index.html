@@ -18,63 +18,46 @@
 <div class="app">
 
 
-
-<!-- ======================
-LOGIN / REGISTER
-======================= -->
+<!-- LOGIN SCREEN -->
 
 <div id="auth">
 
+    <div class="logo">
+        📱
+    </div>
 
-<h2>📱 Mobile Chat App</h2>
+    <h2>Mobile Chat</h2>
 
-
-<p>
-Create an account or login to start chatting.
-</p>
-
-
-
-<input
-id="username"
-placeholder="Enter username"
-/>
+    <p>Create account or login</p>
 
 
-
-<input
-id="phone"
-placeholder="Enter phone number"
-/>
+    <input 
+    id="username"
+    placeholder="Username">
 
 
-
-<input
-id="password"
-type="password"
-placeholder="Enter password"
-/>
+    <input 
+    id="phone"
+    placeholder="Phone Number">
 
 
-
-<button onclick="register()">
-
-➕ Create Account
-
-</button>
+    <input 
+    id="password"
+    type="password"
+    placeholder="Password">
 
 
-
-<button onclick="login()">
-
-🔐 Login
-
-</button>
+    <button onclick="register()">
+        Create Account
+    </button>
 
 
+    <button onclick="login()">
+        Login
+    </button>
 
-<p id="authMessage"></p>
 
+    <p id="authMessage"></p>
 
 </div>
 
@@ -82,35 +65,50 @@ placeholder="Enter password"
 
 
 
-
-
-
-<!-- ======================
-CHAT SCREEN
-======================= -->
-
+<!-- CHAT APPLICATION -->
 
 <div id="chat" class="hidden">
 
 
 
-
-
-<!-- HEADER -->
+<!-- TOP HEADER -->
 
 <div class="header">
 
 
+<div>
+
 <h3>
-📱 Mobile Chat
+💬 Mobile Chat
 </h3>
-
-
 
 <span id="status">
 🔴 Offline
 </span>
 
+</div>
+
+
+<div class="call-buttons">
+
+
+<button onclick="startAudioCall()">
+📞
+</button>
+
+
+<button onclick="startVideoCall()">
+📹
+</button>
+
+
+<button onclick="startGroupCall()">
+👥
+</button>
+
+
+</div>
+
 
 </div>
 
@@ -120,71 +118,39 @@ CHAT SCREEN
 
 
 
-<div class="chat-area">
+<div class="main">
 
 
 
-
-
-<!-- CONTACTS -->
+<!-- CONTACT LIST -->
 
 <div class="contacts">
 
 
 <h4>
-👥 Contacts
+Contacts
 </h4>
-
 
 
 <input
 id="receiver"
-placeholder="Receiver username"
-/>
-
+placeholder="Search username">
 
 
 <button onclick="loadMessages()">
-
-📜 Load History
-
+Load Chat
 </button>
 
 
 
-
-
-<!-- CALL BUTTONS -->
-
 <h4>
-📞 Calls
+Calls
 </h4>
 
 
-
-<button onclick="startAudioCall()">
-
-📞 Audio Call
-
-</button>
-
-
-
-<button onclick="startVideoCall()">
-
-📹 Video Call
-
-</button>
-
-
-
 <button onclick="endCall()">
-
-❌ End Call
-
+End Call
 </button>
-
-
 
 
 </div>
@@ -196,15 +162,19 @@ placeholder="Receiver username"
 
 
 
-
-<!-- MESSAGE AREA -->
-
-<div class="messages">
+<!-- CHAT WINDOW -->
 
 
-<h4>
-💬 Conversation
-</h4>
+<div class="chat-window">
+
+
+
+<div class="chat-header">
+
+Conversation
+
+</div>
+
 
 
 
@@ -226,33 +196,25 @@ placeholder="Receiver username"
 
 
 
-<!-- VIDEO CALL AREA -->
+
+<!-- VIDEO AREA -->
+
 
 <div class="video-container">
 
 
-<h4>
-🎥 Video Call
-</h4>
-
-
-
-<video
+<video 
 id="localVideo"
 autoplay
 muted>
-
 </video>
 
 
 
-
-<video
+<video 
 id="remoteVideo"
 autoplay>
-
 </video>
-
 
 
 </div>
@@ -265,24 +227,21 @@ autoplay>
 
 
 
-<!-- TEXT MESSAGE -->
+<!-- MESSAGE BOX -->
 
-<div class="input-area">
+
+<div class="message-box">
 
 
 <input
 id="message"
 placeholder="Type message..."
->
-
+onkeypress="enterSend(event)">
 
 
 <button onclick="sendMessage()">
-
-➤ Send
-
+➤
 </button>
-
 
 
 </div>
@@ -293,47 +252,30 @@ placeholder="Type message..."
 
 
 
+<!-- FILES -->
 
-<!-- FILE UPLOAD -->
 
 <div class="file-area">
 
 
-<h4>
-📎 File Sharing
-</h4>
-
-
-
 <input
 type="file"
-id="file"
-/>
-
+id="file">
 
 
 <button onclick="uploadFile()">
-
-⬆ Upload File
-
+📎
 </button>
 
 
-
 </div>
-
-
-
-
-</div>
-
-
 
 
 
 </div>
 
 
+</div>
 
 
 
@@ -346,51 +288,29 @@ id="file"
 <div class="features">
 
 
-<h4>
-⭐ App Features
-</h4>
+<span>
+✅ Messaging
+</span>
 
 
-
-<p>
-✅ Private messaging
-</p>
-
-
-<p>
-✅ Chat history
-</p>
+<span>
+✅ Files
+</span>
 
 
-<p>
-✅ File sharing
-</p>
+<span>
+✅ Audio Call
+</span>
 
 
-<p>
-✅ Online users
-</p>
+<span>
+✅ Video Call
+</span>
 
 
-<p>
-✅ Typing indicator
-</p>
-
-
-<p>
-✅ Audio calling
-</p>
-
-
-<p>
-✅ Video calling
-</p>
-
-
-<p>
-✅ WebRTC connection
-</p>
-
+<span>
+✅ Group Call
+</span>
 
 
 </div>
@@ -398,10 +318,10 @@ id="file"
 
 
 
+</div>
 
 
 </div>
-
 
 
 
