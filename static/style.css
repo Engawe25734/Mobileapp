@@ -1,15 +1,14 @@
- /*
+/*
 style.css
 
 Mobile Chat Application
-Frontend Styling
+WhatsApp Inspired Design
 */
 
 
 * {
 
     box-sizing:border-box;
-
     font-family:Arial, Helvetica, sans-serif;
 
 }
@@ -19,15 +18,11 @@ Frontend Styling
 body {
 
     margin:0;
-
     height:100vh;
-
-    background:#d9dbd5;
+    background:#e5ddd5;
 
     display:flex;
-
     justify-content:center;
-
     align-items:center;
 
 }
@@ -36,14 +31,11 @@ body {
 
 
 
-
-/* Main application */
-
+/* MAIN APP */
 
 .app {
 
     width:430px;
-
     height:750px;
 
     background:white;
@@ -53,7 +45,7 @@ body {
     overflow:hidden;
 
     box-shadow:
-    0 5px 20px rgba(0,0,0,0.3);
+    0 5px 25px rgba(0,0,0,0.3);
 
 }
 
@@ -72,8 +64,8 @@ body {
 
 
 
-/* Authentication */
 
+/* LOGIN */
 
 #auth {
 
@@ -85,11 +77,31 @@ body {
 
 
 
+.logo {
+
+    font-size:60px;
+
+}
+
+
+
 #auth h2 {
 
     color:#075e54;
 
+    margin-bottom:10px;
+
 }
+
+
+
+#auth p {
+
+    color:#777;
+
+}
+
+
 
 
 
@@ -104,11 +116,23 @@ input {
 
     margin:8px 0;
 
-    border-radius:8px;
+    border-radius:20px;
 
     border:1px solid #ccc;
 
+    outline:none;
+
     font-size:15px;
+
+}
+
+
+
+
+
+input:focus {
+
+    border-color:#128c7e;
 
 }
 
@@ -119,23 +143,19 @@ input {
 button {
 
 
-    width:100%;
-
-    padding:12px;
-
-    margin-top:8px;
-
     border:none;
-
-    border-radius:8px;
 
     background:#128c7e;
 
     color:white;
 
+    padding:10px 15px;
+
+    border-radius:20px;
+
     cursor:pointer;
 
-    font-size:14px;
+    margin:3px;
 
 }
 
@@ -153,17 +173,21 @@ button:hover {
 
 
 
-/* Header */
+
+
+/* HEADER */
 
 
 .header {
 
 
-    height:65px;
+    height:70px;
 
     background:#075e54;
 
     color:white;
+
+    padding:10px 15px;
 
     display:flex;
 
@@ -171,7 +195,21 @@ button:hover {
 
     align-items:center;
 
-    padding:15px;
+}
+
+
+
+.header h3 {
+
+    margin:0;
+
+}
+
+
+
+#status {
+
+    font-size:12px;
 
 }
 
@@ -179,16 +217,26 @@ button:hover {
 
 
 
-
-/* Chat layout */
-
-
-.chat-area {
-
+.call-buttons {
 
     display:flex;
 
-    height:560px;
+}
+
+
+
+.call-buttons button {
+
+
+    width:40px;
+
+    height:40px;
+
+    border-radius:50%;
+
+    background:#128c7e;
+
+    font-size:18px;
 
 }
 
@@ -197,7 +245,26 @@ button:hover {
 
 
 
-/* Contacts */
+
+/* MAIN AREA */
+
+
+.main {
+
+    display:flex;
+
+    height:580px;
+
+}
+
+
+
+
+
+
+
+
+/* CONTACT PANEL */
 
 
 .contacts {
@@ -205,11 +272,11 @@ button:hover {
 
     width:140px;
 
-    background:#f5f5f5;
+    background:#f0f0f0;
 
     padding:10px;
 
-    overflow-y:auto;
+    border-right:1px solid #ddd;
 
 }
 
@@ -218,6 +285,7 @@ button:hover {
 
 
 .contacts h4 {
+
 
     color:#075e54;
 
@@ -229,10 +297,27 @@ button:hover {
 
 
 
-/* Messages */
+.contacts button {
 
 
-.messages {
+    width:100%;
+
+    font-size:12px;
+
+}
+
+
+
+
+
+
+
+
+
+/* CHAT WINDOW */
+
+
+.chat-window {
 
 
     flex:1;
@@ -241,9 +326,28 @@ button:hover {
 
     flex-direction:column;
 
-    padding:10px;
+    background:#efeae2;
 
 }
+
+
+
+
+
+.chat-header {
+
+
+    background:#ededed;
+
+    padding:10px;
+
+    font-weight:bold;
+
+    color:#075e54;
+
+}
+
+
 
 
 
@@ -258,12 +362,19 @@ button:hover {
 
     list-style:none;
 
-    padding:5px;
+    padding:15px;
+
+    margin:0;
 
 }
 
 
 
+
+
+
+
+/* MESSAGE BUBBLES */
 
 
 #messages li {
@@ -273,11 +384,15 @@ button:hover {
 
     padding:10px;
 
-    margin:7px 0;
+    margin:8px 0;
 
-    border-radius:12px;
+    border-radius:10px;
 
-    max-width:85%;
+    max-width:80%;
+
+    align-self:flex-end;
+
+    word-wrap:break-word;
 
 }
 
@@ -288,11 +403,13 @@ button:hover {
 #typing {
 
 
-    height:20px;
+    height:25px;
 
-    color:#777;
+    color:#666;
 
     font-size:12px;
+
+    padding-left:10px;
 
 }
 
@@ -302,77 +419,71 @@ button:hover {
 
 
 
-/* Text input */
+
+/* MESSAGE INPUT */
 
 
-.input-area {
+.message-box {
 
 
     display:flex;
 
-    gap:5px;
+    padding:8px;
+
+    background:#f0f0f0;
 
 }
 
 
 
-.input-area input {
+
+
+.message-box input {
 
 
     flex:1;
 
-}
+    margin:0;
 
-
-
-.input-area button {
-
-
-    width:90px;
+    border-radius:20px;
 
 }
 
 
 
+.message-box button {
+
+
+    width:45px;
+
+    height:45px;
+
+    border-radius:50%;
+
+    font-size:20px;
+
+}
 
 
 
 
 
-/* ==========================
-VIDEO CALL SECTION
-========================== */
+
+
+
+/* VIDEO CALL */
 
 
 .video-container {
 
 
-    margin-top:10px;
-
-    background:#222;
-
-    border-radius:10px;
-
-    padding:5px;
-
     display:flex;
-
-    flex-direction:column;
 
     gap:5px;
 
-}
+    padding:5px;
 
-
-
-.video-container h4 {
-
-
-    color:white;
-
-    text-align:center;
-
-    margin:5px;
+    background:#222;
 
 }
 
@@ -381,13 +492,13 @@ VIDEO CALL SECTION
 video {
 
 
-    width:100%;
+    width:50%;
 
     height:120px;
 
     background:black;
 
-    border-radius:8px;
+    border-radius:10px;
 
     object-fit:cover;
 
@@ -399,87 +510,54 @@ video {
 
 
 
-/* Call buttons */
 
-
-.contacts button {
-
-
-    font-size:12px;
-
-}
-
-
-
-.contacts button:nth-child(5){
-
-    background:#007bff;
-
-}
-
-
-
-.contacts button:nth-child(6){
-
-    background:#28a745;
-
-}
-
-
-
-.contacts button:nth-child(7){
-
-    background:#dc3545;
-
-}
-
-
-
-
-
-/* File upload */
+/* FILE AREA */
 
 
 .file-area {
 
 
-    border-top:1px solid #ddd;
+    display:flex;
 
-    margin-top:10px;
+    padding:8px;
 
-    padding-top:10px;
-
-}
-
-
-
-.file-area h4 {
-
-    color:#075e54;
+    background:#f0f0f0;
 
 }
 
 
 
+.file-area input {
 
 
-/* Features */
+    margin:0;
+
+}
+
+
+
+
+
+
+
+
+/* FEATURES */
 
 
 .features {
 
 
-    padding:10px;
+    background:white;
 
-    background:#f8f8f8;
+    padding:10px;
 
     border-top:1px solid #ddd;
 
-}
+    display:flex;
 
+    justify-content:space-around;
 
-
-.features h4 {
+    font-size:11px;
 
     color:#075e54;
 
@@ -487,28 +565,19 @@ video {
 
 
 
-.features p {
-
-    margin:4px;
-
-    font-size:13px;
-
-}
 
 
 
 
 
 
-
-/* Mobile */
+/* MOBILE */
 
 
 @media(max-width:500px){
 
 
 .app {
-
 
     width:100%;
 
@@ -520,9 +589,9 @@ video {
 
 
 
-.chat-area {
+.main {
 
-    height:calc(100vh - 180px);
+    height:calc(100vh - 140px);
 
 }
 
@@ -538,10 +607,9 @@ video {
 
 video {
 
-    height:100px;
+    height:90px;
 
 }
-
 
 
 }
