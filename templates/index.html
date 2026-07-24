@@ -3,24 +3,19 @@
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>chatMe</title>
+<title>chatMe</title>
 
+<link rel="stylesheet" href="/static/style.css">
 
-    <!-- Main stylesheet -->
-    <link rel="stylesheet" href="/static/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
 
@@ -31,618 +26,774 @@
 <div class="app-container">
 
 
+<!-- =========================
+     AUTHENTICATION
+========================= -->
 
-<!-- ==============================
-     AUTHENTICATION PAGE
-================================ -->
 
+<section id="auth-page"
+class="auth-container">
 
-<section id="auth-page" class="auth-container">
 
+<div class="auth-card">
 
-    <div class="auth-card">
 
+<div class="app-logo">
 
-        <div class="app-logo">
+💬
 
-            💬
+</div>
 
-        </div>
 
 
+<h1>
 
-        <h1>
-            chatMe
-        </h1>
+chatMe
 
+</h1>
 
-        <p>
-            Connect with friends instantly
-        </p>
 
 
+<p>
 
+Connect with friends instantly
 
-        <div class="input-group">
+</p>
 
 
-            <label>
-                Username
-            </label>
 
 
-            <input
-                id="username"
-                type="text"
-                placeholder="Enter username"
-            >
+<div class="input-group">
 
 
-        </div>
+<label>
 
+Username
 
+</label>
 
 
+<input
 
-        <div class="input-group">
+id="username"
 
+type="text"
 
-            <label>
-                Phone Number
-            </label>
+placeholder="Enter username"
 
+>
 
-            <input
-                id="phone"
-                type="text"
-                placeholder="Enter phone number"
-            >
 
+</div>
 
-        </div>
 
 
 
 
+<div class="input-group">
 
-        <div class="input-group">
 
+<label>
 
-            <label>
-                Password
-            </label>
+Phone Number
 
+</label>
 
-            <input
-                id="password"
-                type="password"
-                placeholder="Enter password"
-            >
 
+<input
 
-        </div>
+id="phone"
 
+type="text"
 
+placeholder="Enter phone number"
 
+>
 
 
-        <div class="auth-buttons">
+</div>
 
 
-            <button
-                class="primary-btn"
-                onclick="register()"
-            >
 
-                Create Account
 
-            </button>
 
+<div class="input-group">
 
 
+<label>
 
-            <button
-                class="secondary-btn"
-                onclick="login()"
-            >
+Password
 
-                Login
+</label>
 
-            </button>
 
+<input
 
+id="password"
 
-        </div>
+type="password"
 
+placeholder="Enter password"
 
+>
 
 
+</div>
 
-        <div id="authMessage"
-             class="auth-message">
 
-        </div>
 
 
 
-    </div>
+<div class="auth-buttons">
+
+
+<button
+
+class="primary-btn"
+
+onclick="register()"
+
+>
+
+Create Account
+
+</button>
+
+
+
+
+<button
+
+class="secondary-btn"
+
+onclick="login()"
+
+>
+
+Login
+
+</button>
+
+
+</div>
+
+
+
+
+
+<div id="authMessage"
+class="auth-message">
+
+</div>
+
+
+
+</div>
 
 
 </section>
 
 
 
-<!-- ==============================
+
+
+<!-- =========================
      CHAT APPLICATION
-================================ -->
+========================= -->
 
 
 <section id="chat-page"
-         class="chat-container hidden">
+class="chat-container hidden">
 
 
+<header class="top-bar">
 
-    <!-- TOP BAR -->
 
+<div class="profile-area">
 
-    <header class="top-bar">
 
+<div class="avatar">
 
-        <div class="profile-area">
+👤
 
+</div>
 
-            <div class="avatar">
 
-                👤
 
-            </div>
+<div>
 
 
+<h2>
 
-            <div>
+chatMe
 
+</h2>
 
-                <h2>
-                    chatMe
-                </h2>
 
 
+<span id="status">
 
-                <span id="status">
+Offline
 
-                    Offline
+</span>
 
-                </span>
 
+</div>
 
 
-            </div>
+</div>
 
 
 
-        </div>
 
+<div class="top-actions">
 
-        <div class="top-actions">
 
+<button onclick="startAudioCall()">
 
-            <button
-                onclick="startAudioCall()"
-                title="Audio Call"
-            >
+📞
 
-                📞
+</button>
 
-            </button>
 
 
+<button onclick="startVideoCall()">
 
-            <button
-                onclick="startVideoCall()"
-                title="Video Call"
-            >
+📹
 
-                📹
+</button>
 
-            </button>
 
 
+<button onclick="createGroupCall()">
 
-            <button
-                onclick="createGroupCall()"
-                title="Group Call"
-            >
+👥
 
-                👥
+</button>
 
-            </button>
 
 
+<button onclick="toggleTheme()">
 
-            <button
-                onclick="toggleTheme()"
-                title="Theme"
-            >
+🌙
 
-                🌙
+</button>
 
-            </button>
 
+</div>
 
-        </div>
 
+</header>
+<!-- =========================
+     CHAT LAYOUT
+========================= -->
 
-    </header>
 
+<div class="chat-layout">
 
-    <!-- MAIN CHAT AREA -->
 
 
-    <div class="chat-layout">
+<!-- =========================
+     CONTACT SIDEBAR
+========================= -->
 
 
+<aside class="sidebar">
 
 
 
-        <!-- CONTACT SIDEBAR -->
+<div class="search-box">
 
 
-        <aside class="sidebar">
+<input
 
+id="receiver"
 
+type="text"
 
-            <div class="search-box">
+placeholder="Search username..."
 
+>
 
-                <input
-                    id="receiver"
-                    placeholder="Search username..."
-                >
 
+</div>
 
 
-            </div>
 
 
+<button
 
+class="load-btn"
 
+onclick="loadMessages()"
 
-            <button
-                class="load-btn"
-                onclick="loadMessages()"
-            >
+>
 
-                Load Conversation
+Load Conversation
 
-            </button>
+</button>
 
-            <div class="contact-title">
 
-                Contacts
 
-            </div>
 
+<div class="contact-title">
 
+Contacts
 
+</div>
 
 
-            <div id="contacts">
 
 
-                <div class="contact-item">
+<div id="contacts">
 
-                    🟢 Online Users
 
-                </div>
+<div class="contact-item">
 
+🟢 Online Users
 
-            </div>
-          
-        <!-- =========================
-             CHAT WINDOW
-        ========================== -->
+</div>
 
 
-        <main class="chat-window">
+</div>
 
 
 
-            <!-- CHAT HEADER -->
+</aside>
 
 
-            <div class="conversation-header">
 
 
-                <div>
 
+<!-- =========================
+     CHAT WINDOW
+========================= -->
 
-                    <h3 id="chatUser">
 
-                        Select User
+<main class="chat-window">
 
-                    </h3>
 
 
-                    <span id="typing">
+<!-- CHAT HEADER -->
 
-                    </span>
 
+<div class="conversation-header">
 
-                </div>
 
+<div>
 
 
-                <div class="conversation-actions">
+<h3 id="chatUser">
 
+Select User
 
-                    <button onclick="startAudioCall()">
+</h3>
 
-                        📞
 
-                    </button>
 
+<span id="typing">
 
+</span>
 
-                    <button onclick="startVideoCall()">
 
-                        📹
+</div>
 
-                    </button>
 
 
-                </div>
 
 
+<div class="conversation-actions">
 
-            </div>
 
-            <!-- MESSAGE DISPLAY -->
+<button onclick="startAudioCall()">
 
+📞
 
-            <div class="message-area">
+</button>
 
 
-                <ul id="messages">
 
 
-                </ul>
+<button onclick="startVideoCall()">
 
+📹
 
-            </div>
+</button>
 
 
-            <!-- VIDEO CALL AREA -->
+</div>
 
 
-            <div id="call-area"
-                 class="call-area hidden">
+</div>
 
 
 
-                <div class="video-box">
 
 
-                    <video
-                        id="localVideo"
-                        autoplay
-                        muted>
-                    </video>
+<!-- =========================
+     MESSAGES
+========================= -->
 
 
+<div class="message-area">
 
-                    <span>
-                        You
-                    </span>
 
+<ul id="messages">
 
-                </div>
 
+</ul>
 
-                <div class="video-box">
 
+</div>
 
-                    <div id="remoteVideo">
 
 
-                    </div>
 
 
-                    <span>
-                        Remote
-                    </span>
+<!-- =========================
+     CALL DISPLAY
+========================= -->
 
 
-                </div>
+<div id="call-area"
+class="call-area hidden">
 
 
 
-            </div>
+<div class="video-box">
 
-            <!-- MESSAGE INPUT -->
 
+<video
 
-            <div class="message-input-area">
+id="localVideo"
 
+autoplay
 
+muted
 
-                <button
-                    class="emoji-btn"
-                    onclick="toggleEmoji()"
-                >
+>
 
-                    😊
+</video>
 
-                </button>
 
 
+<span>
 
+You
 
+</span>
 
-                <input
 
-                    id="message"
+</div>
 
-                    type="text"
 
-                    placeholder="Type a message..."
 
-                    onkeypress="enterSend(event)"
 
-                >
 
-                <button
+<div class="video-box">
 
-                    class="send-btn"
 
-                    onclick="sendMessage()"
+<div id="remoteVideo">
 
-                >
 
-                    ➤
+</div>
 
-                </button>
 
+<span>
 
+Remote
 
-            </div>
+</span>
 
-            <!-- EMOJI PANEL -->
 
+</div>
 
-            <div id="emoji-panel"
-                 class="emoji-panel hidden">
 
+</div>
 
-                <button onclick="addEmoji('😀')">
-                    😀
-                </button>
 
 
-                <button onclick="addEmoji('😂')">
-                    😂
-                </button>
 
 
-                <button onclick="addEmoji('❤️')">
-                    ❤️
-                </button>
+<!-- =========================
+     MESSAGE INPUT
+========================= -->
 
 
-                <button onclick="addEmoji('👍')">
-                    👍
-                </button>
+<div class="message-input-area">
 
 
-                <button onclick="addEmoji('🔥')">
-                    🔥
-                </button>
 
 
-                <button onclick="addEmoji('😍')">
-                    😍
-                </button>
 
+<!-- FILE UPLOAD -->
 
+<label class="attach-btn">
 
-            </div>
 
-            <!-- FILE UPLOAD -->
+📎
 
 
-            <div class="file-upload">
+<input
 
+id="file"
 
-                <input
-                    id="file"
-                    type="file"
-                >
+type="file"
 
-                <button
-                    onclick="uploadFile()"
-                >
+hidden
 
-                    📎 Upload
+accept="
+image/*,
+video/*,
+audio/*,
+.pdf,
+.doc,
+.docx,
+.txt
+"
 
-                </button>
+onchange="uploadFile()"
 
+>
 
 
-            </div>
+</label>
 
 
 
 
 
-        </main>
+<!-- EMOJI -->
 
 
-    </div>
-    <!-- =========================
-         GROUP CALL MODAL
-    ========================== -->
+<button
 
+class="emoji-btn"
 
-    <div id="group-call-modal"
-         class="modal hidden">
+onclick="toggleEmoji()"
 
+>
 
+😊
 
-        <div class="modal-card">
+</button>
 
 
-            <h3>
 
-                Group Call
 
-            </h3>
 
+<!-- TEXT MESSAGE -->
 
 
-            <input
-                id="roomId"
-                placeholder="Room ID"
-            >
+<input
 
-            <button
-                onclick="joinGroupCall()"
-            >
+id="message"
 
-                Join Room
+type="text"
 
-            </button>
+placeholder="Type a message..."
 
+onkeypress="enterSend(event)"
 
+>
 
-            <button
-                onclick="closeModal()"
-            >
 
-                Close
 
-            </button>
 
 
+<!-- SEND BUTTON -->
 
-        </div>
 
+<button
 
-    </div>
+class="send-btn"
 
+onclick="sendMessage()"
 
+>
+
+➤
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+<!-- =========================
+     EMOJI PANEL
+========================= -->
+
+
+<div id="emoji-panel"
+class="emoji-panel hidden">
+
+
+<button onclick="addEmoji('😀')">
+
+😀
+
+</button>
+
+
+
+<button onclick="addEmoji('😂')">
+
+😂
+
+</button>
+
+
+
+<button onclick="addEmoji('❤️')">
+
+❤️
+
+</button>
+
+
+
+<button onclick="addEmoji('👍')">
+
+👍
+
+</button>
+
+
+
+<button onclick="addEmoji('🔥')">
+
+🔥
+
+</button>
+
+
+
+<button onclick="addEmoji('😍')">
+
+😍
+
+</button>
+
+
+</div>
+<!-- =========================
+     FILE PREVIEW AREA
+========================= -->
+
+
+<div id="file-preview"
+class="file-preview hidden">
+
+
+</div>
+
+
+
+
+
+<!-- =========================
+     GROUP CALL MODAL
+========================= -->
+
+
+<div id="group-call-modal"
+class="modal hidden">
+
+
+
+<div class="modal-card">
+
+
+
+<h3>
+
+Group Call
+
+</h3>
+
+
+
+
+<input
+
+id="roomId"
+
+type="text"
+
+placeholder="Room ID"
+
+>
+
+
+
+
+
+<button
+
+onclick="joinGroupCall()"
+
+>
+
+Join Room
+
+</button>
+
+
+
+
+
+<button
+
+onclick="closeModal()"
+
+>
+
+Close
+
+</button>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+</main>
+
+
+</div>
 
 
 </section>
 
 
 
+
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+
 <script src="/static/app.js"></script>
+
+
+
+</div>
 
 
 </body>
 
 
 </html>
-
-
-
-        </aside>
