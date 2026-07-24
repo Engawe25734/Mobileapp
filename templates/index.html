@@ -3,7 +3,7 @@
 
 <head>
 
-<title>mobile app</title>
+<title>Mobile Chat App</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -19,43 +19,47 @@
 
 
 <!-- ======================
-AUTH SCREEN
+LOGIN / REGISTER
 ======================= -->
 
 <div id="auth">
 
 
-<h2>mobileApp</h2>
+<h2>📱 Mobile Chat App</h2>
+
+<p>
+Create an account or login to start messaging.
+</p>
 
 
 <input
 id="username"
-placeholder="Username"
+placeholder="Enter username"
 />
 
 
 <input
 id="phone"
-placeholder="Phone Number"
+placeholder="Enter phone number"
 />
 
 
 <input
 id="password"
 type="password"
-placeholder="Password"
+placeholder="Enter password"
 />
 
 
 
 <button onclick="register()">
-Create Account
+➕ Create Account
 </button>
 
 
 
 <button onclick="login()">
-Login
+🔐 Login
 </button>
 
 
@@ -77,16 +81,18 @@ CHAT SCREEN
 
 
 
+<!-- Header -->
+
 <div class="header">
 
 
 <h3>
-mobile app
+📱 Mobile Chat
 </h3>
 
 
 <span id="status">
-Offline
+🔴 Offline
 </span>
 
 
@@ -96,15 +102,27 @@ Offline
 
 
 
+<!-- Chat layout -->
+
 <div class="chat-area">
 
+
+
+
+
+<!-- Contact Section -->
 
 <div class="contacts">
 
 
 <h4>
-Contacts
+👥 Chat With User
 </h4>
+
+
+<p>
+Enter the username of the person you want to message.
+</p>
 
 
 
@@ -113,8 +131,10 @@ id="receiver"
 placeholder="Receiver username"
 />
 
+
+
 <button onclick="loadMessages()">
-Load Chat History
+📜 Load Previous Messages
 </button>
 
 
@@ -124,7 +144,17 @@ Load Chat History
 
 
 
+
+
+<!-- Messages Section -->
+
 <div class="messages">
+
+
+<h4>
+💬 Conversation
+</h4>
+
 
 
 <ul id="messages">
@@ -138,13 +168,41 @@ Load Chat History
 </div>
 
 
+
+
+
+<!-- Message Input -->
+
 <div class="input-area">
 
 
 <input
 id="message"
-placeholder="Type message..."
+placeholder="Type your message here..."
 >
+
+
+
+<button onclick="sendMessage()">
+➤ Send Message
+</button>
+
+
+</div>
+
+
+
+
+
+<!-- File Sharing -->
+
+<div class="file-area">
+
+
+<h4>
+📎 File Sharing
+</h4>
+
 
 
 <input
@@ -153,20 +211,54 @@ id="file"
 />
 
 
+
 <button onclick="uploadFile()">
-Upload
-</button>
-
-
-<button onclick="sendMessage()">
-Send
+⬆ Upload File
 </button>
 
 
 </div>
 
 
+
 </div>
+
+
+</div>
+
+
+
+
+
+<!-- Features -->
+
+<div class="features">
+
+
+<h4>
+⭐ App Features
+</h4>
+
+
+<p>
+✅ Private messaging
+</p>
+
+<p>
+✅ Chat history
+</p>
+
+<p>
+✅ File sharing
+</p>
+
+<p>
+✅ Online status
+</p>
+
+<p>
+✅ Typing indicator
+</p>
 
 
 </div>
