@@ -1,51 +1,38 @@
 /*
-style.css
-
-Mobile Chat Application
+Mobile Chat App
 WhatsApp Inspired Design
 */
 
 
-* {
+*{
 
-    box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+box-sizing:border-box;
 
-}
-
-
-
-body {
-
-    margin:0;
-    height:100vh;
-    background:#e5ddd5;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
+font-family:
+Segoe UI,
+Arial,
+sans-serif;
 
 }
 
 
 
 
+body{
 
-/* MAIN APP */
 
-.app {
+margin:0;
 
-    width:430px;
-    height:750px;
+height:100vh;
 
-    background:white;
+background:#e5ddd5;
 
-    border-radius:15px;
+display:flex;
 
-    overflow:hidden;
+justify-content:center;
 
-    box-shadow:
-    0 5px 25px rgba(0,0,0,0.3);
+align-items:center;
+
 
 }
 
@@ -53,9 +40,34 @@ body {
 
 
 
-.hidden {
 
-    display:none;
+
+.app{
+
+
+width:430px;
+
+height:780px;
+
+background:white;
+
+border-radius:15px;
+
+overflow:hidden;
+
+box-shadow:
+0 5px 25px rgba(0,0,0,.3);
+
+
+}
+
+
+
+
+
+.hidden{
+
+display:none;
 
 }
 
@@ -67,62 +79,41 @@ body {
 
 /* LOGIN */
 
-#auth {
 
-    padding:40px;
+#auth{
 
-    text-align:center;
+
+padding:50px 30px;
+
+text-align:center;
+
 
 }
 
 
 
-.logo {
-
-    font-size:60px;
-
-}
+.logo{
 
 
-
-#auth h2 {
-
-    color:#075e54;
-
-    margin-bottom:10px;
+font-size:70px;
 
 }
 
 
 
-#auth p {
+#auth h2{
 
-    color:#777;
+
+color:#075e54;
 
 }
 
 
 
+#auth p{
 
 
-
-
-input {
-
-
-    width:100%;
-
-    padding:12px;
-
-    margin:8px 0;
-
-    border-radius:20px;
-
-    border:1px solid #ccc;
-
-    outline:none;
-
-    font-size:15px;
+color:#777;
 
 }
 
@@ -130,9 +121,32 @@ input {
 
 
 
-input:focus {
 
-    border-color:#128c7e;
+
+input{
+
+
+width:100%;
+
+padding:12px;
+
+margin:7px 0;
+
+border-radius:20px;
+
+border:1px solid #ccc;
+
+outline:none;
+
+}
+
+
+
+input:focus{
+
+
+border-color:#128c7e;
+
 
 }
 
@@ -140,33 +154,35 @@ input:focus {
 
 
 
-button {
+button{
 
 
-    border:none;
+background:#128c7e;
 
-    background:#128c7e;
+color:white;
 
-    color:white;
+border:none;
 
-    padding:10px 15px;
+padding:10px;
 
-    border-radius:20px;
+margin:3px;
 
-    cursor:pointer;
+border-radius:20px;
 
-    margin:3px;
+cursor:pointer;
+
 
 }
 
 
 
-button:hover {
+button:hover{
 
-    background:#075e54;
+
+background:#075e54;
+
 
 }
-
 
 
 
@@ -178,82 +194,70 @@ button:hover {
 /* HEADER */
 
 
-.header {
+.header{
 
 
-    height:70px;
+height:70px;
 
-    background:#075e54;
+background:#075e54;
 
-    color:white;
+color:white;
 
-    padding:10px 15px;
+padding:10px;
 
-    display:flex;
+display:flex;
 
-    justify-content:space-between;
+justify-content:space-between;
 
-    align-items:center;
+align-items:center;
+
 
 }
 
 
 
-.header h3 {
+.header h3{
 
-    margin:0;
+
+margin:0;
+
 
 }
 
 
 
-#status {
+#status{
 
-    font-size:12px;
+
+font-size:12px;
+
 
 }
 
 
 
+.header-buttons{
 
 
-.call-buttons {
-
-    display:flex;
-
-}
-
-
-
-.call-buttons button {
-
-
-    width:40px;
-
-    height:40px;
-
-    border-radius:50%;
-
-    background:#128c7e;
-
-    font-size:18px;
+display:flex;
 
 }
 
 
 
+.header-buttons button{
 
 
+width:40px;
 
+height:40px;
 
-/* MAIN AREA */
+border-radius:50%;
 
+padding:0;
 
-.main {
+font-size:18px;
 
-    display:flex;
-
-    height:580px;
 
 }
 
@@ -263,46 +267,16 @@ button:hover {
 
 
 
-
-/* CONTACT PANEL */
-
-
-.contacts {
+/* MAIN */
 
 
-    width:140px;
-
-    background:#f0f0f0;
-
-    padding:10px;
-
-    border-right:1px solid #ddd;
-
-}
+.content{
 
 
+display:flex;
 
+height:610px;
 
-
-.contacts h4 {
-
-
-    color:#075e54;
-
-    font-size:14px;
-
-}
-
-
-
-
-
-.contacts button {
-
-
-    width:100%;
-
-    font-size:12px;
 
 }
 
@@ -312,104 +286,55 @@ button:hover {
 
 
 
+/* CONTACTS */
 
 
-/* CHAT WINDOW */
+.contacts{
 
 
-.chat-window {
+width:145px;
 
+background:#f5f5f5;
 
-    flex:1;
+padding:10px;
 
-    display:flex;
+overflow-y:auto;
 
-    flex-direction:column;
-
-    background:#efeae2;
 
 }
 
 
 
+.contacts h4{
 
 
-.chat-header {
+color:#075e54;
 
+font-size:14px;
 
-    background:#ededed;
-
-    padding:10px;
-
-    font-weight:bold;
-
-    color:#075e54;
 
 }
 
 
 
+.contacts button{
 
 
+width:100%;
 
+font-size:12px;
 
-#messages {
-
-
-    flex:1;
-
-    overflow-y:auto;
-
-    list-style:none;
-
-    padding:15px;
-
-    margin:0;
 
 }
 
 
 
+.contacts hr{
 
 
+border:none;
 
-
-/* MESSAGE BUBBLES */
-
-
-#messages li {
-
-
-    background:#dcf8c6;
-
-    padding:10px;
-
-    margin:8px 0;
-
-    border-radius:10px;
-
-    max-width:80%;
-
-    align-self:flex-end;
-
-    word-wrap:break-word;
-
-}
-
-
-
-
-
-#typing {
-
-
-    height:25px;
-
-    color:#666;
-
-    font-size:12px;
-
-    padding-left:10px;
+border-top:1px solid #ddd;
 
 }
 
@@ -420,17 +345,20 @@ button:hover {
 
 
 
-/* MESSAGE INPUT */
+/* CHAT */
 
 
-.message-box {
+.chat-window{
 
 
-    display:flex;
+flex:1;
 
-    padding:8px;
+display:flex;
 
-    background:#f0f0f0;
+flex-direction:column;
+
+background:#efeae2;
+
 
 }
 
@@ -438,29 +366,17 @@ button:hover {
 
 
 
-.message-box input {
+.chat-title{
 
 
-    flex:1;
+background:#ededed;
 
-    margin:0;
+padding:12px;
 
-    border-radius:20px;
+font-weight:bold;
 
-}
+color:#075e54;
 
-
-
-.message-box button {
-
-
-    width:45px;
-
-    height:45px;
-
-    border-radius:50%;
-
-    font-size:20px;
 
 }
 
@@ -469,38 +385,145 @@ button:hover {
 
 
 
+#messages{
 
 
-/* VIDEO CALL */
+flex:1;
 
+overflow-y:auto;
 
-.video-container {
+padding:10px;
 
+list-style:none;
 
-    display:flex;
+margin:0;
 
-    gap:5px;
-
-    padding:5px;
-
-    background:#222;
 
 }
 
 
 
-video {
+#messages li{
 
 
-    width:50%;
+background:#dcf8c6;
 
-    height:120px;
+padding:10px;
 
-    background:black;
+margin:7px;
 
-    border-radius:10px;
+border-radius:12px;
 
-    object-fit:cover;
+max-width:85%;
+
+
+}
+
+
+
+
+
+#typing{
+
+
+height:20px;
+
+font-size:12px;
+
+color:#777;
+
+
+}
+
+
+
+
+
+
+
+/* VIDEO */
+
+
+.video-container{
+
+
+display:flex;
+
+background:#111;
+
+gap:5px;
+
+padding:5px;
+
+
+}
+
+
+
+video{
+
+
+width:50%;
+
+height:120px;
+
+background:black;
+
+border-radius:8px;
+
+object-fit:cover;
+
+
+}
+
+
+
+
+
+
+
+/* MESSAGE */
+
+
+.message-box{
+
+
+display:flex;
+
+padding:8px;
+
+background:#f0f0f0;
+
+gap:5px;
+
+
+}
+
+
+
+.message-box input{
+
+
+margin:0;
+
+flex:1;
+
+
+}
+
+
+
+.message-box button{
+
+
+width:45px;
+
+height:45px;
+
+border-radius:50%;
+
+font-size:18px;
+
 
 }
 
@@ -511,29 +534,19 @@ video {
 
 
 
-/* FILE AREA */
+/* FILE */
 
 
-.file-area {
+.file-box{
 
 
-    display:flex;
+display:flex;
 
-    padding:8px;
+padding:5px;
 
-    background:#f0f0f0;
-
-}
-
-
-
-.file-area input {
-
-
-    margin:0;
+background:#f0f0f0;
 
 }
-
 
 
 
@@ -544,25 +557,25 @@ video {
 /* FEATURES */
 
 
-.features {
+.features{
 
 
-    background:white;
+height:45px;
 
-    padding:10px;
+display:flex;
 
-    border-top:1px solid #ddd;
+justify-content:space-around;
 
-    display:flex;
+align-items:center;
 
-    justify-content:space-around;
+font-size:11px;
 
-    font-size:11px;
+color:#075e54;
 
-    color:#075e54;
+border-top:1px solid #ddd;
+
 
 }
-
 
 
 
@@ -577,37 +590,45 @@ video {
 @media(max-width:500px){
 
 
-.app {
+.app{
 
-    width:100%;
 
-    height:100vh;
+width:100%;
 
-    border-radius:0;
+height:100vh;
+
+border-radius:0;
+
 
 }
 
 
 
-.main {
+.content{
 
-    height:calc(100vh - 140px);
+
+height:calc(100vh - 115px);
+
 
 }
 
 
 
-.contacts {
+.contacts{
 
-    width:120px;
+
+width:120px;
+
 
 }
 
 
 
-video {
+video{
 
-    height:90px;
+
+height:90px;
+
 
 }
 
