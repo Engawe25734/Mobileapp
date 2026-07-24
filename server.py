@@ -5,8 +5,6 @@ Main FastAPI backend for WhatsApp Clone.
 """
 
 from fastapi import UploadFile, File
-
-from fastapi.staticfiles import StaticFiles
 import shutil
 import os
 
@@ -16,8 +14,12 @@ from fastapi import (
 FastAPI,
 WebSocket,
 WebSocketDisconnect,
-HTTPException
+HTTPException,
+Request
 )
+
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from fastapi.middleware.cors import CORSMiddleware
 
