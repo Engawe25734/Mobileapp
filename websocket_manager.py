@@ -2,13 +2,14 @@
 websocket_manager.py
 
 Real-time WebSocket connection manager
-for WhatsApp Clone.
+for Mobile Chat App.
 
 Handles:
 - User connections
 - Private messages
 - Typing status
 - Message receipts
+- WebRTC audio/video call signaling
 """
 
 
@@ -27,6 +28,7 @@ class ConnectionManager:
         # username -> websocket connection
 
         self.active_connections: Dict[str, WebSocket] = {}
+
 
 
 
@@ -59,6 +61,7 @@ class ConnectionManager:
 
 
 
+
     # --------------------------------
     # Disconnect user
     # --------------------------------
@@ -70,6 +73,7 @@ class ConnectionManager:
 
 
         if username in self.active_connections:
+
 
             del self.active_connections[username]
 
@@ -87,8 +91,9 @@ class ConnectionManager:
 
 
 
+
     # --------------------------------
-    # Send message to one user
+    # Send private data
     # --------------------------------
 
     async def send_private_message(
@@ -105,6 +110,7 @@ class ConnectionManager:
 
         if websocket:
 
+
             await websocket.send_text(
                 json.dumps(data)
             )
@@ -119,8 +125,43 @@ class ConnectionManager:
 
 
 
+
     # --------------------------------
-    # Send event to everyone
+    # WebRTC Call Signaling
+    # --------------------------------
+
+    async def send_call_signal(
+        self,
+        receiver,
+        data
+    ):
+
+
+        websocket = self.active_connections.get(
+            receiver
+        )
+
+
+        if websocket:
+
+
+            await websocket.send_text(
+                json.dumps(data)
+            )
+
+
+            return True
+
+
+
+        return False
+
+
+
+
+
+    # --------------------------------
+    # Broadcast online status
     # --------------------------------
 
     async def broadcast_status(
@@ -132,11 +173,13 @@ class ConnectionManager:
 
         message = {
 
-            "type": "status",
 
-            "username": username,
+            "type":"status",
 
-            "status": status
+            "username":username,
+
+            "status":status
+
 
         }
 
@@ -149,6 +192,7 @@ class ConnectionManager:
 
             try:
 
+
                 await websocket.send_text(
                     json.dumps(message)
                 )
@@ -156,7 +200,9 @@ class ConnectionManager:
 
             except Exception:
 
+
                 pass
+
 
 
 
@@ -175,11 +221,13 @@ class ConnectionManager:
 
         data = {
 
-            "type": "typing",
 
-            "sender": sender,
+            "type":"typing",
 
-            "typing": typing
+            "sender":sender,
+
+            "typing":typing
+
 
         }
 
@@ -189,6 +237,8 @@ class ConnectionManager:
             receiver,
             data
         )
+
+
 
 
 
@@ -206,9 +256,11 @@ class ConnectionManager:
 
         data = {
 
-            "type": "delivered",
 
-            "message_id": message_id
+            "type":"delivered",
+
+            "message_id":message_id
+
 
         }
 
@@ -218,6 +270,9 @@ class ConnectionManager:
             receiver,
             data
         )
+
+
+
 
 
 
@@ -235,9 +290,11 @@ class ConnectionManager:
 
         data = {
 
-            "type": "read",
 
-            "message_id": message_id
+            "type":"read",
+
+            "message_id":message_id
+
 
         }
 
@@ -251,8 +308,10 @@ class ConnectionManager:
 
 
 
+
+
     # --------------------------------
-    # Get online users
+    # Online users
     # --------------------------------
 
     def online_users(self):
@@ -261,6 +320,7 @@ class ConnectionManager:
         return list(
             self.active_connections.keys()
         )
+
 
 
 
