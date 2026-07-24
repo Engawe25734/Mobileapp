@@ -1,16 +1,22 @@
 """
 mobile_client.py
 
-Offline style client.
+Mobile chat client.
+
+Features:
+- Connects to FastAPI WebSocket backend
+- Sends and receives messages
+- Saves offline messages when server is unavailable
+- Syncs offline messages when connection returns
 """
 
 import asyncio
 import json
 import websockets
 
+
 from local_storage import (
     init_storage,
-    save_message,
     save_offline_message,
     get_offline_messages,
     remove_offline_message,
@@ -25,8 +31,9 @@ server = "ws://127.0.0.1:8000/ws/"
 socket = None
 
 
+
 # ------------------------------------
-# Connect server
+# Connect to backend server
 # ------------------------------------
 
 async def connect_server():
@@ -37,35 +44,39 @@ async def connect_server():
         server + username
     )
 
-    print(
-        "🟢 Connected to server"
-    )
+    print("🟢 Connected to server")
+
 
     await sync_offline_messages()
 
 
 
 # ------------------------------------
-# Send queued messages
+# Sync offline messages
 # ------------------------------------
 
 async def sync_offline_messages():
 
     messages = get_offline_messages()
 
+
     for msg in messages:
 
         payload = {
 
             "type": "message",
+
             "receiver": msg[1],
+
             "message": msg[2]
 
         }
 
+
         await socket.send(
             json.dumps(payload)
         )
+
 
         remove_offline_message(
             msg[0]
@@ -91,30 +102,19 @@ async def receive_messages():
         data = json.loads(message)
 
 
-        if data["type"] == "message":
+        if data.get("type") == "message":
 
             print(
-
                 "\n📩",
                 data["sender"],
                 ":",
                 data["message"]
-
-            )
-
-
-            save_message(
-
-                data["sender"],
-                username,
-                data["message"]
-
             )
 
 
 
 # ------------------------------------
-# Send message
+# Send messages
 # ------------------------------------
 
 async def send_messages():
@@ -122,32 +122,30 @@ async def send_messages():
     while True:
 
         text = await asyncio.to_thread(
-
             input,
-            "Message: "
-
+            "\nMessage: "
         )
 
 
-        if text == "history":
+        if text.lower() == "history":
 
             show_history()
 
             continue
 
 
-
-        receiver = input(
-
+        receiver = await asyncio.to_thread(
+            input,
             "Send to: "
-
         )
 
 
         payload = {
 
             "type": "message",
+
             "receiver": receiver,
+
             "message": text
 
         }
@@ -156,44 +154,32 @@ async def send_messages():
         try:
 
             await socket.send(
-
                 json.dumps(payload)
-
-            )
-
-
-            save_message(
-
-                username,
-                receiver,
-                text
-
-            )
-
-
-        except:
-
-
-            save_offline_message(
-
-                receiver,
-                text
-
             )
 
 
             print(
+                "☁️ Message saved on server"
+            )
 
-                "📴 Saved offline"
 
+        except Exception:
+
+
+            save_offline_message(
+                receiver,
+                text
+            )
+
+
+            print(
+                "📴 Server unavailable. Saved offline"
             )
 
 
 
-
-
 # ------------------------------------
-# Start application
+# Main application
 # ------------------------------------
 
 async def main():
@@ -204,10 +190,13 @@ async def main():
     init_storage()
 
 
+    print(
+        "📱 Local phone storage ready"
+    )
+
+
     username = input(
-
         "Username: "
-
     )
 
 
@@ -225,17 +214,55 @@ async def main():
         )
 
 
-    except Exception:
+    except Exception as error:
 
 
         print(
-
             "No internet. Offline mode"
+        )
 
+        print(
+            "Reason:",
+            error
         )
 
 
-    show_history()
+        while True:
+
+            text = await asyncio.to_thread(
+                input,
+                "\nMessage: "
+            )
+
+
+            if text.lower() == "history":
+
+                show_history()
+
+                continue
+
+
+            receiver = await asyncio.to_thread(
+                input,
+                "Send to: "
+            )
+
+
+            save_offline_message(
+                receiver,
+                text
+            )
+
+
+            print(
+                "📴 Saved locally"
+            )
+
+
+
+    finally:
+
+        show_history()
 
 
 
