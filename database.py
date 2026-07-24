@@ -1,10 +1,13 @@
 """
+database.py
+
 Server-side database configuration for mobile app.
 
 Creates and manages:
 - Users
 - Private chats
 - Messages
+- Attachments
 - Groups
 - Group members
 """
@@ -67,6 +70,7 @@ def initialize_database():
     """)
 
 
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS chats (
 
@@ -86,6 +90,7 @@ def initialize_database():
 
     )
     """)
+
 
 
     cursor.execute("""
@@ -115,6 +120,7 @@ def initialize_database():
     """)
 
 
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS attachments(
 
@@ -137,6 +143,7 @@ def initialize_database():
     """)
 
 
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS groups (
 
@@ -153,6 +160,7 @@ def initialize_database():
 
     )
     """)
+
 
 
     cursor.execute("""
@@ -174,6 +182,7 @@ def initialize_database():
     """)
 
 
+
     conn.commit()
 
     conn.close()
@@ -185,9 +194,12 @@ def initialize_database():
 
 
 
+
+
 # ------------------------------------
 # User functions
 # ------------------------------------
+
 
 def create_user(
     username,
@@ -233,6 +245,8 @@ def create_user(
 
 
 
+
+
 def get_user_by_phone(phone):
 
     conn = get_connection()
@@ -257,6 +271,40 @@ def get_user_by_phone(phone):
 
 
     return user
+
+
+
+
+
+# ADDED FUNCTION
+# Used by chat system
+
+def get_user_by_username(username):
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM users
+        WHERE username=?
+        """,
+        (username,)
+    )
+
+
+    user = cursor.fetchone()
+
+
+    conn.close()
+
+
+    return user
+
+
 
 
 
@@ -294,9 +342,12 @@ def update_user_status(
 
 
 
+
+
 # ------------------------------------
 # Message functions
 # ------------------------------------
+
 
 def save_message(
     chat_id,
@@ -342,6 +393,8 @@ def save_message(
 
 
 
+
+
 def get_chat_messages(chat_id):
 
     conn = get_connection()
@@ -384,9 +437,12 @@ def get_chat_messages(chat_id):
 
 
 
+
+
 # ------------------------------------
 # Chat functions
 # ------------------------------------
+
 
 def get_or_create_chat(
     user_one,
@@ -420,11 +476,13 @@ def get_or_create_chat(
     chat = cursor.fetchone()
 
 
+
     if chat:
 
         conn.close()
 
         return chat["id"]
+
 
 
 
@@ -459,6 +517,8 @@ def get_or_create_chat(
 
 
 
+
+
 def get_user_messages(
     user_one,
     user_two
@@ -476,9 +536,12 @@ def get_user_messages(
 
 
 
+
+
 # ------------------------------------
 # Attachments
 # ------------------------------------
+
 
 def save_attachment(
     message_id,
@@ -517,6 +580,8 @@ def save_attachment(
     conn.commit()
 
     conn.close()
+
+
 
 
 
