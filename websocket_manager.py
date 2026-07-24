@@ -9,13 +9,17 @@ Handles:
 - Private messages
 - Typing status
 - Message receipts
-- WebRTC audio/video call signaling
+- WebRTC audio/video calls
 """
 
 
 from fastapi import WebSocket
+
 from typing import Dict
+
 import json
+
+
 
 
 
@@ -24,16 +28,17 @@ class ConnectionManager:
 
     def __init__(self):
 
-        # Stores:
-        # username -> websocket connection
+        # username -> websocket
 
         self.active_connections: Dict[str, WebSocket] = {}
 
 
 
 
+
+
     # --------------------------------
-    # Connect user
+    # Connect User
     # --------------------------------
 
     async def connect(
@@ -42,10 +47,13 @@ class ConnectionManager:
         websocket: WebSocket
     ):
 
+
         await websocket.accept()
 
 
+
         self.active_connections[username] = websocket
+
 
 
         print(
@@ -53,17 +61,23 @@ class ConnectionManager:
         )
 
 
+
         await self.broadcast_status(
+
             username,
+
             "online"
+
         )
 
 
 
 
 
+
+
     # --------------------------------
-    # Disconnect user
+    # Disconnect User
     # --------------------------------
 
     async def disconnect(
@@ -78,22 +92,29 @@ class ConnectionManager:
             del self.active_connections[username]
 
 
+
             print(
                 f"🔴 {username} disconnected"
             )
 
 
+
             await self.broadcast_status(
+
                 username,
+
                 "offline"
+
             )
+
+
 
 
 
 
 
     # --------------------------------
-    # Send private data
+    # Send Private Message
     # --------------------------------
 
     async def send_private_message(
@@ -108,11 +129,14 @@ class ConnectionManager:
         )
 
 
+
         if websocket:
 
 
             await websocket.send_text(
+
                 json.dumps(data)
+
             )
 
 
@@ -126,8 +150,11 @@ class ConnectionManager:
 
 
 
+
+
+
     # --------------------------------
-    # WebRTC Call Signaling
+    # WebRTC Signaling
     # --------------------------------
 
     async def send_call_signal(
@@ -142,11 +169,14 @@ class ConnectionManager:
         )
 
 
+
         if websocket:
 
 
             await websocket.send_text(
+
                 json.dumps(data)
+
             )
 
 
@@ -160,8 +190,10 @@ class ConnectionManager:
 
 
 
+
+
     # --------------------------------
-    # Broadcast online status
+    # Broadcast Online Status
     # --------------------------------
 
     async def broadcast_status(
@@ -171,17 +203,22 @@ class ConnectionManager:
     ):
 
 
+
         message = {
 
 
             "type":"status",
 
+
             "username":username,
+
 
             "status":status
 
 
         }
+
+
 
 
 
@@ -194,7 +231,9 @@ class ConnectionManager:
 
 
                 await websocket.send_text(
+
                     json.dumps(message)
+
                 )
 
 
@@ -207,8 +246,10 @@ class ConnectionManager:
 
 
 
+
+
     # --------------------------------
-    # Typing indicator
+    # Typing Indicator
     # --------------------------------
 
     async def send_typing_status(
@@ -219,23 +260,20 @@ class ConnectionManager:
     ):
 
 
-        data = {
-
-
-            "type":"typing",
-
-            "sender":sender,
-
-            "typing":typing
-
-
-        }
-
-
-
         await self.send_private_message(
+
             receiver,
-            data
+
+            {
+
+                "type":"typing",
+
+                "sender":sender,
+
+                "typing":typing
+
+            }
+
         )
 
 
@@ -243,8 +281,9 @@ class ConnectionManager:
 
 
 
+
     # --------------------------------
-    # Delivery receipt
+    # Delivery Receipt
     # --------------------------------
 
     async def send_delivery_receipt(
@@ -254,21 +293,18 @@ class ConnectionManager:
     ):
 
 
-        data = {
-
-
-            "type":"delivered",
-
-            "message_id":message_id
-
-
-        }
-
-
-
         await self.send_private_message(
+
             receiver,
-            data
+
+            {
+
+                "type":"delivered",
+
+                "message_id":message_id
+
+            }
+
         )
 
 
@@ -278,7 +314,7 @@ class ConnectionManager:
 
 
     # --------------------------------
-    # Read receipt
+    # Read Receipt
     # --------------------------------
 
     async def send_read_receipt(
@@ -288,21 +324,18 @@ class ConnectionManager:
     ):
 
 
-        data = {
-
-
-            "type":"read",
-
-            "message_id":message_id
-
-
-        }
-
-
-
         await self.send_private_message(
+
             receiver,
-            data
+
+            {
+
+                "type":"read",
+
+                "message_id":message_id
+
+            }
+
         )
 
 
@@ -310,21 +343,25 @@ class ConnectionManager:
 
 
 
+
     # --------------------------------
-    # Online users
+    # Online Users
     # --------------------------------
 
     def online_users(self):
 
 
         return list(
+
             self.active_connections.keys()
+
         )
 
 
 
 
 
-# Global manager object
+
+# Global manager instance
 
 manager = ConnectionManager()
