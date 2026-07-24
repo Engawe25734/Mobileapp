@@ -1,7 +1,5 @@
 """
-models.py
-
-Data validation models for WhatsApp Clone.
+Data validation models for mobile app.
 
 Used by FastAPI endpoints and WebSocket messages.
 """
