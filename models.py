@@ -16,11 +16,11 @@ from typing import Optional
 
 class RegisterRequest(BaseModel):
 
-username: str
+    username: str
 
-phone: str
+    phone: str
 
-password: str
+    password: str
 
 
 
@@ -30,9 +30,9 @@ password: str
 
 class LoginRequest(BaseModel):
 
-phone: str
+    phone: str
 
-password: str
+    password: str
 
 
 
@@ -42,9 +42,9 @@ password: str
 
 class TokenResponse(BaseModel):
 
-access_token: str
+    access_token: str
 
-token_type: str = "bearer"
+    token_type: str = "bearer"
 
 
 
@@ -54,7 +54,7 @@ token_type: str = "bearer"
 
 class ChatRequest(BaseModel):
 
-receiver_phone: str
+    receiver_phone: str
 
 
 
@@ -64,9 +64,9 @@ receiver_phone: str
 
 class MessageRequest(BaseModel):
 
-receiver: str
+    receiver: str
 
-message: str
+    message: str
 
 
 
@@ -76,13 +76,13 @@ message: str
 
 class WebSocketMessage(BaseModel):
 
-type: str
+    type: str
 
-receiver: Optional[str] = None
+    receiver: Optional[str] = None
 
-message: Optional[str] = None
+    message: Optional[str] = None
 
-message_id: Optional[int] = None
+    message_id: Optional[int] = None
 
 
 
@@ -92,9 +92,9 @@ message_id: Optional[int] = None
 
 class TypingRequest(BaseModel):
 
-receiver: str
+    receiver: str
 
-typing: bool
+    typing: bool
 
 
 
@@ -104,9 +104,9 @@ typing: bool
 
 class DeliveryReceipt(BaseModel):
 
-message_id: int
+    message_id: int
 
-receiver: str
+    receiver: str
 
 
 
@@ -116,9 +116,9 @@ receiver: str
 
 class ReadReceipt(BaseModel):
 
-message_id: int
+    message_id: int
 
-receiver: str
+    receiver: str
 
 
 
@@ -128,9 +128,9 @@ receiver: str
 
 class CreateGroupRequest(BaseModel):
 
-name: str
+    name: str
 
-members: list[str]
+    members: list[str]
 
 
 
@@ -140,9 +140,9 @@ members: list[str]
 
 class AddGroupMemberRequest(BaseModel):
 
-group_id: int
+    group_id: int
 
-user_id: int
+    user_id: int
 
 
 
@@ -152,4 +152,4 @@ user_id: int
 
 class SyncRequest(BaseModel):
 
-last_message_id: int = 0
+    last_message_id: int = 0
