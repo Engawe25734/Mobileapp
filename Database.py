@@ -123,7 +123,31 @@ REFERENCES users(id)
 """)
 
 
+# -------------------------------
+# Media attachments
+# -------------------------------
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS attachments(
+
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+message_id INTEGER,
+
+filename TEXT,
+
+filepath TEXT,
+
+filetype TEXT,
+
+timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+
+FOREIGN KEY(message_id)
+REFERENCES messages(id)
+
+)
+""")
 # -------------------------------
 # Groups table
 # -------------------------------
@@ -360,6 +384,7 @@ return messages
 if __name__ == "__main__":
 
 initialize_database()
+
 # ------------------------------------
 # Chat functions
 # ------------------------------------
@@ -447,3 +472,33 @@ return get_chat_messages(
 chat_id
 )
 
+def save_attachment(
+message_id,
+filename,
+filepath,
+filetype
+):
+
+conn = get_connection()
+
+cursor = conn.cursor()
+
+
+cursor.execute("""
+INSERT INTO attachments
+(
+message_id,
+filename,
+filepath,
+filetype
+)
+
+VALUES (?,?,?,?)
+
+""",
+(
+message_id,
+filename,
+filepath,
+filetype
+))
