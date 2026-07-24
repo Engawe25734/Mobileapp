@@ -15,7 +15,6 @@ import sqlite3
 from datetime import datetime
 
 
-
 DATABASE = "phone_storage.db"
 
 
@@ -26,59 +25,55 @@ DATABASE = "phone_storage.db"
 
 def init_storage():
 
-conn = sqlite3.connect(
-DATABASE
-)
+    conn = sqlite3.connect(
+        DATABASE
+    )
 
-cursor = conn.cursor()
-
-
-
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS messages(
-
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-sender TEXT,
-
-receiver TEXT,
-
-message TEXT,
-
-status TEXT,
-
-timestamp DATETIME
-
-)
-""")
+    cursor = conn.cursor()
 
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS messages(
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS offline_queue(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sender TEXT,
 
-receiver TEXT,
+        receiver TEXT,
 
-message TEXT,
+        message TEXT,
 
-timestamp DATETIME
+        status TEXT,
 
-)
-""")
+        timestamp DATETIME
 
-
-
-conn.commit()
-
-conn.close()
+    )
+    """)
 
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS offline_queue(
 
-print(
-"📱 Local phone storage ready"
-)
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        receiver TEXT,
+
+        message TEXT,
+
+        timestamp DATETIME
+
+    )
+    """)
+
+
+    conn.commit()
+
+    conn.close()
+
+
+    print(
+        "📱 Local phone storage ready"
+    )
 
 
 
@@ -89,43 +84,43 @@ print(
 # ------------------------------------
 
 def save_message(
-sender,
-receiver,
-message
+    sender,
+    receiver,
+    message
 ):
 
-conn = sqlite3.connect(
-DATABASE
-)
+    conn = sqlite3.connect(
+        DATABASE
+    )
 
-cursor = conn.cursor()
-
-
-cursor.execute("""
-INSERT INTO messages
-(
-sender,
-receiver,
-message,
-status,
-timestamp
-)
-
-VALUES(?,?,?,?,?)
-
-""",
-(
-sender,
-receiver,
-message,
-"received",
-datetime.now()
-))
+    cursor = conn.cursor()
 
 
-conn.commit()
+    cursor.execute("""
+    INSERT INTO messages
+    (
+        sender,
+        receiver,
+        message,
+        status,
+        timestamp
+    )
 
-conn.close()
+    VALUES(?,?,?,?,?)
+
+    """,
+    (
+        sender,
+        receiver,
+        message,
+        "received",
+        datetime.now()
+    ))
+
+
+    conn.commit()
+
+    conn.close()
 
 
 
@@ -136,44 +131,43 @@ conn.close()
 # ------------------------------------
 
 def save_offline_message(
-receiver,
-message
+    receiver,
+    message
 ):
 
-conn = sqlite3.connect(
-DATABASE
-)
+    conn = sqlite3.connect(
+        DATABASE
+    )
 
-cursor = conn.cursor()
-
-
-cursor.execute("""
-INSERT INTO offline_queue
-(
-receiver,
-message,
-timestamp
-)
-
-VALUES(?,?,?)
-
-""",
-(
-receiver,
-message,
-datetime.now()
-))
+    cursor = conn.cursor()
 
 
-conn.commit()
+    cursor.execute("""
+    INSERT INTO offline_queue
+    (
+        receiver,
+        message,
+        timestamp
+    )
 
-conn.close()
+    VALUES(?,?,?)
+
+    """,
+    (
+        receiver,
+        message,
+        datetime.now()
+    ))
 
 
+    conn.commit()
 
-print(
-"💾 Message stored offline"
-)
+    conn.close()
+
+
+    print(
+        "💾 Message stored offline"
+    )
 
 
 
@@ -185,31 +179,30 @@ print(
 
 def get_offline_messages():
 
-
-conn = sqlite3.connect(
-DATABASE
-)
-
-
-cursor = conn.cursor()
+    conn = sqlite3.connect(
+        DATABASE
+    )
 
 
-cursor.execute(
-"""
-SELECT *
-FROM offline_queue
-ORDER BY id
-"""
-)
+    cursor = conn.cursor()
 
 
-messages = cursor.fetchall()
+    cursor.execute(
+        """
+        SELECT *
+        FROM offline_queue
+        ORDER BY id
+        """
+    )
 
 
-conn.close()
+    messages = cursor.fetchall()
 
 
-return messages
+    conn.close()
+
+
+    return messages
 
 
 
@@ -220,29 +213,29 @@ return messages
 # ------------------------------------
 
 def remove_offline_message(
-message_id
+    message_id
 ):
 
-conn = sqlite3.connect(
-DATABASE
-)
+    conn = sqlite3.connect(
+        DATABASE
+    )
 
 
-cursor = conn.cursor()
+    cursor = conn.cursor()
 
 
-cursor.execute(
-"""
-DELETE FROM offline_queue
-WHERE id=?
-""",
-(message_id,)
-)
+    cursor.execute(
+        """
+        DELETE FROM offline_queue
+        WHERE id=?
+        """,
+        (message_id,)
+    )
 
 
-conn.commit()
+    conn.commit()
 
-conn.close()
+    conn.close()
 
 
 
@@ -254,37 +247,41 @@ conn.close()
 def show_history():
 
 
-conn = sqlite3.connect(
-DATABASE
-)
+    conn = sqlite3.connect(
+        DATABASE
+    )
 
 
-cursor = conn.cursor()
+    cursor = conn.cursor()
 
 
-cursor.execute(
-"""
-SELECT sender,message,timestamp
-FROM messages
-"""
-)
+    cursor.execute(
+        """
+        SELECT sender,message,timestamp
+        FROM messages
+        """
+    )
 
 
-rows = cursor.fetchall()
+    rows = cursor.fetchall()
 
 
-conn.close()
+    conn.close()
 
 
 
-print("\n------ LOCAL CHAT HISTORY ------")
+    print(
+        "\n------ LOCAL CHAT HISTORY ------"
+    )
 
 
-for row in rows:
+    for row in rows:
 
-print(
-f"{row[2]} | {row[0]}: {row[1]}"
-)
+        print(
+            f"{row[2]} | {row[0]}: {row[1]}"
+        )
 
 
-print("--------------------------------\n")
+    print(
+        "--------------------------------\n"
+    )
