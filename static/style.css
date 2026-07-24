@@ -35,7 +35,472 @@ body {
 
 }
 
+/* ==========================
+   GROUP CALL MODAL
+========================== */
 
+
+.modal {
+
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    height:100%;
+
+    background:rgba(0,0,0,.5);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:100;
+
+
+}
+
+
+
+
+
+.modal-card {
+
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    width:320px;
+
+    text-align:center;
+
+
+}
+
+
+
+
+
+.modal-card h3 {
+
+
+    color:#075e54;
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+
+
+.modal-card input {
+
+
+    width:100%;
+
+    padding:12px;
+
+    border-radius:20px;
+
+    border:1px solid #ccc;
+
+    margin-bottom:15px;
+
+
+}
+
+
+
+
+
+.modal-card button {
+
+
+    width:100%;
+
+    padding:12px;
+
+    margin:5px;
+
+    border-radius:20px;
+
+    background:#128c7e;
+
+    color:white;
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+   DARK MODE
+========================== */
+
+
+body.dark {
+
+
+    background:#111;
+
+
+}
+
+
+
+body.dark .chat-container {
+
+
+    background:#222;
+
+
+}
+
+
+
+body.dark .sidebar {
+
+
+    background:#181818;
+
+    color:white;
+
+
+}
+
+
+
+body.dark .chat-window {
+
+
+    background:#0b141a;
+
+
+}
+
+
+
+body.dark .conversation-header,
+
+
+body.dark .message-input-area,
+
+
+body.dark .file-upload {
+
+
+    background:#202c33;
+
+    color:white;
+
+
+}
+
+
+
+body.dark #messages li {
+
+
+    background:#202c33;
+
+    color:white;
+
+
+}
+
+
+
+body.dark input {
+
+
+    background:#333;
+
+    color:white;
+
+    border-color:#555;
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+   SCROLLBAR
+========================== */
+
+
+::-webkit-scrollbar {
+
+
+    width:8px;
+
+
+}
+
+
+
+
+
+::-webkit-scrollbar-thumb {
+
+
+    background:#128c7e;
+
+    border-radius:10px;
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+   MOBILE RESPONSIVE
+========================== */
+
+
+@media(max-width:900px){
+
+
+
+.chat-container {
+
+
+    width:100%;
+
+    height:100vh;
+
+    border-radius:0;
+
+
+}
+
+
+
+
+
+.sidebar {
+
+
+    width:90px;
+
+    padding:10px;
+
+
+}
+
+
+
+
+
+.contact-item {
+
+
+    font-size:12px;
+
+
+}
+
+
+
+
+
+.chat-layout {
+
+
+    height:calc(100vh - 75px);
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+@media(max-width:600px){
+
+
+
+.auth-card {
+
+
+    width:90%;
+
+
+}
+
+
+
+
+
+.top-bar {
+
+
+    padding:10px;
+
+
+}
+
+
+
+
+
+.profile-area h2 {
+
+
+    font-size:16px;
+
+
+}
+
+
+
+
+
+.top-actions button {
+
+
+    width:35px;
+
+    height:35px;
+
+    font-size:14px;
+
+
+}
+
+
+
+
+
+.sidebar {
+
+
+    display:none;
+
+
+}
+
+
+
+
+
+.call-area {
+
+
+    width:95%;
+
+    height:220px;
+
+    right:2.5%;
+
+
+}
+
+
+
+
+
+#messages li {
+
+
+    max-width:90%;
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+   ANIMATIONS
+========================== */
+
+
+button:active {
+
+
+    transform:scale(.95);
+
+
+}
+
+
+
+
+
+.chat-window {
+
+
+    animation:fade .3s;
+
+
+}
+
+
+
+
+
+@keyframes fade {
+
+
+    from{
+
+        opacity:0;
+
+    }
+
+
+    to{
+
+        opacity:1;
+
+    }
+
+
+}
 
 
 
