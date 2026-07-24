@@ -1,640 +1,278 @@
 """
-server.py
+websocket_manager.py
 
-Main FastAPI backend for Mobile Chat App.
+Real-time WebSocket connection manager
+for Mobile Chat App.
 
-Features:
-- User registration
-- Login authentication
-- Private messaging
-- File uploads
-- Message history
-- WebSocket communication
-- WebRTC audio/video call signaling
+Handles:
+- User connections
+- Private messages
+- Typing status
+- Message receipts
+- WebRTC audio/video calls
 """
 
 
-from fastapi import (
-    FastAPI,
-    WebSocket,
-    WebSocketDisconnect,
-    HTTPException,
-    Request,
-    UploadFile,
-    File
-)
+from fastapi import WebSocket
 
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
+from typing import Dict
 
-
-import shutil
-import os
 import json
 
 
 
-from database import (
-    initialize_database,
-    save_message,
-    get_user_by_username,
-    get_user_messages,
-    get_or_create_chat,
-    save_attachment
-)
 
 
+class ConnectionManager:
 
-from auth import (
-    register_user,
-    authenticate_user,
-    create_access_token
-)
 
+    def __init__(self):
 
+        # username -> websocket
 
-from models import (
-    RegisterRequest,
-    LoginRequest
-)
+        self.active_connections: Dict[str, WebSocket] = {}
 
 
 
-from websocket_manager import manager
 
 
 
+    # --------------------------------
+    # Connect User
+    # --------------------------------
 
+    async def connect(
+        self,
+        username: str,
+        websocket: WebSocket
+    ):
 
-# ------------------------------------
-# Create application
-# ------------------------------------
 
-app = FastAPI(
-    title="Mobile Chat App API"
-)
+        await websocket.accept()
 
 
 
+        self.active_connections[username] = websocket
 
 
-# ------------------------------------
-# Templates and Static
-# ------------------------------------
 
-templates = Jinja2Templates(
-    directory="templates"
-)
+        print(
+            f"🟢 {username} connected"
+        )
 
 
 
-app.mount(
-    "/static",
-    StaticFiles(directory="static"),
-    name="static"
-)
+        await self.broadcast_status(
 
+            username,
 
-
-
-
-# ------------------------------------
-# CORS
-# ------------------------------------
-
-app.add_middleware(
-
-    CORSMiddleware,
-
-    allow_origins=["*"],
-
-    allow_credentials=True,
-
-    allow_methods=["*"],
-
-    allow_headers=["*"]
-
-)
-
-
-
-
-
-# ------------------------------------
-# Database
-# ------------------------------------
-
-initialize_database()
-
-
-
-
-
-# ------------------------------------
-# Home page
-# ------------------------------------
-
-@app.get("/")
-async def home(request: Request):
-
-    return templates.TemplateResponse(
-
-        request=request,
-
-        name="index.html",
-
-        context={}
-
-    )
-
-
-
-
-
-# ------------------------------------
-# Upload files
-# ------------------------------------
-
-@app.post("/upload")
-async def upload_file(
-    file: UploadFile = File(...)
-):
-
-
-    upload_folder = "uploads"
-
-
-    os.makedirs(
-        upload_folder,
-        exist_ok=True
-    )
-
-
-    file_path = os.path.join(
-
-        upload_folder,
-
-        file.filename
-
-    )
-
-
-
-    with open(
-        file_path,
-        "wb"
-    ) as buffer:
-
-
-        shutil.copyfileobj(
-
-            file.file,
-
-            buffer
+            "online"
 
         )
 
 
 
-    save_attachment(
-
-        None,
-
-        file.filename,
-
-        file_path,
-
-        file.content_type
-
-    )
-
-
-
-    return {
-
-        "filename": file.filename,
-
-        "path": file_path,
-
-        "type": file.content_type
-
-    }
 
 
 
 
+    # --------------------------------
+    # Disconnect User
+    # --------------------------------
 
-# ------------------------------------
-# Register
-# ------------------------------------
-
-@app.post("/register")
-def register(
-    user: RegisterRequest
-):
+    async def disconnect(
+        self,
+        username: str
+    ):
 
 
-    return register_user(
+        if username in self.active_connections:
 
-        user.username.strip(),
 
-        user.phone.strip(),
+            del self.active_connections[username]
 
-        user.password
 
-    )
+
+            print(
+                f"🔴 {username} disconnected"
+            )
+
+
+
+            await self.broadcast_status(
+
+                username,
+
+                "offline"
+
+            )
 
 
 
 
 
-# ------------------------------------
-# Login
-# ------------------------------------
-
-@app.post("/login")
-def login(
-    user: LoginRequest
-):
 
 
-    account = authenticate_user(
+    # --------------------------------
+    # Send Private Message
+    # --------------------------------
 
-        user.phone.strip(),
-
-        user.password
-
-    )
-
-
-
-    if not account:
+    async def send_private_message(
+        self,
+        receiver,
+        data
+    ):
 
 
-        raise HTTPException(
-
-            status_code=401,
-
-            detail="Invalid credentials"
-
+        websocket = self.active_connections.get(
+            receiver
         )
 
 
 
-    token = create_access_token(
-
-        account["id"],
-
-        account["username"]
-
-    )
+        if websocket:
 
 
+            await websocket.send_text(
 
-    return {
+                json.dumps(data)
 
-
-        "access_token": token,
-
-
-        "token_type":"bearer",
+            )
 
 
-        "username":account["username"]
+            return True
 
 
-    }
+
+        return False
 
 
 
 
 
-# ------------------------------------
-# Online users
-# ------------------------------------
-
-@app.get("/online")
-def online_users():
-
-
-    return {
-
-
-        "users":
-
-        manager.online_users()
-
-
-    }
 
 
 
+    # --------------------------------
+    # WebRTC Signaling
+    # --------------------------------
+
+    async def send_call_signal(
+        self,
+        receiver,
+        data
+    ):
 
 
-# ------------------------------------
-# Message History
-# ------------------------------------
-
-@app.get("/messages/{user1}/{user2}")
-def message_history(
-
-    user1:str,
-
-    user2:str
-
-):
-
-
-    first_user = get_user_by_username(
-
-        user1.strip()
-
-    )
-
-
-    second_user = get_user_by_username(
-
-        user2.strip()
-
-    )
+        websocket = self.active_connections.get(
+            receiver
+        )
 
 
 
-    if not first_user or not second_user:
+        if websocket:
 
 
-        return {
+            await websocket.send_text(
 
-            "messages":[]
+                json.dumps(data)
+
+            )
+
+
+            return True
+
+
+
+        return False
+
+
+
+
+
+
+
+    # --------------------------------
+    # Broadcast Online Status
+    # --------------------------------
+
+    async def broadcast_status(
+        self,
+        username,
+        status
+    ):
+
+
+
+        message = {
+
+
+            "type":"status",
+
+
+            "username":username,
+
+
+            "status":status
+
 
         }
 
 
 
-    messages = get_user_messages(
 
-        first_user["id"],
 
-        second_user["id"]
+        for websocket in list(
+            self.active_connections.values()
+        ):
 
-    )
 
+            try:
 
 
-    result=[]
+                await websocket.send_text(
 
-
-
-    for msg in messages:
-
-
-        result.append({
-
-            "sender":msg["username"],
-
-            "message":msg["message"],
-
-            "timestamp":msg["timestamp"]
-
-        })
-
-
-
-    return {
-
-
-        "messages":result
-
-
-    }
-
-
-
-
-
-# ------------------------------------
-# WebSocket
-# ------------------------------------
-
-@app.websocket("/ws/{username}")
-async def websocket_endpoint(
-
-    websocket:WebSocket,
-
-    username:str
-
-):
-
-
-    username=username.strip()
-
-
-
-    await manager.connect(
-
-        username,
-
-        websocket
-
-    )
-
-
-
-    try:
-
-
-        while True:
-
-
-
-            raw = await websocket.receive_text()
-
-
-            data=json.loads(raw)
-
-
-
-            message_type=data.get("type")
-
-
-
-
-
-            # --------------------------
-            # CHAT MESSAGE
-            # --------------------------
-
-            if message_type=="message":
-
-
-                receiver=data["receiver"].strip()
-
-                text=data["message"]
-
-
-
-                sender_account=get_user_by_username(
-
-                    username
+                    json.dumps(message)
 
                 )
 
 
+            except Exception:
 
-                receiver_account=get_user_by_username(
 
-                    receiver
+                pass
 
-                )
 
 
 
-                message_id=None
 
 
 
-                if sender_account and receiver_account:
+    # --------------------------------
+    # Typing Indicator
+    # --------------------------------
 
+    async def send_typing_status(
+        self,
+        receiver,
+        sender,
+        typing
+    ):
 
-                    chat_id=get_or_create_chat(
 
-                        sender_account["id"],
+        await self.send_private_message(
 
-                        receiver_account["id"]
+            receiver,
 
-                    )
+            {
 
+                "type":"typing",
 
+                "sender":sender,
 
-                    message_id=save_message(
+                "typing":typing
 
-                        chat_id,
-
-                        sender_account["id"],
-
-                        text
-
-                    )
-
-
-
-
-                await manager.send_private_message(
-
-                    receiver,
-
-                    {
-
-                    "type":"message",
-
-                    "sender":username,
-
-                    "message":text,
-
-                    "message_id":message_id
-
-                    }
-
-                )
-
-
-
-
-
-
-
-            # --------------------------
-            # TYPING
-            # --------------------------
-
-            elif message_type=="typing":
-
-
-                await manager.send_typing_status(
-
-                    data["receiver"],
-
-                    username,
-
-                    data["typing"]
-
-                )
-
-
-
-
-
-
-
-            # --------------------------
-            # READ RECEIPTS
-            # --------------------------
-
-            elif message_type=="read":
-
-
-                await manager.send_read_receipt(
-
-                    data["receiver"],
-
-                    data["message_id"]
-
-                )
-
-
-
-
-
-
-
-            # --------------------------
-            # WEBRTC AUDIO / VIDEO CALL
-            # --------------------------
-
-            elif message_type in [
-
-                "call_request",
-
-                "offer",
-
-                "answer",
-
-                "candidate",
-
-                "end_call"
-
-            ]:
-
-
-                receiver=data["receiver"].strip()
-
-
-
-                await manager.send_call_signal(
-
-                    receiver,
-
-                    {
-
-                        **data,
-
-                        "sender":username
-
-                    }
-
-                )
-
-
-
-
-
-    except WebSocketDisconnect:
-
-
-        await manager.disconnect(
-
-            username
+            }
 
         )
 
@@ -642,23 +280,88 @@ async def websocket_endpoint(
 
 
 
-# ------------------------------------
-# Run
-# ------------------------------------
-
-if __name__=="__main__":
 
 
-    import uvicorn
+    # --------------------------------
+    # Delivery Receipt
+    # --------------------------------
+
+    async def send_delivery_receipt(
+        self,
+        receiver,
+        message_id
+    ):
+
+
+        await self.send_private_message(
+
+            receiver,
+
+            {
+
+                "type":"delivered",
+
+                "message_id":message_id
+
+            }
+
+        )
 
 
 
-    uvicorn.run(
 
-        app,
 
-        host="127.0.0.1",
 
-        port=8000
 
-    )
+    # --------------------------------
+    # Read Receipt
+    # --------------------------------
+
+    async def send_read_receipt(
+        self,
+        receiver,
+        message_id
+    ):
+
+
+        await self.send_private_message(
+
+            receiver,
+
+            {
+
+                "type":"read",
+
+                "message_id":message_id
+
+            }
+
+        )
+
+
+
+
+
+
+
+    # --------------------------------
+    # Online Users
+    # --------------------------------
+
+    def online_users(self):
+
+
+        return list(
+
+            self.active_connections.keys()
+
+        )
+
+
+
+
+
+
+# Global manager instance
+
+manager = ConnectionManager()
