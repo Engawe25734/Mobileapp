@@ -215,6 +215,94 @@ connectSocket();
 }
 
 
+// ================================
+// Upload File
+// ================================
+
+
+async function uploadFile(){
+
+
+let fileInput =
+document.getElementById(
+"file"
+);
+
+
+let file =
+fileInput.files[0];
+
+
+if(!file){
+
+return;
+
+}
+
+
+
+let formData =
+new FormData();
+
+
+
+formData.append(
+"file",
+file
+);
+
+
+
+let response =
+await fetch(
+"/upload",
+{
+
+method:"POST",
+
+body:formData
+
+}
+);
+
+
+
+let result =
+await response.json();
+
+
+
+socket.send(
+
+JSON.stringify({
+
+type:"file",
+
+receiver:
+document
+.getElementById(
+"receiver"
+)
+.value,
+
+
+filename:
+result.filename,
+
+
+path:
+result.path,
+
+
+filetype:
+result.type
+
+})
+
+);
+
+
+}
 
 
 
