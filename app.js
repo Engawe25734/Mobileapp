@@ -300,31 +300,85 @@ result.type
 function connectSocket(){
 
 
-socket =
-new WebSocket(
+// Detect HTTP or HTTPS automatically
+let wsProtocol =
+window.location.protocol === "https:"
+? "wss://"
+: "ws://";
 
-"ws://127.0.0.1:8000/ws/"
-+ username
 
+// Use current server address
+let wsUrl =
+wsProtocol
++ window.location.host
++ "/ws/"
++ encodeURIComponent(username);
+
+
+
+console.log(
+"Connecting to:",
+wsUrl
 );
 
 
 
+socket = new WebSocket(wsUrl);
 
-socket.onopen=function(){
+
+
+socket.onopen = function(){
 
 
 document
-.getElementById(
-"status"
-)
+.getElementById("status")
 .innerHTML =
 "🟢 Online";
+
+
+console.log(
+"WebSocket connected"
+);
+
+};
+
+
+
+socket.onclose = function(){
+
+
+document
+.getElementById("status")
+.innerHTML =
+"🔴 Disconnected";
+
+
+console.log(
+"Connection lost. Reconnecting..."
+);
+
+
+setTimeout(
+
+connectSocket,
+
+5000
+
+);
 
 
 };
 
 
+
+socket.onerror = function(error){
+
+console.log(
+"WebSocket error:",
+error
+);
+
+};
 
 
 
@@ -332,30 +386,75 @@ socket.onmessage=function(event){
 
 
 let data =
-JSON.parse(
-event.data
+JSON.parse(event.data);
+
+
+
+console.log(
+data
 );
 
 
 
-console.log(data);
-
-if(data.type==="file"){
+if(data.type==="message"){
 
 
 displayMessage(
 
 data.sender,
 
-"📎 File: "
-+
-data.filename
-+
-"\n"
-+
-data.path
+data.message
 
 );
+
+}
+
+
+
+if(data.type==="typing"){
+
+
+document
+.getElementById("typing")
+.innerHTML =
+
+data.typing
+?
+data.sender+" is typing..."
+:
+"";
+
+}
+
+
+
+if(data.type==="delivered"){
+
+
+console.log(
+"Delivered:",
+data.message_id
+);
+
+
+}
+
+
+
+if(data.type==="read"){
+
+
+console.log(
+"Read:",
+data.message_id
+);
+
+
+}
+
+
+
+};
 
 
 }
