@@ -4,7 +4,14 @@ server.py
 Main FastAPI backend for WhatsApp Clone.
 """
 
+from fastapi import UploadFile, File
 
+from fastapi.staticfiles import StaticFiles
+import shutil
+import os
+
+
+from database import save_attachment
 from fastapi import (
 FastAPI,
 WebSocket,
@@ -99,6 +106,58 @@ return {
 
 }
 
+# ------------------------------------
+# File upload endpoint
+# ------------------------------------
+
+@app.post("/upload")
+async def upload_file(
+file: UploadFile = File(...)
+):
+
+
+upload_folder="uploads"
+
+
+os.makedirs(
+upload_folder,
+exist_ok=True
+)
+
+
+file_path = (
+upload_folder
++ "/"
++ file.filename
+)
+
+
+with open(
+file_path,
+"wb"
+) as buffer:
+
+
+shutil.copyfileobj(
+file.file,
+buffer
+)
+
+
+return {
+
+"filename":
+file.filename,
+
+
+"path":
+file_path,
+
+
+"type":
+file.content_type
+
+}
 
 
 # ------------------------------------
