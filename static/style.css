@@ -1,73 +1,37 @@
 /*
 Mobile Chat App
-WhatsApp Inspired Design
+Modern WhatsApp Inspired UI
 */
 
 
-*{
+* {
 
-box-sizing:border-box;
+    margin:0;
 
-font-family:
-Segoe UI,
-Arial,
-sans-serif;
+    padding:0;
 
-}
+    box-sizing:border-box;
 
-
-
-
-body{
-
-
-margin:0;
-
-height:100vh;
-
-background:#e5ddd5;
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
+    font-family:'Inter', Arial, sans-serif;
 
 }
 
 
 
+body {
 
 
+    height:100vh;
 
+    background:#dfe7e5;
 
-.app{
+    display:flex;
 
+    justify-content:center;
 
-width:430px;
+    align-items:center;
 
-height:780px;
-
-background:white;
-
-border-radius:15px;
-
-overflow:hidden;
-
-box-shadow:
-0 5px 25px rgba(0,0,0,.3);
-
-
-}
-
-
-
-
-
-.hidden{
-
-display:none;
+    overflow:hidden;
 
 }
 
@@ -77,109 +41,23 @@ display:none;
 
 
 
-/* LOGIN */
+/* ==========================
+   APP CONTAINER
+========================== */
 
 
-#auth{
+.app-container {
 
 
-padding:50px 30px;
+    width:100%;
 
-text-align:center;
+    height:100vh;
 
+    display:flex;
 
-}
+    justify-content:center;
 
-
-
-.logo{
-
-
-font-size:70px;
-
-}
-
-
-
-#auth h2{
-
-
-color:#075e54;
-
-}
-
-
-
-#auth p{
-
-
-color:#777;
-
-}
-
-
-
-
-
-
-
-input{
-
-
-width:100%;
-
-padding:12px;
-
-margin:7px 0;
-
-border-radius:20px;
-
-border:1px solid #ccc;
-
-outline:none;
-
-}
-
-
-
-input:focus{
-
-
-border-color:#128c7e;
-
-
-}
-
-
-
-
-
-button{
-
-
-background:#128c7e;
-
-color:white;
-
-border:none;
-
-padding:10px;
-
-margin:3px;
-
-border-radius:20px;
-
-cursor:pointer;
-
-
-}
-
-
-
-button:hover{
-
-
-background:#075e54;
+    align-items:center;
 
 
 }
@@ -190,73 +68,61 @@ background:#075e54;
 
 
 
-
-/* HEADER */
-
-
-.header{
+.hidden {
 
 
-height:70px;
+    display:none !important;
 
-background:#075e54;
+}
 
-color:white;
 
-padding:10px;
 
-display:flex;
 
-justify-content:space-between;
 
-align-items:center;
+
+
+/* ==========================
+   AUTH PAGE
+========================== */
+
+
+.auth-container {
+
+
+    width:100%;
+
+    height:100%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
 
 
 }
 
 
 
-.header h3{
-
-
-margin:0;
-
-
-}
 
 
 
-#status{
+.auth-card {
 
 
-font-size:12px;
+    width:380px;
 
+    padding:40px;
 
-}
+    background:white;
 
+    border-radius:25px;
 
+    box-shadow:
 
-.header-buttons{
+    0 15px 40px rgba(0,0,0,0.15);
 
-
-display:flex;
-
-}
-
-
-
-.header-buttons button{
-
-
-width:40px;
-
-height:40px;
-
-border-radius:50%;
-
-padding:0;
-
-font-size:18px;
+    text-align:center;
 
 
 }
@@ -267,15 +133,61 @@ font-size:18px;
 
 
 
-/* MAIN */
+.app-logo {
 
 
-.content{
+    width:80px;
+
+    height:80px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    background:#128c7e;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:45px;
+
+    color:white;
+
+    margin-bottom:20px;
 
 
-display:flex;
+}
 
-height:610px;
+
+
+
+
+
+
+.auth-card h1 {
+
+
+    color:#075e54;
+
+    margin-bottom:10px;
+
+
+}
+
+
+
+
+
+
+.auth-card p {
+
+
+    color:#777;
+
+    margin-bottom:25px;
 
 
 }
@@ -286,96 +198,12 @@ height:610px;
 
 
 
-/* CONTACTS */
+.input-group {
 
 
-.contacts{
+    text-align:left;
 
-
-width:145px;
-
-background:#f5f5f5;
-
-padding:10px;
-
-overflow-y:auto;
-
-
-}
-
-
-
-.contacts h4{
-
-
-color:#075e54;
-
-font-size:14px;
-
-
-}
-
-
-
-.contacts button{
-
-
-width:100%;
-
-font-size:12px;
-
-
-}
-
-
-
-.contacts hr{
-
-
-border:none;
-
-border-top:1px solid #ddd;
-
-}
-
-
-
-
-
-
-
-
-/* CHAT */
-
-
-.chat-window{
-
-
-flex:1;
-
-display:flex;
-
-flex-direction:column;
-
-background:#efeae2;
-
-
-}
-
-
-
-
-
-.chat-title{
-
-
-background:#ededed;
-
-padding:12px;
-
-font-weight:bold;
-
-color:#075e54;
+    margin-bottom:15px;
 
 
 }
@@ -385,37 +213,13 @@ color:#075e54;
 
 
 
-#messages{
+
+.input-group label {
 
 
-flex:1;
+    font-size:13px;
 
-overflow-y:auto;
-
-padding:10px;
-
-list-style:none;
-
-margin:0;
-
-
-}
-
-
-
-#messages li{
-
-
-background:#dcf8c6;
-
-padding:10px;
-
-margin:7px;
-
-border-radius:12px;
-
-max-width:85%;
-
+    color:#555;
 
 }
 
@@ -423,14 +227,37 @@ max-width:85%;
 
 
 
-#typing{
 
 
-height:20px;
+.input-group input {
 
-font-size:12px;
 
-color:#777;
+    width:100%;
+
+    padding:13px 18px;
+
+    border-radius:25px;
+
+    border:1px solid #ddd;
+
+    outline:none;
+
+    margin-top:5px;
+
+    font-size:14px;
+
+
+}
+
+
+
+
+
+
+.input-group input:focus {
+
+
+    border-color:#128c7e;
 
 
 }
@@ -441,37 +268,31 @@ color:#777;
 
 
 
-/* VIDEO */
+.auth-buttons {
 
 
-.video-container{
+    display:flex;
 
+    gap:10px;
 
-display:flex;
-
-background:#111;
-
-gap:5px;
-
-padding:5px;
+    margin-top:20px;
 
 
 }
 
 
 
-video{
 
 
-width:50%;
 
-height:120px;
+button {
 
-background:black;
 
-border-radius:8px;
+    border:none;
 
-object-fit:cover;
+    cursor:pointer;
+
+    transition:.3s;
 
 
 }
@@ -482,47 +303,70 @@ object-fit:cover;
 
 
 
-/* MESSAGE */
+.primary-btn {
 
 
-.message-box{
+    flex:1;
 
+    background:#128c7e;
 
-display:flex;
+    color:white;
 
-padding:8px;
+    padding:12px;
 
-background:#f0f0f0;
-
-gap:5px;
-
-
-}
-
-
-
-.message-box input{
-
-
-margin:0;
-
-flex:1;
+    border-radius:25px;
 
 
 }
 
 
 
-.message-box button{
 
 
-width:45px;
 
-height:45px;
+.secondary-btn {
 
-border-radius:50%;
 
-font-size:18px;
+    flex:1;
+
+    background:#075e54;
+
+    color:white;
+
+    padding:12px;
+
+    border-radius:25px;
+
+
+}
+
+
+
+
+
+
+button:hover {
+
+
+    opacity:.85;
+
+
+}
+
+
+
+
+
+
+
+.auth-message {
+
+
+    margin-top:15px;
+
+    font-size:14px;
+
+    color:#128c7e;
 
 
 }
@@ -534,45 +378,34 @@ font-size:18px;
 
 
 
-/* FILE */
+
+/* ==========================
+   CHAT APPLICATION
+========================== */
 
 
-.file-box{
+.chat-container {
 
 
-display:flex;
+    width:95%;
 
-padding:5px;
+    max-width:1400px;
 
-background:#f0f0f0;
+    height:90vh;
 
-}
+    background:white;
 
+    border-radius:20px;
 
+    overflow:hidden;
 
+    display:flex;
 
+    flex-direction:column;
 
+    box-shadow:
 
-
-/* FEATURES */
-
-
-.features{
-
-
-height:45px;
-
-display:flex;
-
-justify-content:space-around;
-
-align-items:center;
-
-font-size:11px;
-
-color:#075e54;
-
-border-top:1px solid #ddd;
+    0 20px 50px rgba(0,0,0,.25);
 
 
 }
@@ -584,53 +417,760 @@ border-top:1px solid #ddd;
 
 
 
-/* MOBILE */
+
+/* ==========================
+   TOP BAR
+========================== */
 
 
-@media(max-width:500px){
+.top-bar {
 
 
-.app{
+    height:75px;
 
+    background:#075e54;
 
-width:100%;
+    color:white;
 
-height:100vh;
+    display:flex;
 
-border-radius:0;
+    justify-content:space-between;
 
+    align-items:center;
 
-}
-
-
-
-.content{
-
-
-height:calc(100vh - 115px);
-
-
-}
-
-
-
-.contacts{
-
-
-width:120px;
+    padding:15px 25px;
 
 
 }
 
 
 
-video{
 
 
-height:90px;
+
+
+.profile-area {
+
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
 
 
 }
+
+
+
+
+
+
+
+.avatar {
+
+
+    width:50px;
+
+    height:50px;
+
+    border-radius:50%;
+
+    background:#128c7e;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:25px;
+
+
+}
+
+
+
+
+
+
+
+.profile-area h2 {
+
+
+    font-size:20px;
+
+
+}
+
+
+
+
+
+
+
+#status {
+
+
+    font-size:13px;
+
+    color:#c8f7c5;
+
+
+}
+
+
+
+
+
+
+
+.top-actions {
+
+
+    display:flex;
+
+    gap:10px;
+
+
+}
+
+
+
+
+
+
+
+.top-actions button {
+
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
+
+    background:#128c7e;
+
+    color:white;
+
+    font-size:18px;
+
+
+}
+/* ==========================
+   CHAT LAYOUT
+========================== */
+
+
+.chat-layout {
+
+
+    flex:1;
+
+    display:flex;
+
+    height:calc(100% - 75px);
+
+
+}
+
+
+
+
+
+
+
+
+/* ==========================
+   SIDEBAR
+========================== */
+
+
+.sidebar {
+
+
+    width:280px;
+
+    background:#f7f7f7;
+
+    border-right:1px solid #ddd;
+
+    padding:20px;
+
+
+}
+
+
+
+
+
+.search-box input {
+
+
+    width:100%;
+
+    padding:12px 18px;
+
+    border-radius:25px;
+
+    border:1px solid #ccc;
+
+    outline:none;
+
+
+}
+
+
+
+
+
+.load-btn {
+
+
+    width:100%;
+
+    margin-top:10px;
+
+    padding:12px;
+
+    background:#128c7e;
+
+    color:white;
+
+    border-radius:25px;
+
+
+}
+
+
+
+
+
+.contact-title {
+
+
+    margin-top:25px;
+
+    font-weight:600;
+
+    color:#075e54;
+
+
+}
+
+
+
+
+
+
+
+.contact-item {
+
+
+    padding:15px;
+
+    background:white;
+
+    border-radius:15px;
+
+    margin-top:10px;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+
+}
+
+
+
+
+
+
+.contact-item:hover {
+
+
+    background:#dcf8c6;
+
+
+}
+
+
+
+
+
+
+
+
+
+
+/* ==========================
+   CHAT WINDOW
+========================== */
+
+
+.chat-window {
+
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+    background:#efeae2;
+
+
+}
+
+
+
+
+
+
+
+.conversation-header {
+
+
+    height:65px;
+
+    background:white;
+
+    padding:10px 20px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    border-bottom:1px solid #ddd;
+
+
+}
+
+
+
+
+
+.conversation-header h3 {
+
+
+    color:#075e54;
+
+}
+
+
+#typing {
+
+
+    font-size:12px;
+
+    color:#777;
+
+
+}
+
+
+
+
+
+.conversation-actions button {
+
+
+    width:40px;
+
+    height:40px;
+
+    border-radius:50%;
+
+    background:#128c7e;
+
+    color:white;
+
+    font-size:17px;
+
+    margin-left:5px;
+
+
+}
+
+
+
+
+
+
+
+
+/* ==========================
+   MESSAGES
+========================== */
+
+
+.message-area {
+
+
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:20px;
+
+
+}
+
+
+
+
+
+#messages {
+
+
+    list-style:none;
+
+}
+
+
+
+
+
+#messages li {
+
+
+    max-width:70%;
+
+    padding:12px 15px;
+
+    margin-bottom:12px;
+
+    border-radius:18px;
+
+    background:white;
+
+    box-shadow:0 2px 5px rgba(0,0,0,.1);
+
+    animation:message .2s;
+
+
+}
+
+
+
+
+
+
+#messages li b {
+
+
+    color:#075e54;
+
+
+}
+
+
+
+
+
+
+
+@keyframes message {
+
+
+    from {
+
+        transform:translateY(10px);
+
+        opacity:0;
+
+    }
+
+
+    to {
+
+        transform:translateY(0);
+
+        opacity:1;
+
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+   MESSAGE INPUT
+========================== */
+
+
+.message-input-area {
+
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:12px;
+
+    background:white;
+
+    border-top:1px solid #ddd;
+
+
+}
+
+
+
+
+
+
+
+.message-input-area input {
+
+
+    flex:1;
+
+    padding:14px 20px;
+
+    border-radius:30px;
+
+    border:1px solid #ddd;
+
+    outline:none;
+
+
+}
+
+
+
+
+
+.emoji-btn {
+
+
+    background:none;
+
+    font-size:25px;
+
+
+}
+
+
+
+
+
+.send-btn {
+
+
+    width:45px;
+
+    height:45px;
+
+    border-radius:50%;
+
+    background:#128c7e;
+
+    color:white;
+
+    font-size:20px;
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+   EMOJI PANEL
+========================== */
+
+
+.emoji-panel {
+
+
+    background:white;
+
+    padding:10px;
+
+    display:flex;
+
+    gap:10px;
+
+    border-top:1px solid #ddd;
+
+
+}
+
+
+
+
+
+.emoji-panel button {
+
+
+    background:none;
+
+    font-size:25px;
+
+
+}
+
+
+
+
+
+
+
+
+/* ==========================
+   FILE UPLOAD
+========================== */
+
+
+.file-upload {
+
+
+    background:white;
+
+    padding:8px;
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:10px;
+
+
+}
+
+
+
+
+
+
+
+.file-upload button {
+
+
+    background:#075e54;
+
+    color:white;
+
+    padding:10px 20px;
+
+    border-radius:20px;
+
+
+}
+
+
+
+
+
+
+
+
+/* ==========================
+   VIDEO CALL
+========================== */
+
+
+.call-area {
+
+
+    position:absolute;
+
+    top:90px;
+
+    right:30px;
+
+    width:350px;
+
+    height:250px;
+
+    background:#111;
+
+    border-radius:20px;
+
+    padding:10px;
+
+    display:flex;
+
+    gap:10px;
+
+    z-index:10;
+
+
+}
+
+
+
+
+
+
+
+.video-box {
+
+
+    flex:1;
+
+    background:black;
+
+    border-radius:15px;
+
+    overflow:hidden;
+
+    position:relative;
+
+
+}
+
+
+
+
+
+.video-box video {
+
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+
+}
+
+
+
+
+
+.video-box span {
+
+
+    position:absolute;
+
+    bottom:5px;
+
+    left:10px;
+
+    color:white;
+
+    font-size:12px;
 
 
 }
