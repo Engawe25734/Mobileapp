@@ -87,9 +87,6 @@ body {
 }
 
 
-
-
-
 .modal-card h3 {
 
 
@@ -99,9 +96,6 @@ body {
 
 
 }
-
-
-
 
 
 .modal-card input {
@@ -141,13 +135,6 @@ body {
 
 
 }
-
-
-
-
-
-
-
 
 
 /* ==========================
@@ -239,14 +226,6 @@ body.dark input {
 
 }
 
-
-
-
-
-
-
-
-
 /* ==========================
    SCROLLBAR
 ========================== */
@@ -273,15 +252,6 @@ body.dark input {
 
 
 }
-
-
-
-
-
-
-
-
-
 /* ==========================
    MOBILE RESPONSIVE
 ========================== */
@@ -330,9 +300,6 @@ body.dark input {
 }
 
 
-
-
-
 .chat-layout {
 
 
@@ -344,11 +311,6 @@ body.dark input {
 
 
 }
-
-
-
-
-
 
 @media(max-width:600px){
 
@@ -363,9 +325,6 @@ body.dark input {
 }
 
 
-
-
-
 .top-bar {
 
 
@@ -375,9 +334,6 @@ body.dark input {
 }
 
 
-
-
-
 .profile-area h2 {
 
 
@@ -385,9 +341,6 @@ body.dark input {
 
 
 }
-
-
-
 
 
 .top-actions button {
@@ -403,9 +356,6 @@ body.dark input {
 }
 
 
-
-
-
 .sidebar {
 
 
@@ -413,9 +363,6 @@ body.dark input {
 
 
 }
-
-
-
 
 
 .call-area {
@@ -430,10 +377,6 @@ body.dark input {
 
 }
 
-
-
-
-
 #messages li {
 
 
@@ -445,14 +388,6 @@ body.dark input {
 
 
 }
-
-
-
-
-
-
-
-
 
 /* ==========================
    ANIMATIONS
@@ -468,9 +403,6 @@ button:active {
 }
 
 
-
-
-
 .chat-window {
 
 
@@ -478,9 +410,6 @@ button:active {
 
 
 }
-
-
-
 
 
 @keyframes fade {
@@ -501,10 +430,6 @@ button:active {
 
 
 }
-
-
-
-
 
 /* ==========================
    APP CONTAINER
@@ -527,24 +452,12 @@ button:active {
 
 }
 
-
-
-
-
-
-
 .hidden {
 
 
     display:none !important;
 
 }
-
-
-
-
-
-
 
 /* ==========================
    AUTH PAGE
@@ -567,11 +480,6 @@ button:active {
 
 }
 
-
-
-
-
-
 .auth-card {
 
 
@@ -591,12 +499,6 @@ button:active {
 
 
 }
-
-
-
-
-
-
 
 .app-logo {
 
@@ -625,13 +527,6 @@ button:active {
 
 
 }
-
-
-
-
-
-
-
 .auth-card h1 {
 
 
@@ -641,12 +536,6 @@ button:active {
 
 
 }
-
-
-
-
-
-
 .auth-card p {
 
 
@@ -656,12 +545,6 @@ button:active {
 
 
 }
-
-
-
-
-
-
 
 .input-group {
 
@@ -673,12 +556,6 @@ button:active {
 
 }
 
-
-
-
-
-
-
 .input-group label {
 
 
@@ -687,13 +564,6 @@ button:active {
     color:#555;
 
 }
-
-
-
-
-
-
-
 .input-group input {
 
 
@@ -713,12 +583,6 @@ button:active {
 
 
 }
-
-
-
-
-
-
 .input-group input:focus {
 
 
@@ -726,13 +590,6 @@ button:active {
 
 
 }
-
-
-
-
-
-
-
 .auth-buttons {
 
 
@@ -744,10 +601,6 @@ button:active {
 
 
 }
-
-
-
-
 
 
 button {
@@ -762,12 +615,6 @@ button {
 
 }
 
-
-
-
-
-
-
 .primary-btn {
 
 
@@ -780,14 +627,7 @@ button {
     padding:12px;
 
     border-radius:25px;
-
-
 }
-
-
-
-
-
 
 .secondary-btn {
 
@@ -805,11 +645,6 @@ button {
 
 }
 
-
-
-
-
-
 button:hover {
 
 
@@ -817,12 +652,6 @@ button:hover {
 
 
 }
-
-
-
-
-
-
 
 .auth-message {
 
@@ -835,14 +664,6 @@ button:hover {
 
 
 }
-
-
-
-
-
-
-
-
 
 /* ==========================
    CHAT APPLICATION
@@ -875,14 +696,6 @@ button:hover {
 
 }
 
-
-
-
-
-
-
-
-
 /* ==========================
    TOP BAR
 ========================== */
@@ -908,12 +721,6 @@ button:hover {
 
 }
 
-
-
-
-
-
-
 .profile-area {
 
 
@@ -925,13 +732,6 @@ button:hover {
 
 
 }
-
-
-
-
-
-
-
 .avatar {
 
 
@@ -954,12 +754,6 @@ button:hover {
 
 }
 
-
-
-
-
-
-
 .profile-area h2 {
 
 
@@ -967,12 +761,6 @@ button:hover {
 
 
 }
-
-
-
-
-
-
 
 #status {
 
@@ -984,12 +772,6 @@ button:hover {
 
 }
 
-
-
-
-
-
-
 .top-actions {
 
 
@@ -999,11 +781,6 @@ button:hover {
 
 
 }
-
-
-
-
-
 
 
 .top-actions button {
@@ -1039,14 +816,6 @@ button:hover {
 
 
 }
-
-
-
-
-
-
-
-
 /* ==========================
    SIDEBAR
 ========================== */
@@ -1066,10 +835,6 @@ button:hover {
 
 }
 
-
-
-
-
 .search-box input {
 
 
@@ -1085,10 +850,6 @@ button:hover {
 
 
 }
-
-
-
-
 
 .load-btn {
 
@@ -1108,10 +869,6 @@ button:hover {
 
 }
 
-
-
-
-
 .contact-title {
 
 
@@ -1123,12 +880,6 @@ button:hover {
 
 
 }
-
-
-
-
-
-
 
 .contact-item {
 
@@ -1148,11 +899,6 @@ button:hover {
 
 }
 
-
-
-
-
-
 .contact-item:hover {
 
 
@@ -1160,15 +906,6 @@ button:hover {
 
 
 }
-
-
-
-
-
-
-
-
-
 
 /* ==========================
    CHAT WINDOW
@@ -1188,12 +925,6 @@ button:hover {
 
 
 }
-
-
-
-
-
-
 
 .conversation-header {
 
@@ -1215,10 +946,6 @@ button:hover {
 
 }
 
-
-
-
-
 .conversation-header h3 {
 
 
@@ -1236,10 +963,6 @@ button:hover {
 
 
 }
-
-
-
-
 
 .conversation-actions button {
 
@@ -1261,13 +984,6 @@ button:hover {
 
 }
 
-
-
-
-
-
-
-
 /* ==========================
    MESSAGES
 ========================== */
@@ -1287,16 +1003,12 @@ button:hover {
 
 
 
-
-
 #messages {
 
 
     list-style:none;
 
 }
-
-
 
 
 
@@ -1320,11 +1032,6 @@ button:hover {
 
 }
 
-
-
-
-
-
 #messages li b {
 
 
@@ -1332,12 +1039,6 @@ button:hover {
 
 
 }
-
-
-
-
-
-
 
 @keyframes message {
 
@@ -1358,14 +1059,6 @@ button:hover {
         opacity:1;
 
     }
-
-
-}
-
-
-
-
-
 
 
 
@@ -1393,12 +1086,6 @@ button:hover {
 
 }
 
-
-
-
-
-
-
 .message-input-area input {
 
 
@@ -1415,10 +1102,6 @@ button:hover {
 
 }
 
-
-
-
-
 .emoji-btn {
 
 
@@ -1428,9 +1111,6 @@ button:hover {
 
 
 }
-
-
-
 
 
 .send-btn {
@@ -1450,13 +1130,6 @@ button:hover {
 
 
 }
-
-
-
-
-
-
-
 
 
 /* ==========================
@@ -1482,8 +1155,6 @@ button:hover {
 
 
 
-
-
 .emoji-panel button {
 
 
@@ -1493,11 +1164,6 @@ button:hover {
 
 
 }
-
-
-
-
-
 
 
 
@@ -1524,10 +1190,6 @@ button:hover {
 
 
 
-
-
-
-
 .file-upload button {
 
 
@@ -1541,13 +1203,6 @@ button:hover {
 
 
 }
-
-
-
-
-
-
-
 
 /* ==========================
    VIDEO CALL
@@ -1582,12 +1237,6 @@ button:hover {
 
 }
 
-
-
-
-
-
-
 .video-box {
 
 
@@ -1604,10 +1253,6 @@ button:hover {
 
 }
 
-
-
-
-
 .video-box video {
 
 
@@ -1619,9 +1264,6 @@ button:hover {
 
 
 }
-
-
-
 
 
 .video-box span {
