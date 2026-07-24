@@ -61,7 +61,16 @@ from websocket_manager import manager
 app = FastAPI(
 title="mobile app API"
 )
+templates = Jinja2Templates(
+directory="templates"
+)
 
+
+app.mount(
+"/static",
+StaticFiles(directory="static"),
+name="static"
+)
 
 
 # Allow frontend connections
@@ -99,13 +108,13 @@ connected_users = {}
 # ------------------------------------
 
 @app.get("/")
-def home():
+async def home(request: Request):
 
-return {
-
-"message":
-"mobile app Server Running"
-
+return templates.TemplateResponse(
+"index.html",
+{
+"request": request
+}
 }
 
 # ------------------------------------
