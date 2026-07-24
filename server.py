@@ -1,14 +1,14 @@
 """
 server.py
 
-Main FastAPI backend for Mobile Chat App.
+Mobile Chat App Backend
 
 Features:
 - User registration
-- Login
+- User login
 - Private messaging
-- File uploads
 - Message history
+- File uploads
 - WebSocket communication
 - WebRTC audio/video calls
 - Group audio/video calls
@@ -27,7 +27,9 @@ from fastapi import (
 
 
 from fastapi.templating import Jinja2Templates
+
 from fastapi.staticfiles import StaticFiles
+
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -38,26 +40,43 @@ import json
 
 
 from database import (
+
     initialize_database,
+
     save_message,
+
     get_user_by_username,
+
     get_user_messages,
+
     get_or_create_chat,
+
     save_attachment
+
 )
+
 
 
 from auth import (
+
     register_user,
+
     authenticate_user,
+
     create_access_token
+
 )
+
 
 
 from models import (
+
     RegisterRequest,
+
     LoginRequest
+
 )
+
 
 
 from websocket_manager import manager
@@ -67,12 +86,16 @@ from websocket_manager import manager
 
 
 
-# ==================================
+
+# ==========================================
 # CREATE APPLICATION
-# ==================================
+# ==========================================
+
 
 app = FastAPI(
-    title="Mobile Chat App API"
+
+    title="Mobile Chat App"
+
 )
 
 
@@ -81,19 +104,27 @@ app = FastAPI(
 
 
 
-# ==================================
+# ==========================================
 # STATIC + TEMPLATES
-# ==================================
+# ==========================================
+
 
 templates = Jinja2Templates(
+
     directory="templates"
+
 )
+
 
 
 app.mount(
+
     "/static",
+
     StaticFiles(directory="static"),
+
     name="static"
+
 )
 
 
@@ -102,9 +133,11 @@ app.mount(
 
 
 
-# ==================================
+
+# ==========================================
 # CORS
-# ==================================
+# ==========================================
+
 
 app.add_middleware(
 
@@ -126,9 +159,10 @@ app.add_middleware(
 
 
 
-# ==================================
+# ==========================================
 # DATABASE
-# ==================================
+# ==========================================
+
 
 initialize_database()
 
@@ -138,9 +172,10 @@ initialize_database()
 
 
 
-# ==================================
+# ==========================================
 # HOME PAGE
-# ==================================
+# ==========================================
+
 
 @app.get("/")
 async def home(request: Request):
@@ -162,86 +197,10 @@ async def home(request: Request):
 
 
 
-# ==================================
-# FILE UPLOAD
-# ==================================
-
-@app.post("/upload")
-async def upload_file(
-
-    file: UploadFile = File(...)
-
-):
-
-
-    folder = "uploads"
-
-
-    os.makedirs(
-
-        folder,
-
-        exist_ok=True
-
-    )
-
-
-    filepath = os.path.join(
-
-        folder,
-
-        file.filename
-
-    )
-
-
-
-    with open(filepath, "wb") as buffer:
-
-
-        shutil.copyfileobj(
-
-            file.file,
-
-            buffer
-
-        )
-
-
-
-    save_attachment(
-
-        None,
-
-        file.filename,
-
-        filepath,
-
-        file.content_type
-
-    )
-
-
-
-    return {
-
-        "filename":file.filename,
-
-        "path":filepath,
-
-        "type":file.content_type
-
-    }
-
-
-
-
-
-
-
-# ==================================
+# ==========================================
 # REGISTER
-# ==================================
+# ==========================================
+
 
 @app.post("/register")
 def register(
@@ -267,9 +226,10 @@ def register(
 
 
 
-# ==================================
+# ==========================================
 # LOGIN
-# ==================================
+# ==========================================
+
 
 @app.post("/login")
 def login(
@@ -296,13 +256,13 @@ def login(
 
             status_code=401,
 
-            detail="Invalid credentials"
+            detail="Invalid login"
 
         )
 
 
 
-    token = create_access_token(
+    token=create_access_token(
 
         account["id"],
 
@@ -314,11 +274,15 @@ def login(
 
     return {
 
+
         "access_token":token,
+
 
         "token_type":"bearer",
 
+
         "username":account["username"]
+
 
     }
 
@@ -328,15 +292,103 @@ def login(
 
 
 
-# ==================================
+
+# ==========================================
+# FILE UPLOAD
+# ==========================================
+
+
+@app.post("/upload")
+async def upload_file(
+
+    file:UploadFile = File(...)
+
+):
+
+
+    folder="uploads"
+
+
+
+    os.makedirs(
+
+        folder,
+
+        exist_ok=True
+
+    )
+
+
+
+    path=os.path.join(
+
+        folder,
+
+        file.filename
+
+    )
+
+
+
+    with open(path,"wb") as buffer:
+
+
+        shutil.copyfileobj(
+
+            file.file,
+
+            buffer
+
+        )
+
+
+
+    save_attachment(
+
+        None,
+
+        file.filename,
+
+        path,
+
+        file.content_type
+
+    )
+
+
+
+    return {
+
+
+        "filename":file.filename,
+
+
+        "path":path,
+
+
+        "type":file.content_type
+
+
+    }
+
+
+
+
+
+
+
+
+# ==========================================
 # ONLINE USERS
-# ==================================
+# ==========================================
+
 
 @app.get("/online")
 def online():
 
 
     return {
+
 
         "users":
 
@@ -350,9 +402,11 @@ def online():
 
 
 
-# ==================================
-# MESSAGE HISTORY
-# ==================================
+
+# ==========================================
+# CHAT HISTORY
+# ==========================================
+
 
 @app.get("/messages/{user1}/{user2}")
 def messages(
@@ -364,14 +418,14 @@ def messages(
 ):
 
 
-    first = get_user_by_username(
+    first=get_user_by_username(
 
         user1.strip()
 
     )
 
 
-    second = get_user_by_username(
+    second=get_user_by_username(
 
         user2.strip()
 
@@ -390,7 +444,7 @@ def messages(
 
 
 
-    history = get_user_messages(
+    data=get_user_messages(
 
         first["id"],
 
@@ -399,11 +453,12 @@ def messages(
     )
 
 
+
     result=[]
 
 
 
-    for msg in history:
+    for msg in data:
 
 
         result.append({
@@ -420,6 +475,7 @@ def messages(
 
     return {
 
+
         "messages":result
 
     }
@@ -431,9 +487,10 @@ def messages(
 
 
 
-# ==================================
+# ==========================================
 # WEBSOCKET SERVER
-# ==================================
+# ==========================================
+
 
 @app.websocket("/ws/{username}")
 async def websocket_endpoint(
@@ -468,7 +525,9 @@ async def websocket_endpoint(
             raw = await websocket.receive_text()
 
 
+
             data=json.loads(raw)
+
 
 
             msg_type=data.get("type")
@@ -479,27 +538,29 @@ async def websocket_endpoint(
 
 
 
-            # =========================
-            # CHAT MESSAGE
-            # =========================
+            # ===============================
+            # PRIVATE MESSAGE
+            # ===============================
+
 
             if msg_type=="message":
 
 
                 receiver=data["receiver"].strip()
 
-                text=data["message"].strip()
+
+                text=data["message"]
 
 
 
-                sender=get_user_by_username(
+                sender_account=get_user_by_username(
 
                     username
 
                 )
 
 
-                receiver_user=get_user_by_username(
+                receiver_account=get_user_by_username(
 
                     receiver
 
@@ -511,27 +572,30 @@ async def websocket_endpoint(
 
 
 
-                if sender and receiver_user:
+
+                if sender_account and receiver_account:
 
 
                     chat_id=get_or_create_chat(
 
-                        sender["id"],
+                        sender_account["id"],
 
-                        receiver_user["id"]
+                        receiver_account["id"]
 
                     )
+
 
 
                     message_id=save_message(
 
                         chat_id,
 
-                        sender["id"],
+                        sender_account["id"],
 
                         text
 
                     )
+
 
 
 
@@ -541,13 +605,18 @@ async def websocket_endpoint(
 
                     {
 
-                        "type":"message",
 
-                        "sender":username,
+                    "type":"message",
 
-                        "message":text,
 
-                        "message_id":message_id
+                    "sender":username,
+
+
+                    "message":text,
+
+
+                    "message_id":message_id
+
 
                     }
 
@@ -559,10 +628,10 @@ async def websocket_endpoint(
 
 
 
-
-            # =========================
+            # ===============================
             # TYPING
-            # =========================
+            # ===============================
+
 
             elif msg_type=="typing":
 
@@ -583,10 +652,10 @@ async def websocket_endpoint(
 
 
 
-
-            # =========================
+            # ===============================
             # READ RECEIPT
-            # =========================
+            # ===============================
+
 
             elif msg_type=="read":
 
@@ -606,20 +675,17 @@ async def websocket_endpoint(
 
 
 
-            # =========================
+            # ===============================
             # CREATE GROUP CALL
-            # =========================
+            # ===============================
+
 
             elif msg_type=="create_call":
 
 
-                room=data["room"]
+                await manager.create_room(
 
-
-
-                joined = await manager.join_call_room(
-
-                    room,
+                    data["room"],
 
                     username
 
@@ -627,39 +693,31 @@ async def websocket_endpoint(
 
 
 
-                if joined:
+                await websocket.send_text(json.dumps({
 
+                    "type":"call_created",
 
-                    await websocket.send_text(json.dumps({
+                    "room":data["room"]
 
-                        "type":"call_created",
-
-                        "room":room,
-
-                        "users":
-
-                        manager.get_room_users(room)
-
-                    }))
+                }))
 
 
 
 
 
-            # =========================
+
+
+            # ===============================
             # JOIN GROUP CALL
-            # =========================
+            # ===============================
+
 
             elif msg_type=="join_call":
 
 
-                room=data["room"]
+                await manager.join_room(
 
-
-
-                joined = await manager.join_call_room(
-
-                    room,
+                    data["room"],
 
                     username
 
@@ -667,36 +725,24 @@ async def websocket_endpoint(
 
 
 
-                if joined:
+                await manager.broadcast_room(
+
+                    data["room"],
+
+                    username,
+
+                    {
 
 
-                    await manager.broadcast_call_signal(
-
-                        room,
-
-                        username,
-
-                        {
-
-                            "type":"user_joined",
-
-                            "user":username
-
-                        }
-
-                    )
+                    "type":"user_joined",
 
 
+                    "user":username
 
-                    await websocket.send_text(json.dumps({
 
-                        "type":"room_users",
+                    }
 
-                        "users":
-
-                        manager.get_room_users(room)
-
-                    }))
+                )
 
 
 
@@ -704,9 +750,10 @@ async def websocket_endpoint(
 
 
 
-            # =========================
-            # WEBRTC GROUP SIGNALS
-            # =========================
+            # ===============================
+            # WEBRTC SIGNALING
+            # ===============================
+
 
             elif msg_type in [
 
@@ -714,33 +761,17 @@ async def websocket_endpoint(
 
                 "answer",
 
-                "candidate"
+                "candidate",
+
+                "group_offer",
+
+                "group_answer",
+
+                "group_candidate",
+
+                "end_call"
 
             ]:
-
-
-                await manager.broadcast_call_signal(
-
-                    data["room"],
-
-                    username,
-
-                    data
-
-                )
-
-
-
-
-
-
-
-
-            # =========================
-            # END CALL
-            # =========================
-
-            elif msg_type=="end_call":
 
 
                 room=data.get("room")
@@ -750,17 +781,29 @@ async def websocket_endpoint(
                 if room:
 
 
-                    await manager.broadcast_call_signal(
+                    await manager.broadcast_room(
 
                         room,
 
                         username,
 
+                        data
+
+                    )
+
+
+                else:
+
+
+                    await manager.send_private_message(
+
+                        data["receiver"],
+
                         {
 
-                            "type":"end_call",
+                        **data,
 
-                            "user":username
+                        "sender":username
 
                         }
 
@@ -773,40 +816,19 @@ async def websocket_endpoint(
 
 
 
-            # =========================
-            # LEAVE CALL ROOM
-            # =========================
+            # ===============================
+            # LEAVE CALL
+            # ===============================
+
 
             elif msg_type=="leave_call":
 
 
-                room=data["room"]
+                await manager.leave_room(
 
-
-
-                await manager.leave_call_room(
-
-                    room,
+                    data["room"],
 
                     username
-
-                )
-
-
-
-                await manager.broadcast_call_signal(
-
-                    room,
-
-                    username,
-
-                    {
-
-                        "type":"user_left",
-
-                        "user":username
-
-                    }
 
                 )
 
@@ -834,14 +856,16 @@ async def websocket_endpoint(
 
 
 
-# ==================================
-# START SERVER
-# ==================================
+# ==========================================
+# RUN
+# ==========================================
+
 
 if __name__=="__main__":
 
 
     import uvicorn
+
 
 
     uvicorn.run(
