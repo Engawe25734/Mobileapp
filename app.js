@@ -557,6 +557,65 @@ sendMessage();
 
 }
 
+// ================================
+// Load previous messages
+// ================================
+
+async function loadMessages(){
+
+
+let receiver =
+document
+.getElementById(
+"receiver"
+)
+.value;
+
+
+
+let response =
+await fetch(
+"/messages/"
++
+username
++
+"/"
++
+receiver
+);
+
+
+
+let data =
+await response.json();
+
+
+
+document
+.getElementById(
+"messages"
+)
+.innerHTML="";
+
+
+
+data.messages.forEach(
+msg=>{
+
+
+displayMessage(
+
+msg.sender,
+
+msg.message
+
+);
+
+
+});
+
+
+}
 
 
 
