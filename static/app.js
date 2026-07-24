@@ -7,6 +7,7 @@ Features:
 - Online status
 - Typing indicator
 - File upload
+- Image/Video/Audio sharing
 - WebRTC calls
 */
 
@@ -16,7 +17,6 @@ let username = "";
 let token = "";
 
 let socket = null;
-
 
 
 // ==============================
@@ -45,6 +45,8 @@ const rtcConfig = {
 
 };
 
+
+
 // ==============================
 // REGISTER USER
 // ==============================
@@ -54,79 +56,89 @@ async function register(){
 
 
     const usernameInput =
-    document.getElementById("username")
+
+    document
+    .getElementById("username")
     .value
     .trim();
 
 
 
     const phone =
-    document.getElementById("phone")
+
+    document
+    .getElementById("phone")
     .value
     .trim();
 
 
 
     const password =
-    document.getElementById("password")
+
+    document
+    .getElementById("password")
     .value;
 
 
 
 
-
     let response =
-    await fetch("/register",{
+
+    await fetch(
+
+        "/register",
+
+        {
+
+            method:"POST",
+
+            headers:{
+
+                "Content-Type":
+
+                "application/json"
+
+            },
 
 
-        method:"POST",
+            body:JSON.stringify({
+
+                username:usernameInput,
+
+                phone:phone,
+
+                password:password
+
+            })
 
 
-        headers:{
+        }
 
+    );
 
-            "Content-Type":
-            "application/json"
-
-
-        },
-
-
-        body:JSON.stringify({
-
-
-            username:usernameInput,
-
-
-            phone:phone,
-
-
-            password:password
-
-
-        })
-
-
-    });
 
 
     let data =
+
     await response.json();
 
 
 
+    document
 
+    .getElementById("authMessage")
 
-    document.getElementById(
-        "authMessage"
-    )
     .innerHTML =
+
     data.message ||
+
     "Account created";
 
 
-
 }
+
+
+
 
 // ==============================
 // LOGIN USER
@@ -138,14 +150,24 @@ async function login(){
 
 
     const phone =
-    document.getElementById("phone")
+
+    document
+
+    .getElementById("phone")
+
     .value
+
     .trim();
 
 
 
+
     const password =
-    document.getElementById("password")
+
+    document
+
+    .getElementById("password")
+
     .value;
 
 
@@ -153,37 +175,48 @@ async function login(){
 
 
     let response =
-    await fetch("/login",{
+
+    await fetch(
+
+        "/login",
+
+        {
 
 
-        method:"POST",
+            method:"POST",
 
 
-        headers:{
+            headers:{
 
 
-            "Content-Type":
-            "application/json"
+                "Content-Type":
+
+                "application/json"
 
 
-        },
+            },
 
 
-        body:JSON.stringify({
+            body:JSON.stringify({
 
 
-            phone,
+                phone,
+
+                password
 
 
-            password
+            })
 
 
-        })
+        }
+
+    );
 
 
-    });
+
 
     let data =
+
     await response.json();
 
 
@@ -194,22 +227,35 @@ async function login(){
 
 
 
-        token =
-        data.access_token;
+        token = data.access_token;
 
 
+        username = data.username;
 
-        username =
-        data.username;
+
 
         localStorage.setItem(
+
             "token",
+
             token
+
+        );
+
+
+
+        localStorage.setItem(
+
+            "username",
+
+            username
+
         );
 
 
 
         openChat();
+
 
 
     }
@@ -219,7 +265,9 @@ async function login(){
 
 
         alert(
+
             "Invalid login"
+
         );
 
 
@@ -237,28 +285,33 @@ function openChat(){
 
 
     document
-    .getElementById(
-        "auth-page"
-    )
+
+    .getElementById("auth-page")
+
     .classList
-    .add(
-        "hidden"
-    );
+
+    .add("hidden");
+
+
 
     document
-    .getElementById(
-        "chat-page"
-    )
+
+    .getElementById("chat-page")
+
     .classList
-    .remove(
-        "hidden"
-    );
+
+    .remove("hidden");
+
+
 
     connectSocket();
 
 
-
 }
+
+
+
+
 // ==============================
 // CONNECT WEBSOCKET
 // ==============================
@@ -269,14 +322,22 @@ function connectSocket(){
 
 
     let protocol =
+
     window.location.protocol === "https:"
+
     ?
+
     "wss://"
+
     :
+
     "ws://";
 
-    socket =
-    new WebSocket(
+
+
+
+
+    socket = new WebSocket(
 
 
         protocol +
@@ -285,40 +346,60 @@ function connectSocket(){
 
         "/ws/" +
 
-        encodeURIComponent(
-            username
-        )
+        encodeURIComponent(username)
 
 
     );
 
+
+
+
+
     socket.onopen=function(){
 
 
+
         document
-        .getElementById(
-            "status"
-        )
+
+        .getElementById("status")
+
         .innerHTML =
+
         "🟢 Online";
 
 
-
     };
+
+
+
+
+
     socket.onmessage =
+
     async function(event){
 
 
 
         let data =
+
         JSON.parse(
+
             event.data
+
         );
 
 
 
+
         console.log(data);
-        // MESSAGE RECEIVED
+
+
+
+
+
+        // =========================
+        // TEXT MESSAGE RECEIVED
+        // =========================
 
 
         if(data.type==="message"){
@@ -336,7 +417,43 @@ function connectSocket(){
 
         }
 
-        // TYPING
+
+
+
+
+
+
+        // =========================
+        // FILE MESSAGE RECEIVED
+        // =========================
+
+
+        if(data.type==="file"){
+
+
+
+            displayFile(
+
+                data.sender,
+
+                data.filename,
+
+                data.url,
+
+                data.file_type
+
+            );
+
+
+        }
+
+
+
+
+
+        // =========================
+        // TYPING STATUS
+        // =========================
 
 
         if(data.type==="typing"){
@@ -344,14 +461,18 @@ function connectSocket(){
 
 
             document
-            .getElementById(
-                "typing"
-            )
+
+            .getElementById("typing")
+
             .innerHTML =
 
 
+
             data.sender +
+
             " is typing...";
+
+
 
 
 
@@ -359,9 +480,9 @@ function connectSocket(){
 
 
                 document
-                .getElementById(
-                    "typing"
-                )
+
+                .getElementById("typing")
+
                 .innerHTML="";
 
 
@@ -372,32 +493,52 @@ function connectSocket(){
 
         }
 
+
+
+
+
+
+
+        // =========================
         // CALL OFFER
+        // =========================
 
 
         if(data.type==="offer"){
 
 
+
             await receiveCall(
+
                 data
+
             );
 
 
         }
 
 
+
+
+
+
+        // =========================
         // CALL ANSWER
+        // =========================
 
 
         if(data.type==="answer"){
 
 
+
             let pc =
+
             peers[data.sender];
 
 
 
             if(pc){
+
 
 
                 await pc.setRemoteDescription(
@@ -416,18 +557,29 @@ function connectSocket(){
 
         }
 
+
+
+
+
+
+
+        // =========================
         // ICE CANDIDATE
+        // =========================
 
 
         if(data.type==="candidate"){
 
 
+
             let pc =
+
             peers[data.sender];
 
 
 
             if(pc){
+
 
 
                 await pc.addIceCandidate(
@@ -442,29 +594,49 @@ function connectSocket(){
 
         }
 
+
+
+
+
+
+
+        // =========================
+        // END CALL
+        // =========================
+
+
         if(data.type==="end_call"){
 
 
+
             endCall();
+
 
 
         }
 
 
 
-
     };
+
+
+
+
+
+
 
     socket.onclose=function(){
 
 
 
         document
-        .getElementById(
-            "status"
-        )
+
+        .getElementById("status")
+
         .innerHTML =
+
         "🔴 Offline";
+
 
 
     };
@@ -472,9 +644,8 @@ function connectSocket(){
 
 
 }
-
 // ==============================
-// SEND MESSAGE
+// SEND TEXT MESSAGE
 // ==============================
 
 
@@ -483,11 +654,13 @@ function sendMessage(){
 
 
     let receiver =
+
     document
-    .getElementById(
-        "receiver"
-    )
+
+    .getElementById("receiver")
+
     .value
+
     .trim();
 
 
@@ -495,15 +668,32 @@ function sendMessage(){
 
 
     let message =
+
     document
-    .getElementById(
-        "message"
-    )
+
+    .getElementById("message")
+
     .value
+
     .trim();
 
-    if(!receiver || !message)
+
+
+
+
+    if(!receiver || !message){
+
+
         return;
+
+
+    }
+
+
+
+
+
+
 
     socket.send(JSON.stringify({
 
@@ -512,14 +702,21 @@ function sendMessage(){
         type:"message",
 
 
-        receiver,
+
+        receiver:receiver,
 
 
-        message
+
+        message:message
 
 
 
     }));
+
+
+
+
+
 
 
     displayMessage(
@@ -530,41 +727,61 @@ function sendMessage(){
 
     );
 
+
+
+
+
+
+
     document
-    .getElementById(
-        "message"
-    )
+
+    .getElementById("message")
+
     .value="";
 
 
 
 }
 
+
+
+
+
 // ==============================
-// DISPLAY MESSAGE
+// DISPLAY TEXT MESSAGE
 // ==============================
 
 
 function displayMessage(
+
     sender,
+
     message
+
 ){
 
 
 
     let li =
-    document.createElement(
-        "li"
-    );
+
+    document
+
+    .createElement("li");
+
 
 
 
 
     li.innerHTML =
 
+
+
     "<b>"+
+
     sender+
+
     "</b><br>"+
+
     message;
 
 
@@ -572,12 +789,14 @@ function displayMessage(
 
 
     document
-    .getElementById(
-        "messages"
-    )
-    .appendChild(
-        li
-    );
+
+    .getElementById("messages")
+
+    .appendChild(li);
+
+
+
+
 
     li.scrollIntoView({
 
@@ -586,81 +805,438 @@ function displayMessage(
     });
 
 
+
 }
-// =====================================
-// FILE UPLOAD
-// =====================================
-
-async function uploadFile(){
-
-    let fileInput =
-    document.getElementById("file");
 
 
-    if(!fileInput.files.length){
 
-        alert("Select a file first");
 
-        return;
+
+
+// ==============================
+// DISPLAY FILE MESSAGE
+// ==============================
+
+
+function displayFile(
+
+    sender,
+
+    filename,
+
+    url,
+
+    type
+
+){
+
+
+
+    let li =
+
+    document
+
+    .createElement("li");
+
+
+
+
+    let content="";
+
+
+
+
+
+
+
+    // IMAGE
+
+
+    if(type && type.startsWith("image")){
+
+
+
+        content =
+
+        `
+
+        <img
+
+        src="${url}"
+
+        width="220">
+
+        `;
+
 
     }
 
 
+
+
+
+
+
+    // VIDEO
+
+
+    else if(type && type.startsWith("video")){
+
+
+
+        content =
+
+        `
+
+        <video
+
+        controls
+
+        width="260">
+
+
+        <source src="${url}">
+
+
+        </video>
+
+        `;
+
+
+    }
+
+
+
+
+
+
+
+    // AUDIO
+
+
+    else if(type && type.startsWith("audio")){
+
+
+
+        content =
+
+
+        `
+
+        <audio controls>
+
+
+        <source src="${url}">
+
+
+        </audio>
+
+
+        `;
+
+
+    }
+
+
+
+
+
+
+
+    // DOCUMENT
+
+
+    else{
+
+
+        content =
+
+
+
+        `
+
+        📄
+
+        <a href="${url}" target="_blank">
+
+        ${filename}
+
+        </a>
+
+        `;
+
+
+
+    }
+
+
+
+
+
+
+
+    li.innerHTML =
+
+
+
+    "<b>"+
+
+    sender+
+
+    "</b><br>"+
+
+    content;
+
+
+
+
+
+
+
+    document
+
+    .getElementById("messages")
+
+    .appendChild(li);
+
+
+
+
+
+    li.scrollIntoView({
+
+        behavior:"smooth"
+
+    });
+
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// FILE UPLOAD
+// ==============================
+
+
+async function uploadFile(){
+
+
+
+    let receiver =
+
+    document
+
+    .getElementById("receiver")
+
+    .value
+
+    .trim();
+
+
+
+
+
+    let fileInput =
+
+    document
+
+    .getElementById("file");
+
+
+
+
+
+
+
+    if(!receiver){
+
+
+
+        alert(
+
+            "Select receiver first"
+
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+
+
+
+    if(!fileInput.files.length){
+
+
+
+        alert(
+
+            "Choose a file"
+
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+
+
+
     let formData =
+
     new FormData();
 
 
+
+
+
     formData.append(
+
         "file",
+
         fileInput.files[0]
+
     );
+
+
+
+
 
 
 
     try{
 
 
+
         let response =
+
         await fetch(
+
             "/upload",
+
             {
+
+
                 method:"POST",
+
+
                 body:formData
+
+
             }
+
+
         );
+
+
 
 
 
         let data =
+
         await response.json();
 
 
 
-        displayMessage(
-            "System",
-            "📎 Uploaded: " + data.filename
+
+
+
+
+        socket.send(JSON.stringify({
+
+
+
+            type:"file",
+
+
+
+            receiver:receiver,
+
+
+
+            filename:data.filename,
+
+
+
+            url:data.url,
+
+
+
+            file_type:data.type
+
+
+
+        }));
+
+
+
+
+
+
+
+        displayFile(
+
+            "You",
+
+            data.filename,
+
+            data.url,
+
+            data.type
+
         );
 
 
+
+
+
+        fileInput.value="";
+
+
+
     }
+
+
 
     catch(error){
 
+
+
         console.log(error);
 
+
+
         alert(
+
             "Upload failed"
+
         );
+
+
 
     }
 
 
-}
 
-
-// =====================================
-// ENTER KEY SEND MESSAGE
-// =====================================
+}// ==============================
+// ENTER KEY SEND
+// ==============================
 
 
 function enterSend(event){
@@ -677,32 +1253,50 @@ function enterSend(event){
 
 }
 
-// =====================================
+
+
+
+
+// ==============================
 // LOAD OLD MESSAGES
-// =====================================
+// ==============================
 
 
 async function loadMessages(){
 
 
+
     let receiver =
+
     document
+
     .getElementById("receiver")
+
     .value
+
     .trim();
+
+
 
 
 
     if(!receiver){
 
+
         return;
+
 
     }
 
 
 
+
+
+
     let response =
+
     await fetch(
+
 
         "/messages/" +
 
@@ -716,20 +1310,32 @@ async function loadMessages(){
 
         encodeURIComponent(receiver)
 
+
     );
 
 
 
 
+
+
     let data =
+
     await response.json();
 
 
 
 
+
+
+
     document
+
     .getElementById("messages")
+
     .innerHTML="";
+
+
+
 
 
 
@@ -737,41 +1343,67 @@ async function loadMessages(){
     data.messages.forEach(msg=>{
 
 
+
         displayMessage(
+
 
             msg.sender,
 
+
             msg.message
 
+
         );
+
 
 
     });
 
 
+
 }
 
-// =====================================
-// TYPING STATUS
-// =====================================
+
+
+
+
+
+
+// ==============================
+// TYPING INDICATOR
+// ==============================
 
 
 let typingTimer;
 
 
 
+
+
 document
+
 .getElementById("message")
+
 .addEventListener(
+
 "input",
+
 function(){
 
 
 
     let receiver =
+
     document
+
     .getElementById("receiver")
-    .value;
+
+    .value
+
+    .trim();
+
+
+
 
 
 
@@ -779,16 +1411,25 @@ function(){
     if(socket && receiver){
 
 
+
         socket.send(JSON.stringify({
+
+
 
             type:"typing",
 
+
+
             receiver:receiver,
+
+
 
             typing:true
 
 
+
         }));
+
 
 
     }
@@ -796,88 +1437,466 @@ function(){
 
 
 
+
+
+
     clearTimeout(
+
         typingTimer
+
     );
 
 
 
+
+
+
+
+
     typingTimer =
+
+
+
     setTimeout(()=>{
+
+
+
 
 
         if(socket && receiver){
 
 
+
             socket.send(JSON.stringify({
+
+
 
                 type:"typing",
 
+
+
                 receiver:receiver,
 
+
+
                 typing:false
+
 
 
             }));
 
 
+
         }
+
 
 
     },1000);
 
 
 
+
+
 });
-// =====================================
-// ONLINE USER CHECK
-// =====================================
+
+
+
+
+
+
+
+
+// ==============================
+// ONLINE USERS
+// ==============================
 
 
 async function loadOnlineUsers(){
 
 
+
     let response =
+
     await fetch(
+
         "/online"
+
     );
 
 
+
+
+
+
     let data =
+
     await response.json();
 
 
 
-    console.log(
-        "Online users:",
-        data.users
+
+
+    let contacts =
+
+    document
+
+    .getElementById("contacts");
+
+
+
+
+
+    contacts.innerHTML="";
+
+
+
+
+
+
+    data.users.forEach(user=>{
+
+
+
+        let div =
+
+        document
+
+        .createElement("div");
+
+
+
+
+
+        div.className=
+
+        "contact-item";
+
+
+
+
+
+        div.innerHTML =
+
+
+
+        "🟢 " + user;
+
+
+
+
+
+        div.onclick=function(){
+
+
+
+            document
+
+            .getElementById("receiver")
+
+            .value=user;
+
+
+
+            document
+
+            .getElementById("chatUser")
+
+            .innerHTML=user;
+
+
+
+        };
+
+
+
+
+
+        contacts.appendChild(div);
+
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==============================
+// RESTORE LOGIN SESSION
+// ==============================
+
+
+window.onload=function(){
+
+
+
+    let savedToken =
+
+    localStorage.getItem(
+
+        "token"
+
+    );
+
+
+
+
+
+    let savedUsername =
+
+    localStorage.getItem(
+
+        "username"
+
+    );
+
+
+
+
+
+
+
+    if(savedToken && savedUsername){
+
+
+
+        token=savedToken;
+
+
+
+        username=savedUsername;
+
+
+
+        openChat();
+
+
+
+    }
+
+
+
+
+
+
+    loadOnlineUsers();
+
+
+
+};
+
+
+
+
+
+
+// ==============================
+// THEME
+// ==============================
+
+
+function toggleTheme(){
+
+
+    document.body
+
+    .classList
+
+    .toggle(
+
+        "dark"
+
     );
 
 
 }
 
 
-// =====================================
-// RESTORE SESSION
-// =====================================
 
 
-window.onload=function(){
+
+// ==============================
+// EMOJI
+// ==============================
 
 
-    let savedToken =
-    localStorage.getItem(
-        "token"
+function toggleEmoji(){
+
+
+
+    document
+
+    .getElementById(
+
+        "emoji-panel"
+
+    )
+
+    .classList
+
+    .toggle(
+
+        "hidden"
+
     );
 
 
-    if(savedToken){
+}
 
 
-        token=savedToken;
+
+
+
+
+function addEmoji(
+
+    emoji
+
+){
+
+
+
+    let input =
+
+    document
+
+    .getElementById(
+
+        "message"
+
+    );
+
+
+
+
+
+    input.value += emoji;
+
+
+
+}
+
+
+
+
+
+// ==============================
+// GROUP CALL MODAL
+// ==============================
+
+
+function createGroupCall(){
+
+
+
+    document
+
+    .getElementById(
+
+        "group-call-modal"
+
+    )
+
+    .classList
+
+    .remove(
+
+        "hidden"
+
+    );
+
+
+}
+
+
+
+
+
+
+function closeModal(){
+
+
+
+    document
+
+    .getElementById(
+
+        "group-call-modal"
+
+    )
+
+    .classList
+
+    .add(
+
+        "hidden"
+
+    );
+
+
+}
+
+
+
+
+
+
+function joinGroupCall(){
+
+
+
+    let room =
+
+    document
+
+    .getElementById(
+
+        "roomId"
+
+    )
+
+    .value
+
+    .trim();
+
+
+
+
+
+    if(socket && room){
+
+
+
+        socket.send(JSON.stringify({
+
+
+
+            type:"join_call",
+
+
+
+            room:room
+
+
+
+        }));
+
 
 
     }
 
 
-};
+
+    closeModal();
+
+
+
+}
