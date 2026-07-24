@@ -3,30 +3,26 @@ Mobile Chat App Frontend
 
 Features:
 - Register/Login
-- WebSocket realtime chat
-- Message history
+- Real-time chat
+- WebSocket messaging
 - Typing indicator
-- File upload
 - WebRTC audio/video calls
-- Group call rooms
+- Group call signaling
 */
 
 
 let username = "";
-
 let token = "";
-
 let socket = null;
 
 
 
-// ============================
+// ===============================
 // WEBRTC
-// ============================
+// ===============================
 
 
 let localStream = null;
-
 
 let peers = {};
 
@@ -34,14 +30,11 @@ let peers = {};
 
 const rtcConfig = {
 
-
     iceServers:[
 
         {
-
             urls:
             "stun:stun.l.google.com:19302"
-
         }
 
     ]
@@ -52,24 +45,20 @@ const rtcConfig = {
 
 
 
-
-
-// ============================
+// ===============================
 // REGISTER
-// ============================
+// ===============================
 
 
 async function register(){
 
 
-    let username =
+    let user =
     document.getElementById("username").value.trim();
-
 
 
     let phone =
     document.getElementById("phone").value.trim();
-
 
 
     let password =
@@ -80,12 +69,9 @@ async function register(){
     let response =
     await fetch("/register",{
 
-
         method:"POST",
 
-
         headers:{
-
 
             "Content-Type":"application/json"
 
@@ -94,20 +80,19 @@ async function register(){
 
         body:JSON.stringify({
 
-            username,
+            username:user,
 
-            phone,
+            phone:phone,
 
-            password
+            password:password
 
         })
-
 
     });
 
 
 
-    let result =
+    let data =
     await response.json();
 
 
@@ -115,10 +100,7 @@ async function register(){
     document.getElementById(
         "authMessage"
     ).innerHTML =
-
-    result.message ||
-    "Account created";
-
+    data.message || "Account created";
 
 }
 
@@ -128,10 +110,9 @@ async function register(){
 
 
 
-
-// ============================
+// ===============================
 // LOGIN
-// ============================
+// ===============================
 
 
 async function login(){
@@ -139,7 +120,6 @@ async function login(){
 
     let phone =
     document.getElementById("phone").value.trim();
-
 
 
     let password =
@@ -150,12 +130,9 @@ async function login(){
     let response =
     await fetch("/login",{
 
-
         method:"POST",
 
-
         headers:{
-
 
             "Content-Type":"application/json"
 
@@ -170,14 +147,12 @@ async function login(){
 
         })
 
-
     });
 
 
 
     let data =
     await response.json();
-
 
 
 
@@ -197,7 +172,6 @@ async function login(){
         );
 
 
-
         openChat();
 
 
@@ -210,8 +184,8 @@ async function login(){
             "Login failed"
         );
 
-
     }
+
 
 }
 
@@ -222,9 +196,9 @@ async function login(){
 
 
 
-// ============================
+// ===============================
 // OPEN CHAT
-// ============================
+// ===============================
 
 
 function openChat(){
@@ -246,7 +220,6 @@ function openChat(){
 
     connectSocket();
 
-
 }
 
 
@@ -255,18 +228,16 @@ function openChat(){
 
 
 
-
-// ============================
+// ===============================
 // WEBSOCKET
-// ============================
+// ===============================
 
 
 function connectSocket(){
 
 
-
     let protocol =
-    window.location.protocol==="https:"
+    location.protocol==="https:"
     ?
     "wss://"
     :
@@ -279,14 +250,13 @@ function connectSocket(){
 
         protocol +
 
-        window.location.host +
+        location.host +
 
         "/ws/" +
 
-        encodeURIComponent(username)
+        username
 
     );
-
 
 
 
@@ -295,9 +265,9 @@ function connectSocket(){
     socket.onopen=function(){
 
 
-        document
-        .getElementById("status")
-        .innerHTML="🟢 Online";
+        document.getElementById(
+            "status"
+        ).innerHTML="🟢 Online";
 
 
     };
@@ -309,7 +279,6 @@ function connectSocket(){
 
 
     socket.onmessage=async function(event){
-
 
 
         let data =
@@ -341,31 +310,16 @@ function connectSocket(){
 
 
 
-
-
         if(data.type==="typing"){
 
 
-            document
-            .getElementById("typing")
-            .innerHTML =
-
-            data.sender+
-            " typing...";
-
-
-            setTimeout(()=>{
-
-                document
-                .getElementById("typing")
-                .innerHTML="";
-
-            },2000);
+            document.getElementById(
+                "typing"
+            ).innerHTML =
+            data.sender+" typing...";
 
 
         }
-
-
 
 
 
@@ -378,8 +332,6 @@ function connectSocket(){
 
 
         }
-
-
 
 
 
@@ -417,21 +369,16 @@ function connectSocket(){
         if(data.type==="candidate"){
 
 
-
             let pc =
             peers[data.sender];
-
 
 
             if(pc){
 
 
                 await pc.addIceCandidate(
-
                     data.candidate
-
                 );
-
 
             }
 
@@ -442,30 +389,11 @@ function connectSocket(){
 
 
 
+
         if(data.type==="end_call"){
 
 
             endCall();
-
-
-        }
-
-
-
-
-
-
-
-        if(data.type==="call_created"){
-
-
-            alert(
-
-                "Room ID: "+
-                data.room
-
-            );
-
 
         }
 
@@ -484,9 +412,9 @@ function connectSocket(){
     socket.onclose=function(){
 
 
-        document
-        .getElementById("status")
-        .innerHTML="🔴 Offline";
+        document.getElementById(
+            "status"
+        ).innerHTML="🔴 Offline";
 
 
     };
@@ -500,23 +428,25 @@ function connectSocket(){
 
 
 
-
-
-// ============================
+// ===============================
 // SEND MESSAGE
-// ============================
+// ===============================
 
 
 function sendMessage(){
 
 
     let receiver =
-    document.getElementById("receiver").value.trim();
+    document.getElementById(
+        "receiver"
+    ).value.trim();
 
 
 
     let message =
-    document.getElementById("message").value.trim();
+    document.getElementById(
+        "message"
+    ).value.trim();
 
 
 
@@ -526,29 +456,22 @@ function sendMessage(){
 
 
 
-    socket.send(JSON.stringify({
 
+    socket.send(JSON.stringify({
 
         type:"message",
 
-
         receiver,
 
-
         message
-
-
 
     }));
 
 
 
     displayMessage(
-
         "You",
-
         message
-
     );
 
 
@@ -566,8 +489,6 @@ function sendMessage(){
 
 
 
-
-
 function displayMessage(
     sender,
     message
@@ -575,7 +496,9 @@ function displayMessage(
 
 
     let li =
-    document.createElement("li");
+    document.createElement(
+        "li"
+    );
 
 
 
@@ -589,9 +512,10 @@ function displayMessage(
 
 
     document
-    .getElementById("messages")
+    .getElementById(
+        "messages"
+    )
     .appendChild(li);
-
 
 
 }
@@ -602,10 +526,287 @@ function displayMessage(
 
 
 
+// ===============================
+// WEBRTC
+// ===============================
 
-// ============================
+
+function createPeer(user){
+
+
+    let pc =
+    new RTCPeerConnection(
+        rtcConfig
+    );
+
+
+
+    peers[user]=pc;
+
+
+
+    pc.onicecandidate=function(e){
+
+
+        if(e.candidate){
+
+
+            socket.send(JSON.stringify({
+
+                type:"candidate",
+
+                receiver:user,
+
+                candidate:e.candidate
+
+            }));
+
+        }
+
+    };
+
+
+
+
+
+    pc.ontrack=function(e){
+
+
+        document.getElementById(
+            "remoteVideo"
+        ).srcObject =
+        e.streams[0];
+
+    };
+
+
+
+    return pc;
+
+}
+
+
+
+
+
+
+
+async function startVideoCall(){
+
+
+    let receiver =
+    document.getElementById(
+        "receiver"
+    ).value.trim();
+
+
+
+    if(!receiver)
+        return;
+
+
+
+    localStream =
+    await navigator.mediaDevices.getUserMedia({
+
+        audio:true,
+
+        video:true
+
+    });
+
+
+
+    document.getElementById(
+        "localVideo"
+    ).srcObject =
+    localStream;
+
+
+
+    let pc =
+    createPeer(receiver);
+
+
+
+    localStream.getTracks()
+    .forEach(track=>{
+
+        pc.addTrack(
+            track,
+            localStream
+        );
+
+    });
+
+
+
+    let offer =
+    await pc.createOffer();
+
+
+
+    await pc.setLocalDescription(
+        offer
+    );
+
+
+
+    socket.send(JSON.stringify({
+
+        type:"offer",
+
+        receiver,
+
+        offer
+
+    }));
+
+}
+
+
+
+
+
+
+async function receiveCall(data){
+
+
+    let sender=data.sender;
+
+
+
+    let pc =
+    createPeer(sender);
+
+
+
+    localStream =
+    await navigator.mediaDevices.getUserMedia({
+
+        audio:true,
+
+        video:true
+
+    });
+
+
+
+    document.getElementById(
+        "localVideo"
+    ).srcObject =
+    localStream;
+
+
+
+
+    localStream.getTracks()
+    .forEach(track=>{
+
+        pc.addTrack(
+            track,
+            localStream
+        );
+
+    });
+
+
+
+    await pc.setRemoteDescription(
+
+        new RTCSessionDescription(
+            data.offer
+        )
+
+    );
+
+
+
+    let answer =
+    await pc.createAnswer();
+
+
+
+    await pc.setLocalDescription(
+        answer
+    );
+
+
+
+    socket.send(JSON.stringify({
+
+        type:"answer",
+
+        receiver:sender,
+
+        answer
+
+    }));
+
+}
+
+
+
+
+
+
+
+function startAudioCall(){
+
+    startVideoCall();
+
+}
+
+
+
+
+
+
+function endCall(){
+
+
+    if(localStream){
+
+        localStream.getTracks()
+        .forEach(
+            t=>t.stop()
+        );
+
+    }
+
+
+
+    Object.values(peers)
+    .forEach(
+        pc=>pc.close()
+    );
+
+
+
+    peers={};
+
+
+
+    if(socket){
+
+        socket.send(JSON.stringify({
+
+            type:"end_call"
+
+        }));
+
+    }
+
+}
+
+
+
+
+
+
+// ===============================
 // LOAD HISTORY
-// ============================
+// ===============================
 
 
 async function loadMessages(){
@@ -618,16 +819,12 @@ async function loadMessages(){
 
 
 
-
     let response =
     await fetch(
 
         "/messages/"+
-
         username+
-
         "/"+
-
         receiver
 
     );
@@ -639,9 +836,9 @@ async function loadMessages(){
 
 
 
-    document
-    .getElementById("messages")
-    .innerHTML="";
+    document.getElementById(
+        "messages"
+    ).innerHTML="";
 
 
 
@@ -668,17 +865,16 @@ async function loadMessages(){
 
 
 
-
-// ============================
+// ===============================
 // TYPING
-// ============================
+// ===============================
 
 
 document
 .getElementById("message")
 .addEventListener(
 "input",
-function(){
+()=>{
 
 
     if(socket){
@@ -686,517 +882,19 @@ function(){
 
         socket.send(JSON.stringify({
 
-
             type:"typing",
-
 
             receiver:
             document.getElementById(
                 "receiver"
             ).value,
 
-
             typing:true
 
 
         }));
 
-
     }
 
 
 });
-
-
-
-
-
-
-
-
-// ============================
-// WEBRTC
-// ============================
-
-
-function createPeer(user){
-
-
-
-    let pc =
-    new RTCPeerConnection(
-        rtcConfig
-    );
-
-
-
-    peers[user]=pc;
-
-
-
-
-    pc.onicecandidate=function(event){
-
-
-        if(event.candidate){
-
-
-            socket.send(JSON.stringify({
-
-
-                type:"candidate",
-
-
-                receiver:user,
-
-
-                candidate:event.candidate
-
-
-            }));
-
-
-        }
-
-
-    };
-
-
-
-
-
-
-
-    pc.ontrack=function(event){
-
-
-        document
-        .getElementById("remoteVideo")
-        .srcObject =
-        event.streams[0];
-
-
-    };
-
-
-
-    return pc;
-
-}
-
-
-
-
-
-
-
-
-
-async function startVideoCall(){
-
-
-    let receiver =
-    document
-    .getElementById("receiver")
-    .value.trim();
-
-
-
-    if(!receiver)
-        return;
-
-
-
-    localStream =
-    await navigator.mediaDevices.getUserMedia({
-
-        audio:true,
-
-        video:true
-
-    });
-
-
-
-
-
-    document
-    .getElementById("localVideo")
-    .srcObject =
-    localStream;
-
-
-
-
-    let pc =
-    createPeer(receiver);
-
-
-
-    localStream.getTracks()
-    .forEach(track=>{
-
-
-        pc.addTrack(
-
-            track,
-
-            localStream
-
-        );
-
-
-    });
-
-
-
-
-
-    let offer =
-    await pc.createOffer();
-
-
-
-    await pc.setLocalDescription(
-        offer
-    );
-
-
-
-
-
-    socket.send(JSON.stringify({
-
-
-        type:"offer",
-
-
-        receiver,
-
-
-        offer
-
-
-
-    }));
-
-
-}
-
-
-
-
-
-
-
-
-async function receiveCall(data){
-
-
-
-    let sender=data.sender;
-
-
-
-    let pc =
-    createPeer(sender);
-
-
-
-
-
-    localStream =
-    await navigator.mediaDevices.getUserMedia({
-
-        audio:true,
-
-        video:true
-
-    });
-
-
-
-
-
-    document
-    .getElementById("localVideo")
-    .srcObject =
-    localStream;
-
-
-
-
-
-    localStream.getTracks()
-    .forEach(track=>{
-
-
-        pc.addTrack(
-
-            track,
-
-            localStream
-
-        );
-
-
-    });
-
-
-
-
-
-    await pc.setRemoteDescription(
-
-        new RTCSessionDescription(
-            data.offer
-        )
-
-    );
-
-
-
-
-
-    let answer =
-    await pc.createAnswer();
-
-
-
-    await pc.setLocalDescription(
-        answer
-    );
-
-
-
-
-
-    socket.send(JSON.stringify({
-
-
-        type:"answer",
-
-
-        receiver:sender,
-
-
-        answer
-
-
-
-    }));
-
-
-}
-
-
-
-
-
-
-
-
-
-// ============================
-// GROUP CALL
-// ============================
-
-
-function startGroupCall(){
-
-
-    let room =
-    "room_"+Date.now();
-
-
-
-    socket.send(JSON.stringify({
-
-
-        type:"create_call",
-
-
-        room
-
-
-    }));
-
-
-}
-
-
-
-
-
-
-
-function joinGroupCall(){
-
-
-    let room =
-    prompt(
-        "Room ID"
-    );
-
-
-
-    socket.send(JSON.stringify({
-
-
-        type:"join_call",
-
-
-        room
-
-
-    }));
-
-
-}
-
-
-
-
-
-
-
-
-// ============================
-// END CALL
-// ============================
-
-
-function endCall(){
-
-
-
-    if(localStream){
-
-
-        localStream
-        .getTracks()
-        .forEach(
-            track=>track.stop()
-        );
-
-
-    }
-
-
-
-    Object.values(peers)
-    .forEach(pc=>{
-
-
-        pc.close();
-
-
-    });
-
-
-
-    peers={};
-
-
-
-    if(socket){
-
-
-        socket.send(JSON.stringify({
-
-
-            type:"end_call"
-
-
-        }));
-
-
-    }
-
-
-}
-
-
-
-
-
-
-
-// ============================
-// FILE UPLOAD
-// ============================
-
-
-async function uploadFile(){
-
-
-
-    let file =
-    document.getElementById(
-        "file"
-    ).files[0];
-
-
-
-    if(!file)
-        return;
-
-
-
-    let form =
-    new FormData();
-
-
-
-    form.append(
-        "file",
-        file
-    );
-
-
-
-    let response =
-    await fetch(
-        "/upload",
-        {
-
-        method:"POST",
-
-        body:form
-
-        }
-
-    );
-
-
-
-    let data =
-    await response.json();
-
-
-
-    alert(
-        "Uploaded: "+
-        data.filename
-    );
-
-
-}
-
-
-
-
-
-
-
-function enterSend(event){
-
-
-    if(event.key==="Enter"){
-
-        sendMessage();
-
-    }
-
-
-}
