@@ -114,7 +114,9 @@ macOS
 Required software:
 
 Python 3.10 or newer
+
 Web browser:
+
 Google Chrome
 Microsoft Edge
 Firefox
@@ -157,17 +159,28 @@ Mobileapp/
 
 Running the Application
 1. Clone or download project
+   
    git clone <repository-url>
+   
 .Navcigate into the project:
+
   cd Mobileapp
-2. Install dependencies
+  
+3. Install dependencies
+   
    pip install -r requirements.txt
-3. Start the server
+   
+5. Start the server
+6. 
    uvicorn server:app --host 0.0.0.0 --port 8000
+   
    Successful startup:
+   
    Application startup complete
+   
    Uvicorn running on http://0.0.0.0:8000
-4. Open Application
+   
+8. Open Application
 
 Open browser:
 http://localhost:8000
@@ -185,11 +198,17 @@ Messages
 Attachments
 
 Future Improvements
+
 Push notifications
+
 End-to-end encryption
+
 User profile pictures
+
 Message reactions
+
 Cloud file storage
+
 Mobile Android/iOS deployment
 
 
