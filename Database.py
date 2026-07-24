@@ -1,5 +1,5 @@
 """
-Server-side database configuration for WhatsApp Clone.
+Server-side database configuration for mobile app.
 Creates and manages:
 - Users
 - Private chats
