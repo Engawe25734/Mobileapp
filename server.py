@@ -57,7 +57,7 @@ from websocket_manager import manager
 # ------------------------------------
 
 app = FastAPI(
-title="WhatsApp Clone API"
+title="mobile app API"
 )
 
 
@@ -102,7 +102,7 @@ def home():
 return {
 
 "message":
-"WhatsApp Clone Server Running"
+"mobile app Server Running"
 
 }
 
