@@ -3,7 +3,7 @@
 
 <head>
 
-<title>Mobile Chat App</title>
+<title>Mobile Chat</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -18,46 +18,63 @@
 <div class="app">
 
 
-<!-- LOGIN SCREEN -->
+
+<!-- =====================
+LOGIN
+===================== -->
 
 <div id="auth">
 
-    <div class="logo">
-        📱
-    </div>
 
-    <h2>Mobile Chat</h2>
-
-    <p>Create account or login</p>
+<div class="logo">
+💬
+</div>
 
 
-    <input 
-    id="username"
-    placeholder="Username">
+<h2>
+Mobile Chat
+</h2>
 
 
-    <input 
-    id="phone"
-    placeholder="Phone Number">
+<p>
+Connect with friends
+</p>
 
 
-    <input 
-    id="password"
-    type="password"
-    placeholder="Password">
+
+<input
+id="username"
+placeholder="Username"
+>
 
 
-    <button onclick="register()">
-        Create Account
-    </button>
+<input
+id="phone"
+placeholder="Phone Number"
+>
 
 
-    <button onclick="login()">
-        Login
-    </button>
+<input
+id="password"
+type="password"
+placeholder="Password"
+>
 
 
-    <p id="authMessage"></p>
+
+<button onclick="register()">
+Create Account
+</button>
+
+
+<button onclick="login()">
+Login
+</button>
+
+
+
+<p id="authMessage"></p>
+
 
 </div>
 
@@ -65,13 +82,21 @@
 
 
 
-<!-- CHAT APPLICATION -->
+
+
+<!-- =====================
+CHAT APP
+===================== -->
+
 
 <div id="chat" class="hidden">
 
 
 
-<!-- TOP HEADER -->
+
+
+
+<!-- HEADER -->
 
 <div class="header">
 
@@ -82,14 +107,19 @@
 💬 Mobile Chat
 </h3>
 
+
 <span id="status">
 🔴 Offline
 </span>
 
+
 </div>
 
 
-<div class="call-buttons">
+
+
+
+<div class="header-buttons">
 
 
 <button onclick="startAudioCall()">
@@ -110,6 +140,7 @@
 </div>
 
 
+
 </div>
 
 
@@ -118,42 +149,97 @@
 
 
 
-<div class="main">
+
+
+<div class="content">
 
 
 
-<!-- CONTACT LIST -->
+
+
+<!-- CONTACTS -->
 
 <div class="contacts">
 
 
 <h4>
-Contacts
+Chats
 </h4>
+
 
 
 <input
 id="receiver"
-placeholder="Search username">
+placeholder="Username"
+>
+
 
 
 <button onclick="loadMessages()">
-Load Chat
+Open Chat
 </button>
+
+
+
+
+
+<hr>
 
 
 
 <h4>
-Calls
+Group Call
 </h4>
 
 
-<button onclick="endCall()">
-End Call
+
+<input
+id="room"
+placeholder="Room ID"
+>
+
+
+
+<button onclick="createGroupCall()">
+
+Create Room
+
 </button>
 
 
+
+<button onclick="joinGroupCall()">
+
+Join Room
+
+</button>
+
+
+
+<button onclick="leaveGroupCall()">
+
+Leave Room
+
+</button>
+
+
+
+
+
+<hr>
+
+
+
+<button onclick="endCall()">
+
+End Call
+
+</button>
+
+
+
 </div>
+
 
 
 
@@ -164,12 +250,13 @@ End Call
 
 <!-- CHAT WINDOW -->
 
-
 <div class="chat-window">
 
 
 
-<div class="chat-header">
+
+
+<div class="chat-title">
 
 Conversation
 
@@ -179,9 +266,12 @@ Conversation
 
 
 
+
 <ul id="messages">
 
 </ul>
+
+
 
 
 
@@ -196,25 +286,31 @@ Conversation
 
 
 
-
-<!-- VIDEO AREA -->
-
+<!-- VIDEO -->
 
 <div class="video-container">
 
 
-<video 
+<video
+
 id="localVideo"
+
 autoplay
+
 muted>
+
 </video>
 
 
 
-<video 
+<video
+
 id="remoteVideo"
+
 autoplay>
+
 </video>
+
 
 
 </div>
@@ -225,23 +321,29 @@ autoplay>
 
 
 
-
-
-<!-- MESSAGE BOX -->
+<!-- MESSAGE INPUT -->
 
 
 <div class="message-box">
 
 
 <input
+
 id="message"
+
 placeholder="Type message..."
-onkeypress="enterSend(event)">
+
+onkeypress="enterSend(event)"
+
+>
 
 
 <button onclick="sendMessage()">
+
 ➤
+
 </button>
+
 
 
 </div>
@@ -252,22 +354,37 @@ onkeypress="enterSend(event)">
 
 
 
-<!-- FILES -->
+<!-- FILE UPLOAD -->
 
 
-<div class="file-area">
+<div class="file-box">
 
 
 <input
+
 type="file"
-id="file">
+
+id="file"
+
+>
+
 
 
 <button onclick="uploadFile()">
+
 📎
+
 </button>
 
 
+
+</div>
+
+
+
+
+
+
 </div>
 
 
@@ -275,7 +392,7 @@ id="file">
 </div>
 
 
-</div>
+
 
 
 
@@ -285,11 +402,12 @@ id="file">
 
 <!-- FEATURES -->
 
+
 <div class="features">
 
 
 <span>
-✅ Messaging
+✅ Chat
 </span>
 
 
@@ -299,12 +417,12 @@ id="file">
 
 
 <span>
-✅ Audio Call
+✅ Audio
 </span>
 
 
 <span>
-✅ Video Call
+✅ Video
 </span>
 
 
@@ -318,10 +436,9 @@ id="file">
 
 
 
-</div>
-
 
 </div>
+
 
 
 
@@ -329,5 +446,6 @@ id="file">
 
 
 </body>
+
 
 </html>
