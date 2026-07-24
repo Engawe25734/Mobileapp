@@ -1,5 +1,5 @@
 /*
-Mobile Chat App Frontend
+ChatMe App Frontend
 
 Features:
 - Authentication
