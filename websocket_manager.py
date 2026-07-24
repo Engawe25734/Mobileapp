@@ -21,11 +21,6 @@ from typing import Dict, Set
 
 import json
 
-
-
-
-
-
 class ConnectionManager:
 
 
@@ -41,13 +36,6 @@ class ConnectionManager:
         # room_id -> usernames
 
         self.call_rooms: Dict[str, Set[str]] = {}
-
-
-
-
-
-
-
 
     # =====================================
     # CONNECT USER
@@ -99,13 +87,6 @@ class ConnectionManager:
             "online"
 
         )
-
-
-
-
-
-
-
 
     # =====================================
     # DISCONNECT USER
@@ -163,13 +144,6 @@ class ConnectionManager:
 
             )
 
-
-
-
-
-
-
-
     # =====================================
     # SEND PRIVATE MESSAGE
     # =====================================
@@ -217,13 +191,6 @@ class ConnectionManager:
 
 
         return len(connections) > 0
-
-
-
-
-
-
-
 
     # =====================================
     # BROADCAST USER STATUS
@@ -279,13 +246,6 @@ class ConnectionManager:
 
                     pass
 
-
-
-
-
-
-
-
     # =====================================
     # TYPING INDICATOR
     # =====================================
@@ -325,13 +285,6 @@ class ConnectionManager:
 
         )
 
-
-
-
-
-
-
-
     # =====================================
     # DELIVERY RECEIPT
     # =====================================
@@ -364,14 +317,7 @@ class ConnectionManager:
 
             }
 
-        )
-
-
-
-
-
-
-
+        }
 
     # =====================================
     # READ RECEIPT
@@ -406,13 +352,6 @@ class ConnectionManager:
             }
 
         )
-
-
-
-
-
-
-
 
     # =====================================
     # GROUP CALL ROOMS
@@ -457,12 +396,6 @@ class ConnectionManager:
         )
 
 
-
-
-
-
-
-
     async def leave_call_room(
 
         self,
@@ -489,13 +422,6 @@ class ConnectionManager:
 
 
                 del self.call_rooms[room]
-
-
-
-
-
-
-
 
     async def remove_user_from_rooms(
 
@@ -534,13 +460,6 @@ class ConnectionManager:
 
 
             del self.call_rooms[room]
-
-
-
-
-
-
-
 
     async def broadcast_call_signal(
 
@@ -596,13 +515,6 @@ class ConnectionManager:
 
                 )
 
-
-
-
-
-
-
-
     # =====================================
     # ONLINE USERS
     # =====================================
@@ -616,13 +528,6 @@ class ConnectionManager:
             self.active_connections.keys()
 
         )
-
-
-
-
-
-
-
 
     # =====================================
     # ROOM USERS
@@ -649,13 +554,6 @@ class ConnectionManager:
             )
 
         )
-
-
-
-
-
-
-
 
 # Global instance
 
