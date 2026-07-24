@@ -4,21 +4,18 @@ mobile_client.py
 Offline style client.
 """
 
-
 import asyncio
 import json
 import websockets
 
-
 from local_storage import (
-init_storage,
-save_message,
-save_offline_message,
-get_offline_messages,
-remove_offline_message,
-show_history
+    init_storage,
+    save_message,
+    save_offline_message,
+    get_offline_messages,
+    remove_offline_message,
+    show_history
 )
-
 
 
 username = ""
@@ -28,31 +25,23 @@ server = "ws://127.0.0.1:8000/ws/"
 socket = None
 
 
-
 # ------------------------------------
 # Connect server
 # ------------------------------------
 
 async def connect_server():
 
+    global socket
 
-global socket
+    socket = await websockets.connect(
+        server + username
+    )
 
+    print(
+        "🟢 Connected to server"
+    )
 
-socket = await websockets.connect(
-
-server + username
-
-)
-
-
-print(
-"🟢 Connected to server"
-)
-
-
-
-await sync_offline_messages()
+    await sync_offline_messages()
 
 
 
@@ -62,49 +51,32 @@ await sync_offline_messages()
 
 async def sync_offline_messages():
 
+    messages = get_offline_messages()
 
-messages = get_offline_messages()
+    for msg in messages:
 
+        payload = {
 
-for msg in messages:
+            "type": "message",
+            "receiver": msg[1],
+            "message": msg[2]
 
+        }
 
-payload = {
+        await socket.send(
+            json.dumps(payload)
+        )
 
-
-"type":"message",
-
-
-"receiver":msg[1],
-
-
-"message":msg[2]
-
-}
-
-
-
-await socket.send(
-
-json.dumps(payload)
-
-)
+        remove_offline_message(
+            msg[0]
+        )
 
 
-remove_offline_message(
+    if messages:
 
-msg[0]
-
-)
-
-
-
-if messages:
-
-print(
-"☁️ Offline messages synced"
-)
-
+        print(
+            "☁️ Offline messages synced"
+        )
 
 
 
@@ -114,41 +86,30 @@ print(
 
 async def receive_messages():
 
+    async for message in socket:
 
-async for message in socket:
-
-
-data=json.loads(message)
+        data = json.loads(message)
 
 
-if data["type"]=="message":
+        if data["type"] == "message":
+
+            print(
+
+                "\n📩",
+                data["sender"],
+                ":",
+                data["message"]
+
+            )
 
 
-print(
+            save_message(
 
-"\n📩",
+                data["sender"],
+                username,
+                data["message"]
 
-data["sender"],
-
-":",
-
-data["message"]
-
-)
-
-
-
-save_message(
-
-data["sender"],
-
-username,
-
-data["message"]
-
-)
-
-
+            )
 
 
 
@@ -158,89 +119,74 @@ data["message"]
 
 async def send_messages():
 
+    while True:
 
-while True:
+        text = await asyncio.to_thread(
 
+            input,
+            "Message: "
 
-text = await asyncio.to_thread(
-
-input,
-
-"Message: "
-
-)
+        )
 
 
+        if text == "history":
 
-if text=="history":
+            show_history()
 
-show_history()
-
-continue
+            continue
 
 
 
+        receiver = input(
 
-receiver=input(
+            "Send to: "
 
-"Send to: "
-
-)
-
+        )
 
 
-payload={
+        payload = {
 
-"type":"message",
+            "type": "message",
+            "receiver": receiver,
+            "message": text
 
-"receiver":receiver,
-
-"message":text
-
-}
+        }
 
 
+        try:
 
-try:
+            await socket.send(
 
+                json.dumps(payload)
 
-await socket.send(
-
-json.dumps(payload)
-
-)
+            )
 
 
-save_message(
+            save_message(
 
-username,
+                username,
+                receiver,
+                text
 
-receiver,
-
-text
-
-)
+            )
 
 
-
-except:
-
-
-save_offline_message(
-
-receiver,
-
-text
-
-)
+        except:
 
 
+            save_offline_message(
 
-print(
+                receiver,
+                text
 
-"📴 Saved offline"
+            )
 
-)
+
+            print(
+
+                "📴 Saved offline"
+
+            )
 
 
 
@@ -252,56 +198,47 @@ print(
 
 async def main():
 
-
-global username
-
-
-init_storage()
+    global username
 
 
-
-username=input(
-
-"Username: "
-
-)
+    init_storage()
 
 
+    username = input(
 
-try:
+        "Username: "
 
-
-await connect_server()
-
-
-
-await asyncio.gather(
-
-receive_messages(),
-
-send_messages()
-
-)
+    )
 
 
+    try:
 
-except Exception:
-
-
-print(
-
-"No internet. Offline mode"
-
-)
+        await connect_server()
 
 
-show_history()
+        await asyncio.gather(
+
+            receive_messages(),
+
+            send_messages()
+
+        )
+
+
+    except Exception:
+
+
+        print(
+
+            "No internet. Offline mode"
+
+        )
+
+
+    show_history()
 
 
 
+if __name__ == "__main__":
 
-
-if __name__=="__main__":
-
-
-asyncio.run(main())
+    asyncio.run(main())
