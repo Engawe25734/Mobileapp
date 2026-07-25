@@ -527,3 +527,182 @@ function(){
 
 
 });
+// =====================================
+// WEBSOCKET CONNECTION
+// =====================================
+
+
+function connectSocket(){
+
+
+    let protocol =
+    window.location.protocol === "https:"
+    ? "wss://"
+    : "ws://";
+
+
+
+    socket = new WebSocket(
+
+        protocol +
+
+        window.location.host +
+
+        "/ws/" +
+
+        username
+
+    );
+
+
+
+    socket.onopen=function(){
+
+
+        console.log(
+            "WebSocket connected"
+        );
+
+
+        document
+        .getElementById("status")
+        .innerHTML =
+        "🟢 Online";
+
+
+    };
+
+
+
+
+    socket.onmessage=function(event){
+
+
+        let data =
+        JSON.parse(event.data);
+
+
+
+        console.log(
+            "Received:",
+            data
+        );
+
+
+
+        if(data.type==="message"){
+
+
+            displayMessage(
+
+                data.sender,
+
+                data.message
+
+            );
+
+
+        }
+
+
+    };
+
+
+
+
+
+    socket.onclose=function(){
+
+
+        document
+        .getElementById("status")
+        .innerHTML =
+        "🔴 Offline";
+
+
+    };
+
+
+}
+function sendMessage(){
+
+
+    let receiver =
+    document
+    .getElementById("receiver")
+    .value
+    .trim();
+
+
+
+    let message =
+    document
+    .getElementById("message")
+    .value
+    .trim();
+
+
+
+    if(!receiver || !message){
+
+        return;
+
+    }
+
+
+
+    socket.send(JSON.stringify({
+
+        type:"message",
+
+        receiver:receiver,
+
+        message:message
+
+    }));
+
+
+
+    displayMessage(
+
+        "You",
+
+        message
+
+    );
+
+
+
+    document
+    .getElementById("message")
+    .value="";
+
+
+}
+function displayMessage(sender,message){
+
+
+    let li =
+    document.createElement("li");
+
+
+
+    li.innerHTML = `
+
+    <b>${sender}</b>
+
+    <br>
+
+    ${message}
+
+    `;
+
+
+
+    document
+    .getElementById("messages")
+    .appendChild(li);
+
+
+}
+
