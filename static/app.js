@@ -8,7 +8,9 @@ Features:
 - Typing indicator
 - File upload
 - Image/Video/Audio sharing
-- WebRTC calls
+- Message receipts
+- WebRTC audio/video calls
+- Group calls
 */
 
 
@@ -28,6 +30,8 @@ let localStream = null;
 
 let peers = {};
 
+let currentCallUser = null;
+
 
 
 const rtcConfig = {
@@ -37,6 +41,7 @@ const rtcConfig = {
         {
 
             urls:
+
             "stun:stun.l.google.com:19302"
 
         }
@@ -44,6 +49,38 @@ const rtcConfig = {
     ]
 
 };
+
+
+
+// ==============================
+// CHECK SOCKET
+// ==============================
+
+
+function socketReady(){
+
+
+    if(!socket || socket.readyState !== WebSocket.OPEN){
+
+
+        alert(
+
+            "Connection not ready"
+
+        );
+
+
+        return false;
+
+
+    }
+
+
+    return true;
+
+
+}
+
 
 
 
@@ -58,8 +95,11 @@ async function register(){
     const usernameInput =
 
     document
+
     .getElementById("username")
+
     .value
+
     .trim();
 
 
@@ -67,8 +107,11 @@ async function register(){
     const phone =
 
     document
+
     .getElementById("phone")
+
     .value
+
     .trim();
 
 
@@ -76,9 +119,10 @@ async function register(){
     const password =
 
     document
-    .getElementById("password")
-    .value;
 
+    .getElementById("password")
+
+    .value;
 
 
 
@@ -94,23 +138,28 @@ async function register(){
 
             headers:{
 
+
                 "Content-Type":
 
                 "application/json"
+
 
             },
 
 
             body:JSON.stringify({
 
+
                 username:usernameInput,
+
 
                 phone:phone,
 
+
                 password:password
 
-            })
 
+            })
 
         }
 
@@ -136,182 +185,6 @@ async function register(){
 
 
 }
-
-
-
-
-// ==============================
-// LOGIN USER
-// ==============================
-
-
-async function login(){
-
-
-
-    const phone =
-
-    document
-
-    .getElementById("phone")
-
-    .value
-
-    .trim();
-
-
-
-
-    const password =
-
-    document
-
-    .getElementById("password")
-
-    .value;
-
-
-
-
-
-    let response =
-
-    await fetch(
-
-        "/login",
-
-        {
-
-
-            method:"POST",
-
-
-            headers:{
-
-
-                "Content-Type":
-
-                "application/json"
-
-
-            },
-
-
-            body:JSON.stringify({
-
-
-                phone,
-
-                password
-
-
-            })
-
-
-        }
-
-    );
-
-
-
-
-    let data =
-
-    await response.json();
-
-
-
-
-
-    if(data.access_token){
-
-
-
-        token = data.access_token;
-
-
-        username = data.username;
-
-
-
-        localStorage.setItem(
-
-            "token",
-
-            token
-
-        );
-
-
-
-        localStorage.setItem(
-
-            "username",
-
-            username
-
-        );
-
-
-
-        openChat();
-
-
-
-    }
-
-
-    else{
-
-
-        alert(
-
-            "Invalid login"
-
-        );
-
-
-    }
-
-
-}
-// ==============================
-// OPEN CHAT
-// ==============================
-
-
-function openChat(){
-
-
-
-    document
-
-    .getElementById("auth-page")
-
-    .classList
-
-    .add("hidden");
-
-
-
-    document
-
-    .getElementById("chat-page")
-
-    .classList
-
-    .remove("hidden");
-
-
-
-    connectSocket();
-
-
-}
-
-
-
-
 // ==============================
 // CONNECT WEBSOCKET
 // ==============================
@@ -320,16 +193,20 @@ function openChat(){
 function connectSocket(){
 
 
-
     let protocol =
+
 
     window.location.protocol === "https:"
 
+
     ?
+
 
     "wss://"
 
+
     :
+
 
     "ws://";
 
@@ -365,10 +242,18 @@ function connectSocket(){
 
         .innerHTML =
 
+
         "🟢 Online";
 
 
+
+        loadOnlineUsers();
+
+
+
     };
+
+
 
 
 
@@ -382,6 +267,7 @@ function connectSocket(){
 
         let data =
 
+
         JSON.parse(
 
             event.data
@@ -391,14 +277,20 @@ function connectSocket(){
 
 
 
-        console.log(data);
+        console.log(
+
+            "SERVER:",
+
+            data
+
+        );
 
 
 
 
 
         // =========================
-        // TEXT MESSAGE RECEIVED
+        // TEXT MESSAGE
         // =========================
 
 
@@ -415,6 +307,38 @@ function connectSocket(){
             );
 
 
+
+            // send read receipt
+
+
+            if(data.message_id){
+
+
+
+                socket.send(JSON.stringify({
+
+
+
+                    type:"read",
+
+
+
+                    receiver:data.sender,
+
+
+
+                    message_id:data.message_id
+
+
+
+                }));
+
+
+
+            }
+
+
+
         }
 
 
@@ -424,7 +348,7 @@ function connectSocket(){
 
 
         // =========================
-        // FILE MESSAGE RECEIVED
+        // FILE MESSAGE
         // =========================
 
 
@@ -434,13 +358,119 @@ function connectSocket(){
 
             displayFile(
 
+
                 data.sender,
+
 
                 data.filename,
 
+
                 data.url,
 
+
                 data.file_type
+
+
+            );
+
+
+
+        }
+
+
+
+
+
+
+
+        // =========================
+        // USER STATUS
+        // =========================
+
+
+        if(data.type==="status"){
+
+
+
+            loadOnlineUsers();
+
+
+
+        }
+
+
+
+
+
+
+
+        // =========================
+        // TYPING
+        // =========================
+
+
+        if(data.type==="typing"){
+
+
+
+            let typing =
+
+            document
+
+            .getElementById("typing");
+
+
+
+
+
+            if(data.typing){
+
+
+
+                typing.innerHTML =
+
+
+                data.sender +
+
+                " is typing...";
+
+
+
+            }
+
+
+            else{
+
+
+                typing.innerHTML="";
+
+
+            }
+
+
+
+        }
+
+
+
+
+
+
+
+        // =========================
+        // MESSAGE DELIVERED
+        // =========================
+
+
+        if(data.type==="delivered"){
+
+
+
+            console.log(
+
+                "Delivered:",
+
+                data.message_id
 
             );
 
@@ -451,44 +481,24 @@ function connectSocket(){
 
 
 
+
+
         // =========================
-        // TYPING STATUS
+        // MESSAGE READ
         // =========================
 
 
-        if(data.type==="typing"){
+        if(data.type==="read"){
 
 
 
-            document
+            console.log(
 
-            .getElementById("typing")
+                "Read:",
 
-            .innerHTML =
+                data.message_id
 
-
-
-            data.sender +
-
-            " is typing...";
-
-
-
-
-
-            setTimeout(()=>{
-
-
-                document
-
-                .getElementById("typing")
-
-                .innerHTML="";
-
-
-
-            },2000);
-
+            );
 
 
         }
@@ -500,7 +510,7 @@ function connectSocket(){
 
 
         // =========================
-        // CALL OFFER
+        // PRIVATE CALL OFFER
         // =========================
 
 
@@ -516,6 +526,7 @@ function connectSocket(){
 
 
         }
+
 
 
 
@@ -555,6 +566,7 @@ function connectSocket(){
             }
 
 
+
         }
 
 
@@ -589,7 +601,9 @@ function connectSocket(){
                 );
 
 
+
             }
+
 
 
         }
@@ -601,7 +615,7 @@ function connectSocket(){
 
 
         // =========================
-        // END CALL
+        // CALL ENDED
         // =========================
 
 
@@ -624,7 +638,6 @@ function connectSocket(){
 
 
 
-
     socket.onclose=function(){
 
 
@@ -634,6 +647,7 @@ function connectSocket(){
         .getElementById("status")
 
         .innerHTML =
+
 
         "🔴 Offline";
 
@@ -653,7 +667,17 @@ function sendMessage(){
 
 
 
+    if(!socketReady()){
+
+        return;
+
+    }
+
+
+
+
     let receiver =
+
 
     document
 
@@ -668,6 +692,7 @@ function sendMessage(){
 
 
     let message =
+
 
     document
 
@@ -694,8 +719,7 @@ function sendMessage(){
 
 
 
-
-    socket.send(JSON.stringify({
+    let data = {
 
 
 
@@ -711,9 +735,17 @@ function sendMessage(){
 
 
 
-    }));
+    };
 
 
+
+
+
+    socket.send(
+
+        JSON.stringify(data)
+
+    );
 
 
 
@@ -723,11 +755,11 @@ function sendMessage(){
 
         "You",
 
-        message
+        message,
+
+        true
 
     );
-
-
 
 
 
@@ -756,7 +788,9 @@ function displayMessage(
 
     sender,
 
-    message
+    message,
+
+    mine=false
 
 ){
 
@@ -772,17 +806,54 @@ function displayMessage(
 
 
 
+    li.className =
+
+
+    mine ?
+
+
+    "my-message"
+
+
+    :
+
+
+    "other-message";
+
+
+
+
+
+
+    let time =
+
+    new Date()
+
+    .toLocaleTimeString();
+
+
+
+
+
     li.innerHTML =
 
 
 
-    "<b>"+
+    `
 
-    sender+
+    <b>${sender}</b>
 
-    "</b><br>"+
+    <br>
 
-    message;
+    ${message}
+
+    <small>
+
+    ${time}
+
+    </small>
+
+    `;
 
 
 
@@ -813,6 +884,7 @@ function displayMessage(
 
 
 
+
 // ==============================
 // DISPLAY FILE MESSAGE
 // ==============================
@@ -826,7 +898,9 @@ function displayFile(
 
     url,
 
-    type
+    type,
+
+    mine=false
 
 ){
 
@@ -837,6 +911,25 @@ function displayFile(
     document
 
     .createElement("li");
+
+
+
+
+
+    li.className =
+
+
+    mine ?
+
+
+    "my-message"
+
+
+    :
+
+
+    "other-message";
+
 
 
 
@@ -858,15 +951,18 @@ function displayFile(
 
         content =
 
+
+
         `
 
         <img
 
         src="${url}"
 
-        width="220">
+        class="chat-image">
 
         `;
+
 
 
     }
@@ -886,13 +982,15 @@ function displayFile(
 
         content =
 
+
+
         `
 
         <video
 
         controls
 
-        width="260">
+        class="chat-video">
 
 
         <source src="${url}">
@@ -901,6 +999,7 @@ function displayFile(
         </video>
 
         `;
+
 
 
     }
@@ -921,6 +1020,7 @@ function displayFile(
         content =
 
 
+
         `
 
         <audio controls>
@@ -935,6 +1035,7 @@ function displayFile(
         `;
 
 
+
     }
 
 
@@ -943,7 +1044,7 @@ function displayFile(
 
 
 
-    // DOCUMENT
+    // FILE
 
 
     else{
@@ -955,9 +1056,13 @@ function displayFile(
 
         `
 
-        📄
+        📎
 
-        <a href="${url}" target="_blank">
+        <a
+
+        href="${url}"
+
+        target="_blank">
 
         ${filename}
 
@@ -975,17 +1080,38 @@ function displayFile(
 
 
 
+    let time =
+
+
+    new Date()
+
+    .toLocaleTimeString();
+
+
+
+
+
+
+
     li.innerHTML =
 
 
 
-    "<b>"+
+    `
 
-    sender+
+    <b>${sender}</b>
 
-    "</b><br>"+
+    <br>
 
-    content;
+    ${content}
+
+    <small>
+
+    ${time}
+
+    </small>
+
+    `;
 
 
 
@@ -1012,13 +1138,6 @@ function displayFile(
 
 
 }
-
-
-
-
-
-
-
 // ==============================
 // FILE UPLOAD
 // ==============================
@@ -1028,7 +1147,21 @@ async function uploadFile(){
 
 
 
+    if(!socketReady()){
+
+
+        return;
+
+
+    }
+
+
+
+
+
+
     let receiver =
+
 
     document
 
@@ -1044,10 +1177,10 @@ async function uploadFile(){
 
     let fileInput =
 
+
     document
 
     .getElementById("file");
-
 
 
 
@@ -1098,6 +1231,16 @@ async function uploadFile(){
 
 
 
+    let file =
+
+    fileInput.files[0];
+
+
+
+
+
+
+
     let formData =
 
     new FormData();
@@ -1110,7 +1253,7 @@ async function uploadFile(){
 
         "file",
 
-        fileInput.files[0]
+        file
 
     );
 
@@ -1126,6 +1269,7 @@ async function uploadFile(){
 
         let response =
 
+
         await fetch(
 
             "/upload",
@@ -1135,12 +1279,10 @@ async function uploadFile(){
 
                 method:"POST",
 
-
                 body:formData
 
 
             }
-
 
         );
 
@@ -1148,10 +1290,12 @@ async function uploadFile(){
 
 
 
+
+
         let data =
 
-        await response.json();
 
+        await response.json();
 
 
 
@@ -1192,15 +1336,24 @@ async function uploadFile(){
 
         displayFile(
 
+
             "You",
+
 
             data.filename,
 
+
             data.url,
 
-            data.type
+
+            data.type,
+
+
+            true
+
 
         );
+
 
 
 
@@ -1234,21 +1387,148 @@ async function uploadFile(){
 
 
 
-}// ==============================
-// ENTER KEY SEND
+}
+
+
+
+
+
+
+
+
+// ==============================
+// CREATE PEER CONNECTION
 // ==============================
 
 
-function enterSend(event){
+function createPeerConnection(user){
 
 
-    if(event.key==="Enter"){
+
+    let pc =
+
+    new RTCPeerConnection(
+
+        rtcConfig
+
+    );
 
 
-        sendMessage();
+
+
+
+    peers[user]=pc;
+
+
+
+
+
+
+
+    pc.onicecandidate=function(event){
+
+
+
+        if(event.candidate){
+
+
+
+            socket.send(JSON.stringify({
+
+
+
+                type:"candidate",
+
+
+
+                receiver:user,
+
+
+
+                candidate:event.candidate
+
+
+
+            }));
+
+
+        }
+
+
+
+    };
+
+
+
+
+
+
+
+    pc.ontrack=function(event){
+
+
+
+        let remote =
+
+        document
+
+        .getElementById(
+
+            "remoteVideo"
+
+        );
+
+
+
+        if(remote){
+
+
+
+            remote.srcObject =
+
+            event.streams[0];
+
+
+
+        }
+
+
+    };
+
+
+
+
+
+
+
+    if(localStream){
+
+
+
+        localStream
+
+        .getTracks()
+
+        .forEach(track=>{
+
+
+            pc.addTrack(
+
+                track,
+
+                localStream
+
+            );
+
+
+        });
 
 
     }
+
+
+
+    return pc;
 
 
 }
@@ -1257,16 +1537,20 @@ function enterSend(event){
 
 
 
+
+
+
 // ==============================
-// LOAD OLD MESSAGES
+// START AUDIO CALL
 // ==============================
 
 
-async function loadMessages(){
+async function startAudioCall(){
 
 
 
     let receiver =
+
 
     document
 
@@ -1283,6 +1567,14 @@ async function loadMessages(){
     if(!receiver){
 
 
+
+        alert(
+
+            "Select user"
+
+        );
+
+
         return;
 
 
@@ -1290,26 +1582,36 @@ async function loadMessages(){
 
 
 
+    currentCallUser=receiver;
 
 
 
-    let response =
-
-    await fetch(
 
 
-        "/messages/" +
+    localStream =
 
-        encodeURIComponent(username)
 
-        +
+    await navigator.mediaDevices.getUserMedia({
 
-        "/"
 
-        +
 
-        encodeURIComponent(receiver)
+        audio:true,
 
+        video:false
+
+
+
+    });
+
+
+
+
+
+    let pc =
+
+    createPeerConnection(
+
+        receiver
 
     );
 
@@ -1317,47 +1619,42 @@ async function loadMessages(){
 
 
 
-
-    let data =
-
-    await response.json();
+    let offer =
 
 
+    await pc.createOffer();
 
 
 
 
 
-    document
+    await pc.setLocalDescription(
 
-    .getElementById("messages")
+        offer
 
-    .innerHTML="";
-
-
+    );
 
 
 
 
 
-    data.messages.forEach(msg=>{
+    socket.send(JSON.stringify({
 
 
 
-        displayMessage(
-
-
-            msg.sender,
-
-
-            msg.message
-
-
-        );
+        type:"offer",
 
 
 
-    });
+        receiver:receiver,
+
+
+
+        offer:offer
+
+
+
+    }));
 
 
 
@@ -1369,30 +1666,18 @@ async function loadMessages(){
 
 
 
+
 // ==============================
-// TYPING INDICATOR
+// START VIDEO CALL
 // ==============================
 
 
-let typingTimer;
-
-
-
-
-
-document
-
-.getElementById("message")
-
-.addEventListener(
-
-"input",
-
-function(){
+async function startVideoCall(){
 
 
 
     let receiver =
+
 
     document
 
@@ -1406,30 +1691,18 @@ function(){
 
 
 
-
-
-    if(socket && receiver){
-
-
-
-        socket.send(JSON.stringify({
+    if(!receiver){
 
 
 
-            type:"typing",
+        alert(
+
+            "Select user"
+
+        );
 
 
-
-            receiver:receiver,
-
-
-
-            typing:true
-
-
-
-        }));
-
+        return;
 
 
     }
@@ -1438,180 +1711,25 @@ function(){
 
 
 
+    currentCallUser=receiver;
 
 
-    clearTimeout(
 
-        typingTimer
 
-    );
 
 
 
+    localStream =
 
 
+    await navigator.mediaDevices.getUserMedia({
 
 
 
-    typingTimer =
+        audio:true,
 
 
-
-    setTimeout(()=>{
-
-
-
-
-
-        if(socket && receiver){
-
-
-
-            socket.send(JSON.stringify({
-
-
-
-                type:"typing",
-
-
-
-                receiver:receiver,
-
-
-
-                typing:false
-
-
-
-            }));
-
-
-
-        }
-
-
-
-    },1000);
-
-
-
-
-
-});
-
-
-
-
-
-
-
-
-// ==============================
-// ONLINE USERS
-// ==============================
-
-
-async function loadOnlineUsers(){
-
-
-
-    let response =
-
-    await fetch(
-
-        "/online"
-
-    );
-
-
-
-
-
-
-    let data =
-
-    await response.json();
-
-
-
-
-
-    let contacts =
-
-    document
-
-    .getElementById("contacts");
-
-
-
-
-
-    contacts.innerHTML="";
-
-
-
-
-
-
-    data.users.forEach(user=>{
-
-
-
-        let div =
-
-        document
-
-        .createElement("div");
-
-
-
-
-
-        div.className=
-
-        "contact-item";
-
-
-
-
-
-        div.innerHTML =
-
-
-
-        "🟢 " + user;
-
-
-
-
-
-        div.onclick=function(){
-
-
-
-            document
-
-            .getElementById("receiver")
-
-            .value=user;
-
-
-
-            document
-
-            .getElementById("chatUser")
-
-            .innerHTML=user;
-
-
-
-        };
-
-
-
-
-
-        contacts.appendChild(div);
+        video:true
 
 
 
@@ -1619,30 +1737,16 @@ async function loadOnlineUsers(){
 
 
 
-}
 
 
+    let video =
 
 
+    document
 
+    .getElementById(
 
-
-
-
-// ==============================
-// RESTORE LOGIN SESSION
-// ==============================
-
-
-window.onload=function(){
-
-
-
-    let savedToken =
-
-    localStorage.getItem(
-
-        "token"
+        "localVideo"
 
     );
 
@@ -1650,34 +1754,13 @@ window.onload=function(){
 
 
 
-    let savedUsername =
-
-    localStorage.getItem(
-
-        "username"
-
-    );
+    if(video){
 
 
 
+        video.srcObject=
 
-
-
-
-    if(savedToken && savedUsername){
-
-
-
-        token=savedToken;
-
-
-
-        username=savedUsername;
-
-
-
-        openChat();
-
+        localStream;
 
 
     }
@@ -1687,34 +1770,236 @@ window.onload=function(){
 
 
 
-    loadOnlineUsers();
+    let pc =
 
 
+    createPeerConnection(
 
-};
-
-
-
-
-
-
-// ==============================
-// THEME
-// ==============================
-
-
-function toggleTheme(){
-
-
-    document.body
-
-    .classList
-
-    .toggle(
-
-        "dark"
+        receiver
 
     );
+
+
+
+
+
+
+    let offer =
+
+
+    await pc.createOffer();
+
+
+
+
+
+    await pc.setLocalDescription(
+
+        offer
+
+    );
+
+
+
+
+
+
+    socket.send(JSON.stringify({
+
+
+
+        type:"offer",
+
+
+
+        receiver:receiver,
+
+
+
+        offer:offer
+
+
+
+    }));
+
+
+
+}
+// ==============================
+// WEBRTC PEER CONNECTION
+// ==============================
+
+
+function createPeerConnection(user){
+
+
+    let pc = new RTCPeerConnection(
+        rtcConfig
+    );
+
+
+    peers[user] = pc;
+
+
+
+    pc.onicecandidate = function(event){
+
+
+        if(event.candidate){
+
+
+            socket.send(JSON.stringify({
+
+                type:"candidate",
+
+                receiver:user,
+
+                candidate:event.candidate
+
+            }));
+
+
+        }
+
+
+    };
+
+
+
+    pc.ontrack=function(event){
+
+
+        let remote = document.getElementById(
+            "remoteVideo"
+        );
+
+
+        remote.innerHTML="";
+
+
+        let video=document.createElement(
+            "video"
+        );
+
+
+        video.srcObject =
+        event.streams[0];
+
+
+        video.autoplay=true;
+
+
+        video.controls=true;
+
+
+        video.width=250;
+
+
+        remote.appendChild(video);
+
+
+    };
+
+
+    return pc;
+
+
+}
+
+
+
+
+// ==============================
+// START AUDIO CALL
+// ==============================
+
+
+async function startAudioCall(){
+
+
+
+    let receiver =
+    document
+    .getElementById("receiver")
+    .value
+    .trim();
+
+
+
+    if(!receiver){
+
+        alert(
+            "Select user first"
+        );
+
+        return;
+
+    }
+
+
+
+    localStream =
+    await navigator.mediaDevices.getUserMedia({
+
+        audio:true,
+
+        video:false
+
+    });
+
+
+
+    let pc =
+    createPeerConnection(
+        receiver
+    );
+
+
+
+    localStream
+    .getTracks()
+    .forEach(track=>{
+
+
+        pc.addTrack(
+
+            track,
+
+            localStream
+
+        );
+
+
+    });
+
+
+
+    let offer =
+    await pc.createOffer();
+
+
+
+    await pc.setLocalDescription(
+        offer
+    );
+
+
+
+    socket.send(JSON.stringify({
+
+        type:"offer",
+
+        receiver:receiver,
+
+        offer:offer,
+
+        callType:"audio"
+
+    }));
+
+
+    showCallArea();
+
 
 
 }
@@ -1723,12 +2008,53 @@ function toggleTheme(){
 
 
 
+
 // ==============================
-// EMOJI
+// START VIDEO CALL
 // ==============================
 
 
-function toggleEmoji(){
+async function startVideoCall(){
+
+
+
+    let receiver =
+    document
+    .getElementById("receiver")
+    .value
+    .trim();
+
+
+
+    if(!receiver){
+
+
+        alert(
+            "Select user first"
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+
+    localStream =
+    await navigator.mediaDevices.getUserMedia({
+
+
+        audio:true,
+
+
+        video:true
+
+
+    });
+
 
 
 
@@ -1736,17 +2062,90 @@ function toggleEmoji(){
 
     .getElementById(
 
-        "emoji-panel"
+        "localVideo"
 
     )
 
-    .classList
+    .srcObject = localStream;
 
-    .toggle(
 
-        "hidden"
+
+
+
+    let pc =
+
+    createPeerConnection(
+
+        receiver
 
     );
+
+
+
+
+    localStream
+
+    .getTracks()
+
+    .forEach(track=>{
+
+
+        pc.addTrack(
+
+            track,
+
+            localStream
+
+        );
+
+
+    });
+
+
+
+
+
+    let offer =
+
+    await pc.createOffer();
+
+
+
+
+
+    await pc.setLocalDescription(
+
+        offer
+
+    );
+
+
+
+
+
+    socket.send(JSON.stringify({
+
+
+        type:"offer",
+
+
+        receiver:receiver,
+
+
+        offer:offer,
+
+
+        callType:"video"
+
+
+
+    }));
+
+
+
+
+
+    showCallArea();
 
 
 }
@@ -1756,21 +2155,87 @@ function toggleEmoji(){
 
 
 
-function addEmoji(
-
-    emoji
-
-){
+// ==============================
+// RECEIVE CALL
+// ==============================
 
 
+async function receiveCall(data){
 
-    let input =
+
+
+    let sender =
+    data.sender;
+
+
+
+    let pc =
+    createPeerConnection(
+        sender
+    );
+
+
+
+    localStream =
+    await navigator.mediaDevices.getUserMedia({
+
+
+        audio:true,
+
+
+        video:data.callType==="video"
+
+
+
+    });
+
+
+
+
 
     document
 
     .getElementById(
 
-        "message"
+        "localVideo"
+
+    )
+
+    .srcObject = localStream;
+
+
+
+
+
+    localStream
+
+    .getTracks()
+
+    .forEach(track=>{
+
+
+        pc.addTrack(
+
+            track,
+
+            localStream
+
+        );
+
+
+    });
+
+
+
+
+
+    await pc.setRemoteDescription(
+
+        new RTCSessionDescription(
+
+            data.offer
+
+        )
 
     );
 
@@ -1778,7 +2243,44 @@ function addEmoji(
 
 
 
-    input.value += emoji;
+    let answer =
+
+    await pc.createAnswer();
+
+
+
+
+
+    await pc.setLocalDescription(
+
+        answer
+
+    );
+
+
+
+
+
+    socket.send(JSON.stringify({
+
+
+        type:"answer",
+
+
+        receiver:sender,
+
+
+        answer:answer
+
+
+
+    }));
+
+
+
+
+
+    showCallArea();
 
 
 
@@ -1788,20 +2290,84 @@ function addEmoji(
 
 
 
+
 // ==============================
-// GROUP CALL MODAL
+// END CALL
 // ==============================
 
 
-function createGroupCall(){
+function endCall(){
 
+
+
+    if(localStream){
+
+
+
+        localStream
+
+        .getTracks()
+
+        .forEach(track=>{
+
+
+            track.stop();
+
+
+        });
+
+
+
+        localStream=null;
+
+
+    }
+
+
+
+
+    Object.values(peers)
+
+    .forEach(pc=>{
+
+
+        pc.close();
+
+
+    });
+
+
+
+
+    peers={};
+
+
+
+
+    hideCallArea();
+
+
+
+}
+
+
+
+
+
+
+// ==============================
+// CALL UI
+// ==============================
+
+
+function showCallArea(){
 
 
     document
 
     .getElementById(
 
-        "group-call-modal"
+        "call-area"
 
     )
 
@@ -1821,7 +2387,7 @@ function createGroupCall(){
 
 
 
-function closeModal(){
+function hideCallArea(){
 
 
 
@@ -1829,7 +2395,7 @@ function closeModal(){
 
     .getElementById(
 
-        "group-call-modal"
+        "call-area"
 
     )
 
@@ -1843,60 +2409,1551 @@ function closeModal(){
 
 
 }
+// ==============================
+// MESSAGE DELIVERY RECEIPT
+// ==============================
 
 
+function sendDeliveryReceipt(
+    messageId,
+    receiver
+){
 
 
-
-
-function joinGroupCall(){
-
-
-
-    let room =
-
-    document
-
-    .getElementById(
-
-        "roomId"
-
-    )
-
-    .value
-
-    .trim();
-
-
-
-
-
-    if(socket && room){
-
+    if(socket && messageId){
 
 
         socket.send(JSON.stringify({
 
+            type:"read",
 
+            receiver:receiver,
 
-            type:"join_call",
-
-
-
-            room:room
-
+            message_id:messageId
 
 
         }));
 
+
+    }
+
+
+}
+
+
+
+
+
+// ==============================
+// HANDLE MESSAGE STATUS
+// ==============================
+
+
+function updateMessageStatus(
+    messageId,
+    status
+){
+
+
+    let message =
+    document.querySelector(
+        `[data-id="${messageId}"]`
+    );
+
+
+    if(message){
+
+
+        let span =
+        message.querySelector(
+            ".status"
+        );
+
+
+        if(span){
+
+
+            span.innerHTML=status;
+
+
+        }
+
+
+    }
+
+
+}
+
+
+
+
+
+
+// ==============================
+// IMPROVED MESSAGE DISPLAY
+// ==============================
+
+
+function displayMessage(
+    sender,
+    message,
+    id=null
+){
+
+
+
+    let li =
+    document.createElement(
+        "li"
+    );
+
+
+
+    if(id){
+
+
+        li.dataset.id=id;
 
 
     }
 
 
 
-    closeModal();
+
+
+    li.innerHTML = `
+
+
+        <div>
+
+            <b>${sender}</b>
+
+            <br>
+
+            ${message}
+
+            <span class="status">
+
+                ✓
+
+            </span>
+
+
+        </div>
+
+
+    `;
+
+
+
+
+    document
+
+    .getElementById(
+        "messages"
+    )
+
+    .appendChild(
+        li
+    );
+
+
+
+
+    li.scrollIntoView({
+
+        behavior:"smooth"
+
+    });
 
 
 
 }
+
+
+
+
+
+
+// ==============================
+// NOTIFICATION SYSTEM
+// ==============================
+
+
+function showNotification(
+    title,
+    message
+){
+
+
+    if(
+        Notification.permission === "granted"
+    ){
+
+
+        new Notification(
+
+            title,
+
+            {
+
+                body:message
+
+            }
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+// ==============================
+// REQUEST NOTIFICATION ACCESS
+// ==============================
+
+
+function enableNotifications(){
+
+
+
+    if(
+        "Notification" in window
+    ){
+
+
+        Notification.requestPermission();
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// PLAY MESSAGE SOUND
+// ==============================
+
+
+function playMessageSound(){
+
+
+    let audio =
+    new Audio(
+        "/static/message.mp3"
+    );
+
+
+    audio.play()
+    .catch(()=>{});
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// UPDATED SOCKET MESSAGE HANDLER
+// ==============================
+
+
+function handleIncomingMessage(data){
+
+
+
+    if(data.type==="message"){
+
+
+
+        displayMessage(
+
+            data.sender,
+
+            data.message,
+
+            data.message_id
+
+        );
+
+
+
+        playMessageSound();
+
+
+
+        showNotification(
+
+            "New message from "+data.sender,
+
+            data.message
+
+        );
+
+
+
+        sendDeliveryReceipt(
+
+            data.message_id,
+
+            data.sender
+
+        );
+
+
+    }
+
+
+
+
+
+
+    if(data.type==="delivered"){
+
+
+
+        updateMessageStatus(
+
+            data.message_id,
+
+            "✓✓"
+
+        );
+
+
+    }
+
+
+
+
+
+
+    if(data.type==="read"){
+
+
+
+        updateMessageStatus(
+
+            data.message_id,
+
+            "✓✓ Read"
+
+        );
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// LOGOUT
+// ==============================
+
+
+function logout(){
+
+
+
+    if(socket){
+
+
+        socket.close();
+
+
+    }
+
+
+
+    localStorage.removeItem(
+
+        "token"
+
+    );
+
+
+
+    localStorage.removeItem(
+
+        "username"
+
+    );
+
+
+
+    username="";
+
+
+    token="";
+
+
+
+    document
+
+    .getElementById(
+
+        "chat-page"
+
+    )
+
+    .classList
+
+    .add(
+
+        "hidden"
+
+    );
+
+
+
+
+
+    document
+
+    .getElementById(
+
+        "auth-page"
+
+    )
+
+    .classList
+
+    .remove(
+
+        "hidden"
+
+    );
+
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// DELETE LOCAL FILE PREVIEW
+// ==============================
+
+
+function clearFileInput(){
+
+
+    let file =
+    document.getElementById(
+        "file"
+    );
+
+
+    if(file){
+
+
+        file.value="";
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// FILE TYPE CHECK
+// ==============================
+
+
+function getFileType(file){
+
+
+
+    if(file.type.startsWith("image")){
+
+
+        return "image";
+
+
+    }
+
+
+
+    if(file.type.startsWith("video")){
+
+
+        return "video";
+
+
+    }
+
+
+
+    if(file.type.startsWith("audio")){
+
+
+        return "audio";
+
+
+    }
+
+
+
+    return "document";
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// FILE SIZE VALIDATION
+// ==============================
+
+
+function validateFile(file){
+
+
+
+    let maxSize =
+    100 * 1024 * 1024;
+
+
+
+    if(file.size > maxSize){
+
+
+        alert(
+
+            "File size cannot exceed 100MB"
+
+        );
+
+
+        return false;
+
+
+    }
+
+
+
+    return true;
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// ENHANCED UPLOAD CHECK
+// ==============================
+
+
+async function uploadMedia(){
+
+
+
+    let input =
+    document.getElementById(
+        "file"
+    );
+
+
+
+    if(!input.files.length){
+
+
+        alert(
+            "Choose a file"
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+
+    let file =
+    input.files[0];
+
+
+
+
+    if(!validateFile(file)){
+
+
+        return;
+
+
+    }
+
+
+
+    let type =
+    getFileType(file);
+
+
+
+    console.log(
+
+        "Uploading:",
+
+        type
+
+    );
+
+
+
+    uploadFile();
+
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// CHECK LOGIN TOKEN
+// ==============================
+
+
+function checkAuthentication(){
+
+
+
+    let savedToken =
+    localStorage.getItem(
+        "token"
+    );
+
+
+
+    let savedUser =
+    localStorage.getItem(
+        "username"
+    );
+
+
+
+    if(
+        savedToken &&
+        savedUser
+    ){
+
+
+        token=savedToken;
+
+
+        username=savedUser;
+
+
+        return true;
+
+
+    }
+
+
+
+    return false;
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// AUTO START
+// ==============================
+
+
+window.addEventListener(
+
+"load",
+
+function(){
+
+
+    enableNotifications();
+
+
+
+    checkAuthentication();
+
+
+
+});
+// ==============================
+// USER PROFILE DATA
+// ==============================
+
+
+let currentProfile = {
+
+    username:"",
+    phone:"",
+    avatar:""
+
+};
+
+
+
+
+
+
+// ==============================
+// LOAD USER PROFILE
+// ==============================
+
+
+async function loadProfile(){
+
+
+    try{
+
+
+        let response =
+        await fetch(
+
+            "/profile/" +
+
+            encodeURIComponent(username),
+
+            {
+
+                headers:{
+
+                    "Authorization":
+
+                    "Bearer " + token
+
+                }
+
+            }
+
+        );
+
+
+
+        let data =
+        await response.json();
+
+
+
+
+        currentProfile=data;
+
+
+
+        updateProfileUI();
+
+
+
+    }
+
+
+    catch(error){
+
+
+        console.log(
+
+            "Profile loading failed",
+
+            error
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// UPDATE PROFILE UI
+// ==============================
+
+
+function updateProfileUI(){
+
+
+
+    let name =
+    document.getElementById(
+        "profileName"
+    );
+
+
+
+    let image =
+    document.getElementById(
+        "profileImage"
+    );
+
+
+
+
+
+    if(name){
+
+
+        name.innerHTML =
+
+        currentProfile.username;
+
+
+    }
+
+
+
+
+
+    if(image && currentProfile.avatar){
+
+
+        image.src =
+
+        currentProfile.avatar;
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// PROFILE IMAGE UPLOAD
+// ==============================
+
+
+async function uploadProfilePicture(){
+
+
+
+    let input =
+    document.getElementById(
+        "profileFile"
+    );
+
+
+
+    if(
+        !input ||
+        !input.files.length
+    ){
+
+
+        alert(
+            "Select image"
+        );
+
+
+        return;
+
+
+    }
+
+
+
+    let formData =
+    new FormData();
+
+
+
+    formData.append(
+
+        "file",
+
+        input.files[0]
+
+    );
+
+
+
+
+
+    try{
+
+
+        let response =
+
+        await fetch(
+
+            "/profile/upload",
+
+            {
+
+
+                method:"POST",
+
+
+                headers:{
+
+
+                    "Authorization":
+
+                    "Bearer " + token
+
+
+                },
+
+
+                body:formData
+
+
+            }
+
+        );
+
+
+
+        let data =
+        await response.json();
+
+
+
+
+
+        currentProfile.avatar =
+
+        data.url;
+
+
+
+        updateProfileUI();
+
+
+
+    }
+
+
+    catch(error){
+
+
+        console.log(error);
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// PASSWORD VALIDATION
+// ==============================
+
+
+function validatePassword(password){
+
+
+
+    if(password.length < 8){
+
+
+        return false;
+
+
+    }
+
+
+
+
+
+    let hasNumber =
+    /\d/.test(password);
+
+
+
+    let hasLetter =
+    /[A-Za-z]/.test(password);
+
+
+
+    return (
+
+        hasNumber &&
+
+        hasLetter
+
+    );
+
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// SECURITY CHECK
+// ==============================
+
+
+function checkSecurity(){
+
+
+
+    if(!token){
+
+
+        logout();
+
+
+        return false;
+
+
+    }
+
+
+
+    return true;
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// AUTHORIZED REQUEST
+// ==============================
+
+
+async function secureFetch(
+
+    url,
+
+    options={}
+
+){
+
+
+
+    options.headers = {
+
+
+        ...(options.headers || {}),
+
+
+
+        "Authorization":
+
+        "Bearer " + token
+
+
+
+    };
+
+
+
+
+
+    return fetch(
+
+        url,
+
+        options
+
+    );
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// BLOCK USER
+// ==============================
+
+
+async function blockUser(user){
+
+
+
+    if(!user){
+
+
+        return;
+
+
+    }
+
+
+
+
+
+    let confirmBlock =
+
+    confirm(
+
+        "Block " + user + "?"
+
+    );
+
+
+
+
+
+    if(!confirmBlock){
+
+
+        return;
+
+
+    }
+
+
+
+
+
+
+    await secureFetch(
+
+        "/block",
+
+        {
+
+
+            method:"POST",
+
+
+            headers:{
+
+
+                "Content-Type":
+
+                "application/json"
+
+
+            },
+
+
+            body:JSON.stringify({
+
+
+                user:user
+
+
+            })
+
+
+        }
+
+    );
+
+
+
+    alert(
+
+        "User blocked"
+
+    );
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// REPORT USER
+// ==============================
+
+
+async function reportUser(user){
+
+
+
+    if(!user){
+
+
+        return;
+
+
+    }
+
+
+
+
+
+    await secureFetch(
+
+        "/report",
+
+        {
+
+
+            method:"POST",
+
+
+            headers:{
+
+
+                "Content-Type":
+
+                "application/json"
+
+
+            },
+
+
+            body:JSON.stringify({
+
+
+                user:user
+
+
+            })
+
+
+        }
+
+    );
+
+
+
+
+    alert(
+
+        "Report submitted"
+
+    );
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// CONNECTION STATUS
+// ==============================
+
+
+function checkConnection(){
+
+
+
+    if(
+
+        navigator.onLine
+
+    ){
+
+
+        console.log(
+
+            "Internet connected"
+
+        );
+
+
+    }
+
+
+    else{
+
+
+        console.log(
+
+            "Offline mode"
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+window.addEventListener(
+
+"online",
+
+function(){
+
+
+    checkConnection();
+
+
+});
+
+
+
+
+
+
+window.addEventListener(
+
+"offline",
+
+function(){
+
+
+    checkConnection();
+
+
+});
+
+
+
+
+
+
+
+
+// ==============================
+// CLEAN MESSAGE AREA
+// ==============================
+
+
+function clearMessages(){
+
+
+
+    let box =
+
+    document.getElementById(
+
+        "messages"
+
+    );
+
+
+
+    if(box){
+
+
+        box.innerHTML="";
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// CHAT SETTINGS
+// ==============================
+
+
+function saveSettings(){
+
+
+
+    let settings={
+
+
+        theme:
+
+        document.body.classList.contains(
+
+            "dark"
+
+        ),
+
+
+        notifications:
+
+        Notification.permission
+
+
+
+    };
+
+
+
+
+
+    localStorage.setItem(
+
+        "chatSettings",
+
+        JSON.stringify(settings)
+
+    );
+
+
+
+}
+
+
+
+
+
+
+
+function loadSettings(){
+
+
+
+    let settings =
+
+    JSON.parse(
+
+        localStorage.getItem(
+
+            "chatSettings"
+
+        )
+
+    );
+
+
+
+
+
+    if(settings && settings.theme){
+
+
+
+        document.body.classList.add(
+
+            "dark"
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// ==============================
+// INITIALIZE CHATME
+// ==============================
+
+
+function initializeChatMe(){
+
+
+
+    loadSettings();
+
+
+
+    checkConnection();
+
+
+
+    if(username){
+
+
+        loadProfile();
+
+
+    }
+
+
+}
+
+
+
+
+
+
+window.addEventListener(
+
+"load",
+
+initializeChatMe
+
+);
