@@ -705,4 +705,96 @@ function displayMessage(sender,message){
 
 
 }
+// ==============================
+// SEND MESSAGE
+// ==============================
 
+function sendMessage(){
+
+    if(!socket){
+
+        alert("Not connected");
+
+        return;
+
+    }
+
+
+    let receiver =
+    document
+    .getElementById("receiver")
+    .value
+    .trim();
+
+
+    let message =
+    document
+    .getElementById("message")
+    .value
+    .trim();
+
+
+
+    if(!receiver || !message){
+
+        return;
+
+    }
+
+
+
+    socket.send(JSON.stringify({
+
+        type:"message",
+
+        receiver:receiver,
+
+        message:message
+
+    }));
+
+
+    displayMessage(
+        "You",
+        message
+    );
+
+
+    document
+    .getElementById("message")
+    .value="";
+
+}
+
+
+
+
+// ==============================
+// DISPLAY MESSAGE
+// ==============================
+
+
+function displayMessage(sender,message){
+
+
+    let item =
+    document.createElement("li");
+
+
+    item.innerHTML = `
+
+    <b>${sender}</b>
+
+    <br>
+
+    ${message}
+
+    `;
+
+
+    document
+    .getElementById("messages")
+    .appendChild(item);
+
+
+}
