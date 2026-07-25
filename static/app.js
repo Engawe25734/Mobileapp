@@ -130,12 +130,9 @@ async function register(){
 
 
 
-
-
-// =====================================
+// ==============================
 // LOGIN USER
-// =====================================
-
+// ==============================
 
 async function login(){
 
@@ -147,7 +144,6 @@ async function login(){
     .trim();
 
 
-
     const password =
     document
     .getElementById("password")
@@ -157,29 +153,23 @@ async function login(){
 
     if(!phone || !password){
 
-
         document
         .getElementById("authMessage")
         .innerHTML =
-        "Enter phone and password";
-
+        "Enter phone number and password";
 
         return;
 
-
     }
-
-
 
 
 
     try{
 
 
-        let response = await fetch(
-
+        let response =
+        await fetch(
             "/login",
-
             {
 
                 method:"POST",
@@ -187,7 +177,6 @@ async function login(){
                 headers:{
 
                     "Content-Type":
-
                     "application/json"
 
                 },
@@ -201,12 +190,8 @@ async function login(){
 
                 })
 
-
             }
-
         );
-
-
 
 
 
@@ -215,72 +200,110 @@ async function login(){
 
 
 
-        console.log(
-            "LOGIN RESULT:",
-            data
+
+
+        if(!response.ok){
+
+
+            document
+            .getElementById("authMessage")
+            .innerHTML =
+            data.detail || "Login failed";
+
+
+            return;
+
+
+        }
+
+
+
+
+
+        // SAVE LOGIN INFORMATION
+
+        token =
+        data.access_token;
+
+
+        username =
+        data.username;
+
+
+
+
+        localStorage.setItem(
+
+            "token",
+
+            token
+
+        );
+
+
+
+        localStorage.setItem(
+
+            "username",
+
+            username
+
+        );
+
+
+
+
+        document
+
+        .getElementById("authMessage")
+
+        .innerHTML =
+
+        "Login successful";
+
+
+
+
+
+        // HIDE LOGIN PAGE
+
+        document
+
+        .getElementById("auth-page")
+
+        .classList
+
+        .add(
+
+            "hidden"
+
+        );
+
+
+
+
+        // SHOW CHAT PAGE
+
+        document
+
+        .getElementById("chat-page")
+
+        .classList
+
+        .remove(
+
+            "hidden"
+
         );
 
 
 
 
 
-        if(data.access_token){
+        connectSocket();
 
 
-            token =
-            data.access_token;
-
-
-
-            username =
-            data.username;
-
-
-
-            localStorage.setItem(
-
-                "token",
-
-                token
-
-            );
-
-
-
-            localStorage.setItem(
-
-                "username",
-
-                username
-
-            );
-
-
-
-            openChat();
-
-
-
-        }
-
-
-        else{
-
-
-            document
-
-            .getElementById("authMessage")
-
-            .innerHTML =
-
-
-            data.message ||
-
-            "Invalid login";
-
-
-        }
-
+        loadProfile();
 
 
     }
@@ -299,7 +322,7 @@ async function login(){
 
         .innerHTML =
 
-        "Cannot connect to server";
+        "Server connection error";
 
 
     }
@@ -307,11 +330,6 @@ async function login(){
 
 
 }
-
-
-
-
-
 
 // =====================================
 // OPEN CHAT AFTER LOGIN
