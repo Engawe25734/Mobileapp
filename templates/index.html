@@ -9,13 +9,12 @@
 
 <title>chatMe</title>
 
+
 <link rel="stylesheet" href="/static/style.css">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 
 </head>
 
@@ -26,90 +25,60 @@
 <div class="app-container">
 
 
+
 <!-- =========================
-     AUTHENTICATION
+     LOGIN / REGISTER
 ========================= -->
 
 
-<section id="auth-page"
-class="auth-container">
+<section id="auth-page" class="auth-container">
 
 
 <div class="auth-card">
 
 
 <div class="app-logo">
-
 💬
-
 </div>
 
 
-
 <h1>
-
 chatMe
-
 </h1>
 
 
-
 <p>
-
 Connect with friends instantly
-
 </p>
 
 
 
-
 <div class="input-group">
 
-
 <label>
-
 Username
-
 </label>
 
-
-<input
-
+<input 
 id="username"
-
 type="text"
-
-placeholder="Enter username"
-
->
-
+placeholder="Enter username">
 
 </div>
 
 
 
 
-
 <div class="input-group">
 
-
 <label>
-
 Phone Number
-
 </label>
 
-
-<input
-
+<input 
 id="phone"
-
 type="text"
-
-placeholder="Enter phone number"
-
->
-
+placeholder="Enter phone number">
 
 </div>
 
@@ -119,24 +88,14 @@ placeholder="Enter phone number"
 
 <div class="input-group">
 
-
 <label>
-
 Password
-
 </label>
 
-
-<input
-
+<input 
 id="password"
-
 type="password"
-
-placeholder="Enter password"
-
->
-
+placeholder="Enter password">
 
 </div>
 
@@ -147,13 +106,9 @@ placeholder="Enter password"
 <div class="auth-buttons">
 
 
-<button
-
+<button 
 class="primary-btn"
-
-onclick="register()"
-
->
+onclick="register()">
 
 Create Account
 
@@ -161,14 +116,9 @@ Create Account
 
 
 
-
-<button
-
+<button 
 class="secondary-btn"
-
-onclick="login()"
-
->
+onclick="login()">
 
 Login
 
@@ -176,8 +126,6 @@ Login
 
 
 </div>
-
-
 
 
 
@@ -197,6 +145,10 @@ class="auth-message">
 
 
 
+
+
+
+
 <!-- =========================
      CHAT APPLICATION
 ========================= -->
@@ -206,35 +158,33 @@ class="auth-message">
 class="chat-container hidden">
 
 
+
+
+
+<!-- TOP BAR -->
+
 <header class="top-bar">
+
 
 
 <div class="profile-area">
 
 
 <div class="avatar">
-
 👤
-
 </div>
-
 
 
 <div>
 
 
 <h2>
-
 chatMe
-
 </h2>
 
 
-
 <span id="status">
-
 Offline
-
 </span>
 
 
@@ -246,60 +196,60 @@ Offline
 
 
 
+
+<!-- ONLY ONE CALL BUTTON SET -->
+
 <div class="top-actions">
 
 
 <button onclick="startAudioCall()">
-
 📞
-
 </button>
 
 
 
 <button onclick="startVideoCall()">
-
 📹
-
 </button>
 
 
 
 <button onclick="createGroupCall()">
-
 👥
-
 </button>
 
 
 
 <button onclick="toggleTheme()">
-
 🌙
-
 </button>
 
 
 </div>
 
 
+
 </header>
-<!-- =========================
-     CHAT LAYOUT
-========================= -->
+
+
+
+
+
+
+
+
 
 
 <div class="chat-layout">
 
 
 
-<!-- =========================
-     CONTACT SIDEBAR
-========================= -->
+
+
+<!-- SIDEBAR -->
 
 
 <aside class="sidebar">
-
 
 
 <div class="search-box">
@@ -321,17 +271,17 @@ placeholder="Search username..."
 
 
 
+
 <button
 
 class="load-btn"
 
-onclick="loadMessages()"
-
->
+onclick="loadMessages()">
 
 Load Conversation
 
 </button>
+
 
 
 
@@ -341,6 +291,7 @@ Load Conversation
 Contacts
 
 </div>
+
 
 
 
@@ -365,12 +316,16 @@ Contacts
 
 
 
-<!-- =========================
-     CHAT WINDOW
-========================= -->
+
+
+
+
+<!-- CHAT WINDOW -->
 
 
 <main class="chat-window">
+
+
 
 
 
@@ -396,30 +351,6 @@ Select User
 </span>
 
 
-</div>
-
-
-
-
-
-<div class="conversation-actions">
-
-
-<button onclick="startAudioCall()">
-
-📞
-
-</button>
-
-
-
-
-<button onclick="startVideoCall()">
-
-📹
-
-</button>
-
 
 </div>
 
@@ -430,16 +361,19 @@ Select User
 
 
 
-<!-- =========================
-     MESSAGES
-========================= -->
+
+
+
+
+
+
+<!-- MESSAGE DISPLAY -->
 
 
 <div class="message-area">
 
 
 <ul id="messages">
-
 
 </ul>
 
@@ -450,9 +384,11 @@ Select User
 
 
 
-<!-- =========================
-     CALL DISPLAY
-========================= -->
+
+
+
+
+<!-- CALL DISPLAY -->
 
 
 <div id="call-area"
@@ -469,18 +405,13 @@ id="localVideo"
 
 autoplay
 
-muted
-
->
+muted>
 
 </video>
 
 
-
 <span>
-
 You
-
 </span>
 
 
@@ -495,14 +426,11 @@ You
 
 <div id="remoteVideo">
 
-
 </div>
 
 
 <span>
-
 Remote
-
 </span>
 
 
@@ -515,9 +443,13 @@ Remote
 
 
 
-<!-- =========================
-     MESSAGE INPUT
-========================= -->
+
+
+
+
+
+
+<!-- MESSAGE INPUT -->
 
 
 <div class="message-input-area">
@@ -525,8 +457,6 @@ Remote
 
 
 
-
-<!-- FILE UPLOAD -->
 
 <label class="attach-btn">
 
@@ -542,19 +472,9 @@ type="file"
 
 hidden
 
-accept="
-image/*,
-video/*,
-audio/*,
-.pdf,
-.doc,
-.docx,
-.txt
-"
+accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"
 
-onchange="uploadFile()"
-
->
+onchange="uploadFile()">
 
 
 </label>
@@ -563,16 +483,14 @@ onchange="uploadFile()"
 
 
 
-<!-- EMOJI -->
+
 
 
 <button
 
 class="emoji-btn"
 
-onclick="toggleEmoji()"
-
->
+onclick="toggleEmoji()">
 
 😊
 
@@ -582,7 +500,8 @@ onclick="toggleEmoji()"
 
 
 
-<!-- TEXT MESSAGE -->
+
+
 
 
 <input
@@ -593,24 +512,23 @@ type="text"
 
 placeholder="Type a message..."
 
-onkeypress="enterSend(event)"
-
->
+onkeypress="enterSend(event)">
 
 
+</input>
 
 
 
-<!-- SEND BUTTON -->
+
+
+
 
 
 <button
 
 class="send-btn"
 
-onclick="sendMessage()"
-
->
+onclick="sendMessage()">
 
 ➤
 
@@ -618,87 +536,86 @@ onclick="sendMessage()"
 
 
 
+
+
 </div>
 
 
 
 
 
-<!-- =========================
-     EMOJI PANEL
-========================= -->
+
+
+
+
+<!-- EMOJI PANEL -->
 
 
 <div id="emoji-panel"
 class="emoji-panel hidden">
 
 
+
 <button onclick="addEmoji('😀')">
-
 😀
-
 </button>
-
 
 
 <button onclick="addEmoji('😂')">
-
 😂
-
 </button>
-
 
 
 <button onclick="addEmoji('❤️')">
-
 ❤️
-
 </button>
-
 
 
 <button onclick="addEmoji('👍')">
-
 👍
-
 </button>
-
 
 
 <button onclick="addEmoji('🔥')">
-
 🔥
-
 </button>
-
 
 
 <button onclick="addEmoji('😍')">
-
 😍
-
 </button>
 
 
+
 </div>
-<!-- =========================
-     FILE PREVIEW AREA
-========================= -->
+
+
+
+
+
+
+
+
+
+<!-- FILE PREVIEW -->
 
 
 <div id="file-preview"
 class="file-preview hidden">
 
-
 </div>
 
 
 
 
 
-<!-- =========================
-     GROUP CALL MODAL
-========================= -->
+
+
+
+
+
+
+<!-- GROUP CALL MODAL -->
 
 
 <div id="group-call-modal"
@@ -709,13 +626,9 @@ class="modal hidden">
 <div class="modal-card">
 
 
-
 <h3>
-
 Group Call
-
 </h3>
-
 
 
 
@@ -725,19 +638,12 @@ id="roomId"
 
 type="text"
 
-placeholder="Room ID"
-
->
+placeholder="Room ID">
 
 
 
 
-
-<button
-
-onclick="joinGroupCall()"
-
->
+<button onclick="joinGroupCall()">
 
 Join Room
 
@@ -747,11 +653,7 @@ Join Room
 
 
 
-<button
-
-onclick="closeModal()"
-
->
+<button onclick="closeModal()">
 
 Close
 
@@ -762,8 +664,11 @@ Close
 </div>
 
 
-
 </div>
+
+
+
+
 
 
 
@@ -772,7 +677,12 @@ Close
 </main>
 
 
+
 </div>
+
+
+
+
 
 
 </section>
@@ -781,13 +691,10 @@ Close
 
 
 
-<!-- =========================
-     JAVASCRIPT
-========================= -->
+
 
 
 <script src="/static/app.js"></script>
-
 
 
 </div>
