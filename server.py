@@ -12,6 +12,8 @@ Features:
 - WebSocket realtime communication
 - WebRTC audio/video signaling
 - Group call rooms
+- API routes
+- Media file management
 """
 
 
@@ -35,8 +37,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 import os
-
-import shutil
 
 import json
 
@@ -86,6 +86,30 @@ from websocket_manager import manager
 
 
 
+# ==============================
+# NEW API ROUTES CONNECTION
+# ==============================
+
+from api_routes import router
+
+
+
+# ==============================
+# NEW FILE MANAGER CONNECTION
+# ==============================
+
+from file_manager import (
+
+    initialize_storage,
+
+    validate_file,
+
+    save_file
+
+)
+
+
+
 # =====================================
 # APP CREATION
 # =====================================
@@ -96,6 +120,15 @@ app = FastAPI(
     title="Mobile Chat Application"
 
 )
+
+
+
+# =====================================
+# REGISTER API ROUTES
+# =====================================
+
+
+app.include_router(router)
 
 
 
@@ -133,13 +166,7 @@ UPLOAD_FOLDER = "uploads"
 
 
 
-os.makedirs(
-
-    UPLOAD_FOLDER,
-
-    exist_ok=True
-
-)
+initialize_storage()
 
 
 
@@ -152,9 +179,6 @@ app.mount(
     name="uploads"
 
 )
-
-
-
 # =====================================
 # CORS
 # =====================================
@@ -182,6 +206,9 @@ app.add_middleware(
 
 
 initialize_database()
+
+
+
 # =====================================
 # HOME PAGE
 # =====================================
@@ -205,6 +232,11 @@ async def home(request: Request):
 
 # =====================================
 # FILE UPLOAD
+# Supports:
+# - Images
+# - Videos
+# - Audio
+# - Documents
 # =====================================
 
 
@@ -216,31 +248,42 @@ async def upload_file(
 ):
 
 
-    filepath = os.path.join(
+    content = await file.read()
 
-        UPLOAD_FOLDER,
 
-        file.filename
+
+    valid, message = validate_file(
+
+        file.filename,
+
+        file.content_type,
+
+        len(content)
 
     )
 
 
-    with open(
 
-        filepath,
-
-        "wb"
-
-    ) as buffer:
+    if not valid:
 
 
-        shutil.copyfileobj(
+        raise HTTPException(
 
-            file.file,
+            status_code=400,
 
-            buffer
+            detail=message
 
         )
+
+
+
+    result = save_file(
+
+        content,
+
+        file.filename
+
+    )
 
 
 
@@ -250,7 +293,7 @@ async def upload_file(
 
         file.filename,
 
-        filepath,
+        result["path"],
 
         file.content_type
 
@@ -264,11 +307,15 @@ async def upload_file(
         "filename": file.filename,
 
 
-        "url": "/uploads/" + file.filename,
+        "url": "/uploads/" + result["stored_name"],
 
 
-        "type": file.content_type
+        "type": file.content_type,
 
+
+        "category":
+
+            file.content_type.split("/")[0]
 
     }
 
@@ -284,7 +331,7 @@ async def upload_file(
 @app.post("/register")
 def register(
 
-    user: RegisterRequest
+    user:RegisterRequest
 
 ):
 
@@ -311,7 +358,7 @@ def register(
 @app.post("/login")
 def login(
 
-    user: LoginRequest
+    user:LoginRequest
 
 ):
 
@@ -323,6 +370,7 @@ def login(
         user.password
 
     )
+
 
 
     if not account:
@@ -359,14 +407,8 @@ def login(
 
         "username": account["username"]
 
-
     }
-
-
-
-
-
-# =====================================
+    # =====================================
 # ONLINE USERS
 # =====================================
 
@@ -469,8 +511,13 @@ def messages(
         "messages": output
 
     }
-    # =====================================
-# WEBSOCKET
+
+
+
+
+
+# =====================================
+# WEBSOCKET REALTIME CHAT
 # =====================================
 
 
@@ -507,7 +554,9 @@ async def websocket_endpoint(
             message = await websocket.receive_text()
 
 
+
             data = json.loads(message)
+
 
 
             msg_type = data.get("type")
@@ -603,7 +652,7 @@ async def websocket_endpoint(
 
 
             # =========================
-            # FILE / IMAGE / VIDEO / AUDIO MESSAGE
+            # FILE MESSAGE
             # =========================
 
 
@@ -687,12 +736,11 @@ async def websocket_endpoint(
 
 
             # =========================
-            # WEBRTC PRIVATE CALL
+            # PRIVATE WEBRTC SIGNALING
             # =========================
 
 
             elif msg_type in [
-
 
                 "offer",
 
@@ -723,13 +771,8 @@ async def websocket_endpoint(
                     }
 
                 )
-
-
-
-
-
-            # =========================
-            # CREATE GROUP CALL
+                            # =========================
+            # CREATE GROUP CALL ROOM
             # =========================
 
 
@@ -767,7 +810,7 @@ async def websocket_endpoint(
 
 
             # =========================
-            # JOIN GROUP CALL
+            # JOIN GROUP CALL ROOM
             # =========================
 
 
@@ -806,7 +849,12 @@ async def websocket_endpoint(
                     }
 
                 )
-                            # =========================
+
+
+
+
+
+            # =========================
             # GROUP WEBRTC SIGNALS
             # =========================
 
@@ -863,7 +911,7 @@ async def websocket_endpoint(
 
 
             # =========================
-            # LEAVE CALL
+            # LEAVE CALL ROOM
             # =========================
 
 
@@ -896,7 +944,7 @@ async def websocket_endpoint(
 
 
 # =====================================
-# RUN SERVER
+# SERVER START
 # =====================================
 
 
@@ -916,3 +964,4 @@ if __name__ == "__main__":
         port=8000
 
     )
+    
