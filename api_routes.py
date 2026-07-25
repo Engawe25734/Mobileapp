@@ -1,42 +1,46 @@
 """
 api_routes.py
 
-chatMe API Routes
+ChatMe API Routes
 
-Provides:
-- Profile management
-- Contacts
-- Messages
+Features:
+- User profiles
+- Profile updates
+- Private messaging
+- Message history
+- File uploads
 - Attachments
-- Reactions
-- Notifications
-- Calls
+- Health check
 
 Used by:
-- server.py
+server.py
 """
 
 
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, HTTPException
 
 import os
 
 import shutil
 
 
-from database_manager import (
+from database import (
 
-    get_user,
+    get_user_by_username,
+
+    get_user_messages,
+
+    get_profile,
+
+    update_profile_picture,
+
+    update_profile_bio,
 
     save_message,
 
-    get_messages,
+    save_attachment,
 
-    add_reaction,
-
-    save_notification,
-
-    save_call
+    get_or_create_chat
 
 )
 
@@ -50,20 +54,31 @@ router = APIRouter()
 
 
 
+UPLOAD_FOLDER = "uploads"
+
+
+os.makedirs(
+
+    UPLOAD_FOLDER,
+
+    exist_ok=True
+
+)
+
+
+
+
+
 # =====================================
 # USER PROFILE
 # =====================================
 
 
 @router.get("/profile/{username}")
-def profile(
-
-    username:str
-
-):
+def profile(username:str):
 
 
-    user = get_user(
+    user = get_profile(
 
         username
 
@@ -73,32 +88,84 @@ def profile(
     if not user:
 
 
-        return {
+        raise HTTPException(
 
+            status_code=404,
 
-            "error":"User not found"
+            detail="User not found"
 
-
-        }
+        )
 
 
 
     return {
 
 
-        "id":user[0],
+        "username": user["username"],
 
-        "username":user[1],
+        "phone": user["phone"],
 
-        "phone":user[2],
+        "profile_picture": user["avatar"],
 
-        "profile_picture":user[4],
+        "bio": user["bio"]
 
-        "bio":user[5],
+    }
 
-        "status":user[6],
 
-        "last_seen":user[7]
+
+
+
+
+
+# =====================================
+# UPDATE BIO
+# =====================================
+
+
+@router.put("/profile/{username}/bio")
+def update_bio(
+
+    username:str,
+
+    bio:str
+
+):
+
+
+    user = get_user_by_username(
+
+        username
+
+    )
+
+
+    if not user:
+
+
+        raise HTTPException(
+
+            status_code=404,
+
+            detail="User not found"
+
+        )
+
+
+
+    update_profile_bio(
+
+        user["id"],
+
+        bio
+
+    )
+
+
+
+    return {
+
+
+        "status":"bio updated"
 
     }
 
@@ -125,37 +192,61 @@ def send_message_api(
 ):
 
 
-    save_message(
+    sender_user = get_user_by_username(
 
-        sender,
+        sender
 
-        receiver,
+    )
+
+
+    receiver_user = get_user_by_username(
+
+        receiver
+
+    )
+
+
+    if not sender_user or not receiver_user:
+
+
+        raise HTTPException(
+
+            status_code=404,
+
+            detail="User not found"
+
+        )
+
+
+
+    chat_id = get_or_create_chat(
+
+        sender_user["id"],
+
+        receiver_user["id"]
+
+    )
+
+
+
+    message_id = save_message(
+
+        chat_id,
+
+        sender_user["id"],
 
         message
 
     )
 
 
-    save_notification(
-
-        receiver,
-
-        sender,
-
-        "New Message",
-
-        message,
-
-        "message"
-
-    )
-
 
     return {
 
 
-        "status":"sent"
+        "status":"sent",
 
+        "message_id":message_id
 
     }
 
@@ -180,13 +271,42 @@ def message_history(
 ):
 
 
-    messages = get_messages(
+    first = get_user_by_username(
 
-        user1,
+        user1
+
+    )
+
+
+    second = get_user_by_username(
 
         user2
 
     )
+
+
+
+    if not first or not second:
+
+
+        return {
+
+
+            "messages":[]
+
+        }
+
+
+
+
+    messages = get_user_messages(
+
+        first["id"],
+
+        second["id"]
+
+    )
+
 
 
     result=[]
@@ -196,29 +316,17 @@ def message_history(
     for msg in messages:
 
 
-        result.append(
+        result.append({
 
-        {
+            "sender":msg["username"],
 
+            "message":msg["message"],
 
-            "id":msg[0],
+            "type":msg["message_type"],
 
-            "sender":msg[1],
+            "time":msg["timestamp"]
 
-            "receiver":msg[2],
-
-            "message":msg[3],
-
-            "attachment":msg[4],
-
-            "status":msg[5],
-
-            "time":msg[7]
-
-
-        }
-
-        )
+        })
 
 
 
@@ -226,7 +334,6 @@ def message_history(
 
 
         "messages":result
-
 
     }
 
@@ -244,27 +351,14 @@ def message_history(
 @router.post("/attachment/upload")
 async def upload_attachment(
 
-    file:UploadFile=File(...)
+    file:UploadFile = File(...)
 
 ):
 
 
-    folder="uploads"
+    filepath = os.path.join(
 
-
-    os.makedirs(
-
-        folder,
-
-        exist_ok=True
-
-    )
-
-
-
-    path=os.path.join(
-
-        folder,
+        UPLOAD_FOLDER,
 
         file.filename
 
@@ -274,7 +368,7 @@ async def upload_attachment(
 
     with open(
 
-        path,
+        filepath,
 
         "wb"
 
@@ -296,11 +390,17 @@ async def upload_attachment(
 
         "filename":file.filename,
 
-        "path":path,
+
+        "filepath":filepath,
+
+
+        "url":
+
+        "/uploads/"+file.filename,
+
 
         "type":file.content_type
 
-
     }
 
 
@@ -310,38 +410,52 @@ async def upload_attachment(
 
 
 # =====================================
-# MESSAGE REACTION
+# SAVE ATTACHMENT TO MESSAGE
 # =====================================
 
 
-@router.post("/reaction")
-def reaction(
+@router.post("/attachment/save")
+def save_file_attachment(
 
     message_id:int,
 
-    username:str,
+    filename:str,
 
-    emoji:str
+    filepath:str,
+
+    url:str,
+
+    filetype:str,
+
+    filesize:int=0
 
 ):
 
 
-    add_reaction(
+    attachment_id = save_attachment(
 
         message_id,
 
-        username,
+        filename,
 
-        emoji
+        filepath,
+
+        url,
+
+        filetype,
+
+        filesize
 
     )
+
 
 
     return {
 
 
-        "status":"reaction added"
+        "status":"saved",
 
+        "attachment_id":attachment_id
 
     }
 
@@ -352,99 +466,7 @@ def reaction(
 
 
 # =====================================
-# NOTIFICATION
-# =====================================
-
-
-@router.post("/notification")
-def notification(
-
-    receiver:str,
-
-    sender:str,
-
-    message:str
-
-):
-
-
-    save_notification(
-
-        receiver,
-
-        sender,
-
-        "chatMe",
-
-        message,
-
-        "system"
-
-    )
-
-
-    return {
-
-
-        "status":"created"
-
-
-    }
-
-
-
-
-
-
-
-# =====================================
-# CALL HISTORY
-# =====================================
-
-
-@router.post("/call")
-def call_history(
-
-    caller:str,
-
-    receiver:str,
-
-    call_type:str,
-
-    status:str
-
-):
-
-
-    save_call(
-
-        caller,
-
-        receiver,
-
-        call_type,
-
-        status
-
-    )
-
-
-    return {
-
-
-        "status":"saved"
-
-
-    }
-
-
-
-
-
-
-
-# =====================================
-# HEALTH CHECK
+# ONLINE HEALTH CHECK
 # =====================================
 
 
@@ -455,9 +477,8 @@ def health():
     return {
 
 
-        "app":"chatMe",
+        "app":"ChatMe",
 
         "status":"running"
-
 
     }
