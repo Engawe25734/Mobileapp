@@ -457,101 +457,90 @@ async def websocket_endpoint(
 
 
 
- # =========================
-# ENCRYPTED PRIVATE MESSAGE
-# =========================
+            msg_type = data.get("type")
 
 
-if msg_type == "message":
+            # =========================
+            # ENCRYPTED PRIVATE MESSAGE
+            # =========================
+
+            if msg_type == "message":
 
 
-    receiver = data["receiver"].strip()
+                receiver = data["receiver"].strip()
 
 
-    # This is already encrypted by app.js
-    encrypted_text = data["message"]
-
-
-
-
-    sender_account = get_user_by_username(
-
-        username
-
-    )
+                # Already encrypted by app.js
+                encrypted_text = data["message"]
 
 
 
-    receiver_account = get_user_by_username(
-
-        receiver
-
-    )
+                sender_account = get_user_by_username(
+                    username
+                )
 
 
-
-    message_id = None
-
-
-
-    if sender_account and receiver_account:
+                receiver_account = get_user_by_username(
+                    receiver
+                )
 
 
-        chat_id = get_or_create_chat(
-
-            sender_account["id"],
-
-            receiver_account["id"]
-
-        )
+                message_id = None
 
 
 
-        # Store encrypted message only
-        message_id = save_message(
-
-            chat_id,
-
-            sender_account["id"],
-
-            encrypted_text
-
-        )
+                if sender_account and receiver_account:
 
 
+                    chat_id = get_or_create_chat(
+
+                        sender_account["id"],
+
+                        receiver_account["id"]
+
+                    )
 
 
 
-    # Send encrypted message to receiver
-    await manager.send_private_message(
+                    # Store encrypted message
+                    message_id = save_message(
 
-        receiver,
+                        chat_id,
 
-        {
+                        sender_account["id"],
 
+                        encrypted_text
 
-            "type": "message",
-
-
-            "sender": username,
+                    )
 
 
-            "message": encrypted_text,
+
+                # Send encrypted message
+                await manager.send_private_message(
+
+                    receiver,
+
+                    {
+
+                        "type": "message",
+
+                        "sender": username,
+
+                        "message": encrypted_text,
+
+                        "message_id": message_id
+
+                    }
+
+                )
 
 
-            "message_id": message_id
-
-
-        }
-
-    )
 
             # -----------------------------
             # FILE MESSAGE
             # -----------------------------
 
-
-            elif msg_type=="file":
+            elif msg_type == "file":
 
 
                 await manager.send_private_message(
@@ -561,13 +550,6 @@ if msg_type == "message":
                     data
 
                 )
-
-
-
-
-
-
-
             # -----------------------------
             # TYPING
             # -----------------------------
