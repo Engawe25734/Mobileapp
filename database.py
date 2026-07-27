@@ -2715,6 +2715,52 @@ def update_profile_bio(
 
     conn.close()
 
+
+# =====================================
+# UPDATE THEME
+# =====================================
+
+
+def update_theme(
+
+    user_id,
+
+    theme
+
+):
+
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute(
+
+    """
+
+    UPDATE profile_settings
+
+    SET theme=?
+
+    WHERE user_id=?
+
+    """,
+
+    (
+
+        theme,
+
+        user_id
+
+    )
+
+    )
+
+
+    conn.commit()
+
+    conn.close()
 # =====================================
 # DATABASE CLEANUP
 # =====================================
