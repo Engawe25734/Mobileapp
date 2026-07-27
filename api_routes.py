@@ -157,7 +157,104 @@ def profile(username:str):
 
     }
 
+# =====================================
+# UPDATE PROFILE PICTURE
+# =====================================
 
+
+@router.post("/profile/{username}/picture")
+async def upload_profile_picture(
+
+    username:str,
+
+    file:UploadFile = File(...)
+
+):
+
+
+    user = get_user_by_username(
+
+        username
+
+    )
+
+
+    if not user:
+
+
+        raise HTTPException(
+
+            status_code=404,
+
+            detail="User not found"
+
+        )
+
+
+
+    filename = (
+
+        username +
+
+        "_" +
+
+        file.filename
+
+    )
+
+
+
+    filepath = os.path.join(
+
+        UPLOAD_FOLDER,
+
+        filename
+
+    )
+
+
+
+    with open(filepath,"wb") as buffer:
+
+
+        shutil.copyfileobj(
+
+            file.file,
+
+            buffer
+
+        )
+
+
+
+    image_url = (
+
+        "/uploads/" +
+
+        filename
+
+    )
+
+
+
+    update_profile_picture(
+
+        user["id"],
+
+        image_url
+
+    )
+
+
+
+    return {
+
+
+        "status":"success",
+
+        "profile_picture":image_url
+
+    }
 
 
 
