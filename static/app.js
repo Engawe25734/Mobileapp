@@ -1,93 +1,101 @@
 /*
-ChatMe Authentication Module
+ChatMe Frontend Controller
 
-Features:
-- User registration
-- User login
-- JWT token storage
-- Automatic session restore
+Connected to:
+- server.py
+- auth.py
+- api_routes.py
+
 */
 
 
-let username = "";
+// =====================================
+// CONFIG
+// =====================================
 
-let token = "";
+
+const API_URL = "http://localhost:8000";
+
+const WS_URL = "ws://localhost:8000";
+
+
+
+let username =
+localStorage.getItem("username") || "";
+
+let token =
+localStorage.getItem("access_token") || "";
+
 
 let socket = null;
 
 
+let selectedUser = "";
+
+let localStream = null;
+
+
+
+
+
+
+
+
+
 // =====================================
-// REGISTER USER
+// REGISTER
 // =====================================
+
 
 async function register(){
 
 
     const usernameInput =
-    document
-    .getElementById("username")
-    .value
-    .trim();
+    document.getElementById("username")
+    .value.trim();
 
 
 
     const phone =
-    document
-    .getElementById("phone")
-    .value
-    .trim();
+    document.getElementById("phone")
+    .value.trim();
 
 
 
     const password =
-    document
-    .getElementById("password")
+    document.getElementById("password")
     .value;
-
-
-
-    if(!usernameInput || !phone || !password){
-
-        document
-        .getElementById("authMessage")
-        .innerHTML =
-        "Please fill all fields";
-
-        return;
-
-    }
 
 
 
     try{
 
 
-        let response = await fetch(
+        const response =
+        await fetch(
 
-            "/register",
+            `${API_URL}/register`,
 
             {
 
-                method:"POST",
+            method:"POST",
 
-                headers:{
+            headers:{
 
-                    "Content-Type":
-                    "application/json"
+                "Content-Type":
+                "application/json"
 
-                },
+            },
 
+            body:JSON.stringify({
 
-                body:JSON.stringify({
+                username:usernameInput,
 
-                    username:usernameInput,
+                phone:phone,
 
-                    phone:phone,
+                password:password
 
-                    password:password
-
-                })
-
+            })
 
             }
 
@@ -95,33 +103,23 @@ async function register(){
 
 
 
-        let data =
+        const data =
         await response.json();
 
 
 
         document
         .getElementById("authMessage")
-        .innerHTML =
-
+        .innerText =
         data.message;
 
 
 
     }
 
-
     catch(error){
 
-
         console.log(error);
-
-
-        document
-        .getElementById("authMessage")
-        .innerHTML =
-        "Server error";
-
 
     }
 
@@ -130,235 +128,169 @@ async function register(){
 
 
 
-// ==============================
-// LOGIN USER
-// ==============================
+
+
+
+
+
+
+// =====================================
+// LOGIN
+// =====================================
+
 
 async function login(){
 
 
     const phone =
-    document
-    .getElementById("phone")
-    .value
-    .trim();
+    document.getElementById("phone")
+    .value.trim();
+
 
 
     const password =
-    document
-    .getElementById("password")
+    document.getElementById("password")
     .value;
-
-
-
-    if(!phone || !password){
-
-        document
-        .getElementById("authMessage")
-        .innerHTML =
-        "Enter phone number and password";
-
-        return;
-
-    }
 
 
 
     try{
 
 
-        let response =
+        const response =
         await fetch(
-            "/login",
-            {
 
-                method:"POST",
+        `${API_URL}/login`,
 
-                headers:{
+        {
 
-                    "Content-Type":
-                    "application/json"
+        method:"POST",
 
-                },
+        headers:{
+
+        "Content-Type":
+        "application/json"
+
+        },
 
 
-                body:JSON.stringify({
+        body:JSON.stringify({
 
-                    phone:phone,
+            phone:phone,
 
-                    password:password
+            password:password
 
-                })
+        })
 
-            }
+
+        }
+
         );
 
 
 
-        let data =
+        const data =
         await response.json();
 
 
 
 
 
-        if(!response.ok){
+        if(response.ok){
+
+
+            username =
+            data.username;
+
+
+
+            token =
+            data.access_token;
+
+
+
+            localStorage.setItem(
+
+                "username",
+
+                username
+
+            );
+
+
+
+            localStorage.setItem(
+
+                "access_token",
+
+                token
+
+            );
+
+
+
+            openChat();
+
+
+
+        }
+
+        else{
 
 
             document
             .getElementById("authMessage")
-            .innerHTML =
+            .innerText =
             data.detail || "Login failed";
-
-
-            return;
 
 
         }
 
 
 
-
-
-        // SAVE LOGIN INFORMATION
-
-        token =
-        data.access_token;
-
-
-        username =
-        data.username;
-
-
-
-
-        localStorage.setItem(
-
-            "token",
-
-            token
-
-        );
-
-
-
-        localStorage.setItem(
-
-            "username",
-
-            username
-
-        );
-
-
-
-
-        document
-
-        .getElementById("authMessage")
-
-        .innerHTML =
-
-        "Login successful";
-
-
-
-
-
-        // HIDE LOGIN PAGE
-
-        document
-
-        .getElementById("auth-page")
-
-        .classList
-
-        .add(
-
-            "hidden"
-
-        );
-
-
-
-
-        // SHOW CHAT PAGE
-
-        document
-
-        .getElementById("chat-page")
-
-        .classList
-
-        .remove(
-
-            "hidden"
-
-        );
-
-
-
-
-
-        connectSocket();
-
-
-        loadProfile();
-
-
     }
-
-
 
     catch(error){
 
-
         console.log(error);
 
-
-        document
-
-        .getElementById("authMessage")
-
-        .innerHTML =
-
-        "Server connection error";
-
-
     }
-
 
 
 }
 
+
+
+
+
+
+
+
+
 // =====================================
-// OPEN CHAT AFTER LOGIN
+// OPEN CHAT
 // =====================================
 
 
 function openChat(){
 
 
-
     document
-
     .getElementById("auth-page")
-
-    .classList
-
-    .add("hidden");
-
+    .classList.add("hidden");
 
 
 
     document
-
     .getElementById("chat-page")
+    .classList.remove("hidden");
 
-    .classList
 
-    .remove("hidden");
 
+    document
+    .getElementById("status")
+    .innerText =
+    "Connecting...";
 
 
 
@@ -372,187 +304,28 @@ function openChat(){
 
 
 
-// =====================================
-// RESTORE LOGIN SESSION
-// =====================================
 
 
-function checkAuthentication(){
 
-
-
-    let savedToken =
-
-    localStorage.getItem(
-
-        "token"
-
-    );
-
-
-
-    let savedUsername =
-
-    localStorage.getItem(
-
-        "username"
-
-    );
-
-
-
-
-
-    if(savedToken && savedUsername){
-
-
-
-        token =
-        savedToken;
-
-
-
-        username =
-        savedUsername;
-
-
-
-        openChat();
-
-
-
-        return true;
-
-
-    }
-
-
-
-    return false;
-
-
-}
-
-
-
-
-
-
-// =====================================
-// LOGOUT
-// =====================================
-
-
-function logout(){
-
-
-
-    if(socket){
-
-
-        socket.close();
-
-
-    }
-
-
-
-
-    localStorage.removeItem(
-
-        "token"
-
-    );
-
-
-
-    localStorage.removeItem(
-
-        "username"
-
-    );
-
-
-
-
-    token="";
-
-
-    username="";
-
-
-
-
-
-    document
-
-    .getElementById("chat-page")
-
-    .classList
-
-    .add("hidden");
-
-
-
-
-    document
-
-    .getElementById("auth-page")
-
-    .classList
-
-    .remove("hidden");
-
-
-}
-
-
-
-
-
-
-// =====================================
-// START APPLICATION
-// =====================================
-
-
-window.addEventListener(
-
-"load",
-
-function(){
-
-
-    checkAuthentication();
-
-
-});
 // =====================================
 // WEBSOCKET CONNECTION
+// Matches server.py
+// /ws/{username}
 // =====================================
 
 
 function connectSocket(){
 
 
-    let protocol =
-    window.location.protocol === "https:"
-    ? "wss://"
-    : "ws://";
 
+    socket =
+    new WebSocket(
 
-
-    socket = new WebSocket(
-
-        protocol +
-
-        window.location.host +
-
-        "/ws/" +
-
-        username
+        `${WS_URL}/ws/${username}`
 
     );
+
+
 
 
 
@@ -560,14 +333,17 @@ function connectSocket(){
 
 
         console.log(
-            "WebSocket connected"
+
+            "ChatMe WebSocket connected"
+
         );
+
 
 
         document
         .getElementById("status")
-        .innerHTML =
-        "🟢 Online";
+        .innerText =
+        "Online";
 
 
     };
@@ -575,31 +351,100 @@ function connectSocket(){
 
 
 
+
+
+
     socket.onmessage=function(event){
 
 
-        let data =
+        const data =
         JSON.parse(event.data);
 
 
 
-        console.log(
-            "Received:",
-            data
-        );
+        console.log(data);
 
 
 
-        if(data.type==="message"){
+        switch(data.type){
 
 
-            displayMessage(
+            case "message":
 
-                data.sender,
 
-                data.message
+                displayMessage({
 
-            );
+                    sender:data.sender,
+
+                    message:data.message
+
+                });
+
+
+            break;
+
+
+
+
+
+            case "file":
+
+
+                displayMessage({
+
+                    sender:data.sender,
+
+                    message:
+                    "📎 "+data.filename
+
+                });
+
+
+            break;
+
+
+
+
+
+            case "typing":
+
+
+                document
+                .getElementById("typing")
+                .innerText =
+                data.typing
+                ?
+                "Typing..."
+                :
+                "";
+
+            break;
+
+
+
+
+
+            case "offer":
+
+                receiveOffer(data);
+
+            break;
+
+
+
+            case "answer":
+
+                receiveAnswer(data);
+
+            break;
+
+
+
+            case "candidate":
+
+                receiveCandidate(data);
+
+            break;
 
 
         }
@@ -611,190 +456,582 @@ function connectSocket(){
 
 
 
+
+
+
     socket.onclose=function(){
 
 
         document
         .getElementById("status")
-        .innerHTML =
-        "🔴 Offline";
+        .innerText =
+        "Offline";
 
 
     };
 
 
 }
-function sendMessage(){
-
-
-    let receiver =
-    document
-    .getElementById("receiver")
-    .value
-    .trim();
 
 
 
-    let message =
-    document
-    .getElementById("message")
-    .value
-    .trim();
 
 
 
-    if(!receiver || !message){
-
-        return;
-
-    }
 
 
 
-    socket.send(JSON.stringify({
-
-        type:"message",
-
-        receiver:receiver,
-
-        message:message
-
-    }));
-
-
-
-    displayMessage(
-
-        "You",
-
-        message
-
-    );
-
-
-
-    document
-    .getElementById("message")
-    .value="";
-
-
-}
-function displayMessage(sender,message){
-
-
-    let li =
-    document.createElement("li");
-
-
-
-    li.innerHTML = `
-
-    <b>${sender}</b>
-
-    <br>
-
-    ${message}
-
-    `;
-
-
-
-    document
-    .getElementById("messages")
-    .appendChild(li);
-
-
-}
-// ==============================
+// =====================================
 // SEND MESSAGE
-// ==============================
+// =====================================
+
 
 function sendMessage(){
 
-    if(!socket){
-
-        alert("Not connected");
-
-        return;
-
-    }
 
 
-    let receiver =
+    const input =
     document
-    .getElementById("receiver")
-    .value
-    .trim();
-
-
-    let message =
-    document
-    .getElementById("message")
-    .value
-    .trim();
+    .getElementById("message");
 
 
 
-    if(!receiver || !message){
-
-        return;
-
-    }
+    const text =
+    input.value.trim();
 
 
 
-    socket.send(JSON.stringify({
-
-        type:"message",
-
-        receiver:receiver,
-
-        message:message
-
-    }));
+    if(!text || !selectedUser)
+    return;
 
 
-    displayMessage(
-        "You",
-        message
+
+    socket.send(
+
+        JSON.stringify({
+
+            type:"message",
+
+            receiver:selectedUser,
+
+            message:text
+
+
+        })
+
     );
 
 
-    document
-    .getElementById("message")
-    .value="";
+
+    displayMessage({
+
+        sender:username,
+
+        message:text
+
+    });
+
+
+
+    input.value="";
+
 
 }
 
 
 
 
-// ==============================
-// DISPLAY MESSAGE
-// ==============================
 
 
-function displayMessage(sender,message){
 
 
-    let item =
+
+// =====================================
+// LOAD MESSAGE HISTORY
+// =====================================
+
+
+async function loadMessages(){
+
+
+    selectedUser =
+    document
+    .getElementById("receiver")
+    .value.trim();
+
+
+
+    if(!selectedUser)
+    return;
+
+
+
+    document
+    .getElementById("chatUser")
+    .innerText =
+    selectedUser;
+
+
+
+
+
+    const response =
+    await fetch(
+
+    `${API_URL}/messages/${username}/${selectedUser}`
+
+    );
+
+
+
+    const data =
+    await response.json();
+
+
+
+    const list =
+    document
+    .getElementById("messages");
+
+
+
+    list.innerHTML="";
+
+
+
+    data.messages.forEach(msg=>{
+
+
+        displayMessage({
+
+            sender:msg.sender,
+
+            message:msg.message
+
+
+        });
+
+
+    });
+
+
+}
+
+
+
+
+
+
+
+
+
+function displayMessage(data){
+
+
+    const list =
+    document.getElementById("messages");
+
+
+
+    const item =
     document.createElement("li");
 
 
-    item.innerHTML = `
 
-    <b>${sender}</b>
+    item.innerHTML =
 
-    <br>
-
-    ${message}
-
+    `
+    <strong>
+    ${data.sender}
+    </strong>
+    :
+    ${data.message}
     `;
 
 
-    document
-    .getElementById("messages")
-    .appendChild(item);
+
+    list.appendChild(item);
 
 
 }
+
+
+
+
+
+
+
+
+
+function enterSend(event){
+
+
+    if(event.key==="Enter"){
+
+        sendMessage();
+
+    }
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// FILE UPLOAD
+// =====================================
+
+
+async function uploadFile(){
+
+
+    const file =
+    document
+    .getElementById("file")
+    .files[0];
+
+
+
+    if(!file)
+    return;
+
+
+
+    const form =
+    new FormData();
+
+
+
+    form.append(
+
+        "file",
+
+        file
+
+    );
+
+
+
+    const response =
+    await fetch(
+
+        `${API_URL}/upload`,
+
+        {
+
+        method:"POST",
+
+        body:form
+
+        }
+
+    );
+
+
+
+    const data =
+    await response.json();
+
+
+
+    socket.send(
+
+        JSON.stringify({
+
+            type:"file",
+
+            receiver:selectedUser,
+
+            filename:data.filename,
+
+            url:data.url,
+
+            file_type:data.type
+
+
+        })
+
+    );
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// EMOJI
+// =====================================
+
+
+function toggleEmoji(){
+
+
+    document
+    .getElementById("emoji-panel")
+    .classList.toggle("hidden");
+
+
+}
+
+
+
+function addEmoji(emoji){
+
+
+    document
+    .getElementById("message")
+    .value += emoji;
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// DARK MODE
+// =====================================
+
+
+function toggleTheme(){
+
+
+    document.body
+    .classList.toggle("dark");
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// AUDIO CALL
+// =====================================
+
+
+async function startAudioCall(){
+
+
+    localStream =
+    await navigator
+    .mediaDevices
+    .getUserMedia({
+
+        audio:true
+
+    });
+
+
+
+    alert(
+        "Audio call started"
+    );
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// VIDEO CALL
+// =====================================
+
+
+async function startVideoCall(){
+
+
+    localStream =
+    await navigator
+    .mediaDevices
+    .getUserMedia({
+
+        video:true,
+
+        audio:true
+
+    });
+
+
+
+    document
+    .getElementById("localVideo")
+    .srcObject =
+    localStream;
+
+
+
+    document
+    .getElementById("call-area")
+    .classList
+    .remove("hidden");
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// GROUP CALL
+// =====================================
+
+
+function createGroupCall(){
+
+
+    document
+    .getElementById("group-call-modal")
+    .classList
+    .remove("hidden");
+
+
+}
+
+
+
+
+
+function joinGroupCall(){
+
+
+    const room =
+    document
+    .getElementById("roomId")
+    .value;
+
+
+
+    socket.send(
+
+        JSON.stringify({
+
+            type:"join_call",
+
+            room:room
+
+
+        })
+
+    );
+
+
+}
+
+
+
+
+
+function closeModal(){
+
+
+    document
+    .getElementById("group-call-modal")
+    .classList
+    .add("hidden");
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// WEBRTC PLACEHOLDERS
+// =====================================
+
+
+function receiveOffer(data){
+
+    console.log(
+        "Offer received",
+        data
+    );
+
+}
+
+
+
+function receiveAnswer(data){
+
+    console.log(
+        "Answer received",
+        data
+    );
+
+}
+
+
+
+function receiveCandidate(data){
+
+    console.log(
+        "Candidate received",
+        data
+    );
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// START APPLICATION
+// =====================================
+
+
+window.onload=function(){
+
+
+    if(username){
+
+
+        openChat();
+
+
+    }
+
+
+};
