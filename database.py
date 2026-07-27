@@ -2544,7 +2544,71 @@ def update_profile_picture(
 
     conn.close()
 
+# =====================================
+# UPDATE PRIVACY SETTINGS
+# =====================================
 
+
+def update_privacy_settings(
+
+    user_id,
+
+    settings
+
+):
+
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+
+
+    cursor.execute(
+
+    """
+
+    UPDATE profile_settings
+
+    SET
+
+    privacy_last_seen=?,
+
+    privacy_online_status=?,
+
+    privacy_picture=?,
+
+    read_receipts=?,
+
+    typing_indicator=?
+
+    WHERE user_id=?
+
+    """,
+
+    (
+
+        settings.get("last_seen"),
+
+        settings.get("online_status"),
+
+        settings.get("profile_picture"),
+
+        int(settings.get("read_receipts")),
+
+        int(settings.get("typing_indicator")),
+
+        user_id
+
+    )
+
+    )
+
+
+
+    conn.commit()
+
+    conn.close()
 
 
 
