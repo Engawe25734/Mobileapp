@@ -827,6 +827,20 @@ async def websocket_endpoint(
                     data
 
                 )
+# =====================================
+# WEBSOCKET DISCONNECT
+# =====================================
+
+    except WebSocketDisconnect:
+
+        await manager.disconnect(
+
+            username,
+
+            websocket
+
+        )
+
 
 
 # =====================================
@@ -844,13 +858,6 @@ if __name__ == "__main__":
         reload=True
     )
 
-    except WebSocketDisconnect:
 
 
-        await manager.disconnect(
-
-            username,
-
-            websocket
-
-        )
+    
