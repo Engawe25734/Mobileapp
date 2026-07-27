@@ -16,7 +16,8 @@ from fastapi import (
     APIRouter,
     UploadFile,
     File,
-    HTTPException
+    HTTPException,
+    Body
 )
 from fastapi import Body
 
