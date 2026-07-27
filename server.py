@@ -534,20 +534,26 @@ async def websocket_endpoint(
 
                 )
 
-           # CREATE notification
-            notification = message_notification(
-                username,
-                receiver,
-                text
-            )
-           # send push if user is ofline
-            if receiver in device_tokens:
-                send_push_notification(
-                    device_tokens[receiver],
-                     "New message from" + username,
-                    text
+             # CREATE notification
+             notification = message_notification(
+               username,
+               receiver,
+               encrypted_text
+         )
 
-                )
+
+             # Send push notification if receiver is offline
+             if receiver in device_tokens:
+
+                send_push_notification(
+
+                  device_tokens[receiver],
+
+                  "New message from " + username,
+
+                   encrypted_text
+
+         )
 
             # -----------------------------
             # FILE MESSAGE
