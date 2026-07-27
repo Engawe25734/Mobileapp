@@ -554,7 +554,7 @@ async def websocket_endpoint(
 
 
 
- # =========================
+# =========================
 # ENCRYPTED PRIVATE MESSAGE
 # =========================
 
@@ -618,211 +618,127 @@ elif msg_type == "file":
     )
 
 
+# -----------------------------
+# TYPING
+# -----------------------------
 
- # -----------------------------
- # TYPING
- # -----------------------------
+elif msg_type == "typing":
 
-        elif msg_type == "typing":
+    await manager.send_typing_status(
+        data["receiver"],
+        username,
+        data["typing"]
+    )
 
 
-                await manager.send_typing_status(
+# -----------------------------
+# WEBRTC PRIVATE SIGNAL
+# -----------------------------
 
-                    data["receiver"],
+elif msg_type in [
+    "offer",
+    "answer",
+    "candidate"
+]:
 
-                    username,
+    await manager.send_private_message(
+        data["receiver"],
+        {
+            **data,
+            "sender": username
+        }
+    )
 
-                    data["typing"]
 
-                )
+# -----------------------------
+# CREATE GROUP CALL
+# -----------------------------
 
+elif msg_type == "create_call":
 
+    await manager.join_call_room(
+        data["room"],
+        username
+    )
 
+    await websocket.send_text(
+        json.dumps({
+            "type": "call_created",
+            "room": data["room"]
+        })
+    )
 
- # -----------------------------
- # WEBRTC PRIVATE SIGNAL
- # -----------------------------
 
-        elif msg_type in [
+# -----------------------------
+# JOIN GROUP CALL
+# -----------------------------
 
-                "offer",
+elif msg_type == "join_call":
 
-                "answer",
+    await manager.join_call_room(
+        data["room"],
+        username
+    )
 
-                "candidate"
+    await manager.broadcast_call_signal(
+        data["room"],
+        username,
+        {
+            "type": "user_joined",
+            "user": username
+        }
+    )
 
-            ]:
 
+# -----------------------------
+# GROUP WEBRTC
+# -----------------------------
 
-                await manager.send_private_message(
+elif msg_type in [
+    "group_offer",
+    "group_answer",
+    "group_candidate"
+]:
 
-                    data["receiver"],
+    await manager.broadcast_call_signal(
+        data["room"],
+        username,
+        data
+    )
 
-                    {
 
-                        **data,
+# -----------------------------
+# END CALL
+# -----------------------------
 
-                        "sender": username
+elif msg_type == "end_call":
 
-                    }
+    await manager.broadcast_call_signal(
+        data["room"],
+        username,
+        data
+    )
 
-                );
 
+except WebSocketDisconnect:
 
-
-
- # -----------------------------
- # CREATE GROUP CALL
- # -----------------------------
-
-            elif msg_type == "create_call":
-
-
-                await manager.join_call_room(
-
-                    data["room"],
-
-                    username
-
-                )
-
-
-                await websocket.send_text(
-
-                    json.dumps({
-
-                        "type":"call_created",
-
-                        "room":data["room"]
-
-                    })
-
-                );
-
-
-
-
-     # -----------------------------
-     # JOIN GROUP CALL
-     # -----------------------------
-
-            elif msg_type == "join_call":
-
-
-                await manager.join_call_room(
-
-                    data["room"],
-
-                    username
-
-                )
-
-
-                await manager.broadcast_call_signal(
-
-                    data["room"],
-
-                    username,
-
-                    {
-
-                        "type":"user_joined",
-
-                        "user":username
-
-                    }
-
-                )
-
-
-
-
-            # -----------------------------
-            # GROUP WEBRTC
-            # -----------------------------
-
-            elif msg_type in [
-
-                "group_offer",
-
-                "group_answer",
-
-                "group_candidate"
-
-            ]:
-
-
-                await manager.broadcast_call_signal(
-
-                    data["room"],
-
-                    username,
-
-                    data
-
-                )
-
-
-
-
-            # -----------------------------
-            # END CALL
-            # -----------------------------
-
-            elif msg_type == "end_call":
-
-
-                await manager.broadcast_call_signal(
-
-                    data["room"],
-
-                    username,
-
-                    data
-
-                )
-
-
-
-
-    except WebSocketDisconnect:
-
-
-        await manager.disconnect(
-
-            username,
-
-            websocket
-
-        )
-
-
-
-
-
-
+    await manager.disconnect(
+        username,
+        websocket
+    )
 
 
 # =====================================
 # START SERVER
 # =====================================
 
-
-if __name__=="__main__":
-
+if __name__ == "__main__":
 
     import uvicorn
 
-
-
     uvicorn.run(
-
         "server:app",
-
         host="0.0.0.0",
-
         port=8000,
-
         reload=True
-
     )
