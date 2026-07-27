@@ -460,7 +460,7 @@ async def websocket_endpoint(
             msg_type = data.get("type")
 
 
-            # =========================
+                       # =========================
             # ENCRYPTED PRIVATE MESSAGE
             # =========================
 
@@ -501,8 +501,7 @@ async def websocket_endpoint(
                     )
 
 
-
-                    # Store encrypted message
+                    # Store encrypted message only
                     message_id = save_message(
 
                         chat_id,
@@ -515,7 +514,7 @@ async def websocket_endpoint(
 
 
 
-                # Send encrypted message
+                # Send encrypted message to receiver
                 await manager.send_private_message(
 
                     receiver,
@@ -536,6 +535,7 @@ async def websocket_endpoint(
 
 
 
+
             # -----------------------------
             # FILE MESSAGE
             # -----------------------------
@@ -550,12 +550,15 @@ async def websocket_endpoint(
                     data
 
                 )
+
+
+
+
             # -----------------------------
             # TYPING
             # -----------------------------
 
-
-            elif msg_type=="typing":
+            elif msg_type == "typing":
 
 
                 await manager.send_typing_status(
@@ -571,13 +574,9 @@ async def websocket_endpoint(
 
 
 
-
-
-
             # -----------------------------
             # WEBRTC PRIVATE SIGNAL
             # -----------------------------
-
 
             elif msg_type in [
 
@@ -596,9 +595,9 @@ async def websocket_endpoint(
 
                     {
 
-                    **data,
+                        **data,
 
-                    "sender":username
+                        "sender": username
 
                     }
 
@@ -607,15 +606,11 @@ async def websocket_endpoint(
 
 
 
-
-
-
             # -----------------------------
             # CREATE GROUP CALL
             # -----------------------------
 
-
-            elif msg_type=="create_call":
+            elif msg_type == "create_call":
 
 
                 await manager.join_call_room(
@@ -631,9 +626,9 @@ async def websocket_endpoint(
 
                     json.dumps({
 
-                    "type":"call_created",
+                        "type":"call_created",
 
-                    "room":data["room"]
+                        "room":data["room"]
 
                     })
 
@@ -642,15 +637,11 @@ async def websocket_endpoint(
 
 
 
-
-
-
             # -----------------------------
             # JOIN GROUP CALL
             # -----------------------------
 
-
-            elif msg_type=="join_call":
+            elif msg_type == "join_call":
 
 
                 await manager.join_call_room(
@@ -670,9 +661,9 @@ async def websocket_endpoint(
 
                     {
 
-                    "type":"user_joined",
+                        "type":"user_joined",
 
-                    "user":username
+                        "user":username
 
                     }
 
@@ -681,13 +672,9 @@ async def websocket_endpoint(
 
 
 
-
-
-
             # -----------------------------
             # GROUP WEBRTC
             # -----------------------------
-
 
             elif msg_type in [
 
@@ -713,15 +700,11 @@ async def websocket_endpoint(
 
 
 
-
-
-
             # -----------------------------
             # END CALL
             # -----------------------------
 
-
-            elif msg_type=="end_call":
+            elif msg_type == "end_call":
 
 
                 await manager.broadcast_call_signal(
@@ -733,7 +716,6 @@ async def websocket_endpoint(
                     data
 
                 )
-
 
 
 
