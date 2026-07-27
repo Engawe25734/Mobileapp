@@ -42,6 +42,12 @@ from database import (
     get_or_create_chat
 )
 
+from notification import(
+    message_notification,
+    send_push_notification,
+    device_tokens
+
+)
 
 from auth import (
     register_user,
@@ -528,8 +534,20 @@ async def websocket_endpoint(
 
                 )
 
+           # CREATE notification
+            notification = message_notification(
+                username,
+                receiver,
+                text
+            )
+           # send push if user is ofline
+            if receiver in device_tokens:
+                send_push_notification(
+                    device_tokens[receiver],
+                     "New message from" + username,
+                    text
 
-
+                )
 
             # -----------------------------
             # FILE MESSAGE
