@@ -17,10 +17,7 @@ Features:
 // =====================================
 // CONFIGURATION
 // =====================================
-
-
 const API_URL = "http://localhost:8000";
-
 const WS_URL = "ws://localhost:8000";
 
 
@@ -337,30 +334,40 @@ async function registerDevice(token){
 
 function openChat(){
 
-
-    document
-    .getElementById("auth-page")
-    .classList
-    .add("hidden");
+    const auth =
+    document.getElementById("auth-page");
 
 
-
-    document
-    .getElementById("chat-page")
-    .classList
-    .remove("hidden");
+    const chat =
+    document.getElementById("chat-page");
 
 
+    const status =
+    document.getElementById("status");
 
-    document
-    .getElementById("status")
-    .innerText =
-    "Connecting...";
 
+    if(auth){
+
+        auth.classList.add("hidden");
+
+    }
+
+
+    if(chat){
+
+        chat.classList.remove("hidden");
+
+    }
+
+
+    if(status){
+
+        status.innerText="Connecting...";
+
+    }
 
 
     connectSocket();
-
 
 }
 
@@ -1745,8 +1752,6 @@ window.onload=function(){
 // =====================================
 
 
-const API_URL = "http://localhost:8000";
-
 
 
 
@@ -2371,23 +2376,14 @@ function saveAppearance(){
 
 function logout(){
 
-
     localStorage.removeItem(
-
-        "token"
-
+        "access_token"
     );
 
-
     localStorage.removeItem(
-
         "username"
-
     );
-
-
 
     window.location.reload();
-
 
 }
