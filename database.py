@@ -467,7 +467,7 @@ def initialize_database():
 
     )
     """)
-
+    
 
 
 
@@ -496,8 +496,43 @@ def initialize_database():
 
     )
     """)
+    
+# =====================================
+# PROFILE SETTINGS TABLE
+# =====================================
 
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS profile_settings(
+
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    user_id INTEGER UNIQUE,
+
+    privacy_last_seen TEXT DEFAULT 'Everyone',
+
+    privacy_online_status TEXT DEFAULT 'Everyone',
+
+    privacy_picture TEXT DEFAULT 'Everyone',
+
+    read_receipts INTEGER DEFAULT 1,
+
+    typing_indicator INTEGER DEFAULT 1,
+
+    message_notifications INTEGER DEFAULT 1,
+
+    call_notifications INTEGER DEFAULT 1,
+
+    group_notifications INTEGER DEFAULT 1,
+
+    theme TEXT DEFAULT 'light',
+
+    FOREIGN KEY(user_id)
+
+    REFERENCES users(id)
+
+)
+""")
 
 
 
