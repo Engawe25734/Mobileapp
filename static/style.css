@@ -2211,7 +2211,54 @@ body.dark-mode select{
 
 }
 
+.top-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+}
 
+
+.profile-area{
+    display:flex;
+    align-items:flex-start;
+    gap:15px;
+}
+
+
+.profile-info{
+    display:flex;
+    flex-direction:column;
+}
+
+
+.settings-btn{
+
+    margin-top:12px;
+
+    background:#128c7e;
+
+    color:white;
+
+    padding:8px 18px;
+
+    border-radius:20px;
+
+    font-size:14px;
+
+}
+
+
+.top-actions{
+
+    display:flex;
+
+    gap:10px;
+
+    margin-left:auto;
+
+    align-items:center;
+
+}
 
 
 
