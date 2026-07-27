@@ -555,7 +555,7 @@ async def websocket_endpoint(
 
                         "New message from " + username,
 
-                        encrypted_text
+                        "You received a new encrypted message"
 
                     )
             # -----------------------------
