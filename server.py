@@ -455,12 +455,7 @@ async def websocket_endpoint(
 
 
 
-
-
-            msg_type = data.get("type")
-
-
-                       # =========================
+            # =========================
             # ENCRYPTED PRIVATE MESSAGE
             # =========================
 
