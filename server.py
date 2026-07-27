@@ -515,14 +515,14 @@ def online_users():
 @app.websocket("/ws/{username}")
 async def websocket_endpoint(
 
-    websocket:WebSocket,
+    websocket: WebSocket,
 
-    username:str
+    username: str
 
 ):
 
 
-    username=username.strip()
+    username = username.strip()
 
 
 
@@ -545,187 +545,288 @@ async def websocket_endpoint(
             raw = await websocket.receive_text()
 
 
-
-            data=json.loads(raw)
-
+            data = json.loads(raw)
 
 
-            msg_type=data.get("type")
+            msg_type = data.get("type")
 
 
 
-# =========================
-# ENCRYPTED PRIVATE MESSAGE
-# =========================
-
-if msg_type == "message":
-
-    receiver = data["receiver"].strip()
-    encrypted_text = data["message"]
-
-    sender_account = get_user_by_username(username)
-    receiver_account = get_user_by_username(receiver)
-
-    message_id = None
-
-    if sender_account and receiver_account:
-
-        chat_id = get_or_create_chat(
-            sender_account["id"],
-            receiver_account["id"]
-        )
-
-        message_id = save_message(
-            chat_id,
-            sender_account["id"],
-            encrypted_text
-        )
-
-        await manager.send_private_message(
-            receiver,
-            {
-                "type": "message",
-                "sender": username,
-                "message": encrypted_text,
-                "message_id": message_id
-            }
-        )
-
-        notification = message_notification(
-            username,
-            receiver,
-            encrypted_text
-        )
-
-        if receiver in device_tokens:
-
-            send_push_notification(
-                device_tokens[receiver],
-                f"New message from {username}",
-                encrypted_text
-            )
+            # =========================
+            # ENCRYPTED PRIVATE MESSAGE
+            # =========================
 
 
-# -----------------------------
-# FILE MESSAGE
-# -----------------------------
-
-elif msg_type == "file":
-
-    await manager.send_private_message(
-        data["receiver"],
-        data
-    )
+            if msg_type == "message":
 
 
-# -----------------------------
-# TYPING
-# -----------------------------
-
-elif msg_type == "typing":
-
-    await manager.send_typing_status(
-        data["receiver"],
-        username,
-        data["typing"]
-    )
+                receiver = data["receiver"].strip()
 
 
-# -----------------------------
-# WEBRTC PRIVATE SIGNAL
-# -----------------------------
-
-elif msg_type in [
-    "offer",
-    "answer",
-    "candidate"
-]:
-
-    await manager.send_private_message(
-        data["receiver"],
-        {
-            **data,
-            "sender": username
-        }
-    )
+                encrypted_text = data["message"]
 
 
-# -----------------------------
-# CREATE GROUP CALL
-# -----------------------------
 
-elif msg_type == "create_call":
-
-    await manager.join_call_room(
-        data["room"],
-        username
-    )
-
-    await websocket.send_text(
-        json.dumps({
-            "type": "call_created",
-            "room": data["room"]
-        })
-    )
+                sender_account = get_user_by_username(username)
 
 
-# -----------------------------
-# JOIN GROUP CALL
-# -----------------------------
-
-elif msg_type == "join_call":
-
-    await manager.join_call_room(
-        data["room"],
-        username
-    )
-
-    await manager.broadcast_call_signal(
-        data["room"],
-        username,
-        {
-            "type": "user_joined",
-            "user": username
-        }
-    )
+                receiver_account = get_user_by_username(receiver)
 
 
-# -----------------------------
-# GROUP WEBRTC
-# -----------------------------
 
-elif msg_type in [
-    "group_offer",
-    "group_answer",
-    "group_candidate"
-]:
-
-    await manager.broadcast_call_signal(
-        data["room"],
-        username,
-        data
-    )
+                message_id = None
 
 
-# -----------------------------
-# END CALL
-# -----------------------------
 
-elif msg_type == "end_call":
-
-    await manager.broadcast_call_signal(
-        data["room"],
-        username,
-        data
-    )
+                if sender_account and receiver_account:
 
 
-except WebSocketDisconnect:
+                    chat_id = get_or_create_chat(
 
-    await manager.disconnect(
-        username,
-        websocket
-    )
+                        sender_account["id"],
+
+                        receiver_account["id"]
+
+                    )
+
+
+
+                    message_id = save_message(
+
+                        chat_id,
+
+                        sender_account["id"],
+
+                        encrypted_text
+
+                    )
+
+
+
+                    await manager.send_private_message(
+
+                        receiver,
+
+                        {
+
+                            "type": "message",
+
+                            "sender": username,
+
+                            "message": encrypted_text,
+
+                            "message_id": message_id
+
+                        }
+
+                    )
+
+
+
+                    notification = message_notification(
+
+                        username,
+
+                        receiver,
+
+                        encrypted_text
+
+                    )
+
+
+
+                    if receiver in device_tokens:
+
+
+                        send_push_notification(
+
+                            device_tokens[receiver],
+
+                            f"New message from {username}",
+
+                            encrypted_text
+
+                        )
+
+            # =========================
+            # FILE MESSAGE
+            # =========================
+
+
+            elif msg_type == "file":
+
+
+                await manager.send_private_message(
+
+                    data["receiver"],
+
+                    data
+
+                )
+
+
+
+            # =========================
+            # TYPING
+            # =========================
+
+
+            elif msg_type == "typing":
+
+
+                await manager.send_typing_status(
+
+                    data["receiver"],
+
+                    username,
+
+                    data["typing"]
+
+                )
+
+
+
+
+            # =========================
+            # WEBRTC PRIVATE SIGNAL
+            # =========================
+
+
+            elif msg_type in [
+
+                "offer",
+
+                "answer",
+
+                "candidate"
+
+            ]:
+
+
+                await manager.send_private_message(
+
+                    data["receiver"],
+
+                    {
+
+                        **data,
+
+                        "sender": username
+
+                    }
+
+                )
+
+
+            # =========================
+            # CREATE GROUP CALL
+            # =========================
+
+
+            elif msg_type == "create_call":
+
+
+                await manager.join_call_room(
+
+                    data["room"],
+
+                    username
+
+                )
+
+
+                await websocket.send_text(
+
+                    json.dumps({
+
+                        "type": "call_created",
+
+                        "room": data["room"]
+
+                    })
+
+                )
+
+
+
+            # =========================
+            # JOIN GROUP CALL
+            # =========================
+
+
+            elif msg_type == "join_call":
+
+
+                await manager.join_call_room(
+
+                    data["room"],
+
+                    username
+
+                )
+
+
+                await manager.broadcast_call_signal(
+
+                    data["room"],
+
+                    username,
+
+                    {
+
+                        "type": "user_joined",
+
+                        "user": username
+
+                    }
+
+                )
+
+            # =========================
+            # GROUP WEBRTC
+            # =========================
+
+
+            elif msg_type in [
+
+                "group_offer",
+
+                "group_answer",
+
+                "group_candidate"
+
+            ]:
+
+
+                await manager.broadcast_call_signal(
+
+                    data["room"],
+
+                    username,
+
+                    data
+
+                )
+
+
+
+            # =========================
+            # END CALL
+            # =========================
+
+
+            elif msg_type == "end_call":
+
+
+                await manager.broadcast_call_signal(
+
+                    data["room"],
+
+                    username,
+
+                    data
+
+                )
 
 
 # =====================================
@@ -742,3 +843,14 @@ if __name__ == "__main__":
         port=8000,
         reload=True
     )
+
+    except WebSocketDisconnect:
+
+
+        await manager.disconnect(
+
+            username,
+
+            websocket
+
+        )
