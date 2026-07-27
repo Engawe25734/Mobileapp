@@ -7,13 +7,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>chatMe</title>
+<title>ChatMe</title>
 
 
 <link rel="stylesheet" href="/static/style.css">
-
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 
 </head>
@@ -25,9 +22,8 @@
 <div class="app-container">
 
 
-
 <!-- =========================
-     LOGIN / REGISTER
+AUTH PAGE
 ========================= -->
 
 
@@ -43,7 +39,7 @@
 
 
 <h1>
-chatMe
+ChatMe
 </h1>
 
 
@@ -53,18 +49,21 @@ Connect with friends instantly
 
 
 
+
 <div class="input-group">
 
 <label>
 Username
 </label>
 
-<input 
+<input
 id="username"
 type="text"
-placeholder="Enter username">
+placeholder="Username (register only)"
+>
 
 </div>
+
 
 
 
@@ -75,10 +74,11 @@ placeholder="Enter username">
 Phone Number
 </label>
 
-<input 
+<input
 id="phone"
 type="text"
-placeholder="Enter phone number">
+placeholder="Phone number"
+>
 
 </div>
 
@@ -92,10 +92,11 @@ placeholder="Enter phone number">
 Password
 </label>
 
-<input 
+<input
 id="password"
 type="password"
-placeholder="Enter password">
+placeholder="Password"
+>
 
 </div>
 
@@ -106,7 +107,7 @@ placeholder="Enter password">
 <div class="auth-buttons">
 
 
-<button 
+<button
 class="primary-btn"
 onclick="register()">
 
@@ -116,7 +117,8 @@ Create Account
 
 
 
-<button 
+
+<button
 class="secondary-btn"
 onclick="login()">
 
@@ -125,7 +127,10 @@ Login
 </button>
 
 
+
 </div>
+
+
 
 
 
@@ -150,7 +155,7 @@ class="auth-message">
 
 
 <!-- =========================
-     CHAT APPLICATION
+CHAT PAGE
 ========================= -->
 
 
@@ -160,8 +165,6 @@ class="chat-container hidden">
 
 
 
-
-<!-- TOP BAR -->
 
 <header class="top-bar">
 
@@ -175,11 +178,11 @@ class="chat-container hidden">
 </div>
 
 
+
 <div>
 
-
 <h2>
-chatMe
+ChatMe
 </h2>
 
 
@@ -197,7 +200,7 @@ Offline
 
 
 
-<!-- ONLY ONE CALL BUTTON SET -->
+
 
 <div class="top-actions">
 
@@ -239,7 +242,6 @@ Offline
 
 
 
-
 <div class="chat-layout">
 
 
@@ -256,13 +258,9 @@ Offline
 
 
 <input
-
 id="receiver"
-
 type="text"
-
-placeholder="Search username..."
-
+placeholder="Search username"
 >
 
 
@@ -273,9 +271,7 @@ placeholder="Search username..."
 
 
 <button
-
 class="load-btn"
-
 onclick="loadMessages()">
 
 Load Conversation
@@ -291,7 +287,6 @@ Load Conversation
 Contacts
 
 </div>
-
 
 
 
@@ -320,7 +315,7 @@ Contacts
 
 
 
-<!-- CHAT WINDOW -->
+<!-- CHAT AREA -->
 
 
 <main class="chat-window">
@@ -329,13 +324,7 @@ Contacts
 
 
 
-<!-- CHAT HEADER -->
-
-
 <div class="conversation-header">
-
-
-<div>
 
 
 <h3 id="chatUser">
@@ -345,16 +334,11 @@ Select User
 </h3>
 
 
-
 <span id="typing">
 
 </span>
 
 
-
-</div>
-
-
 </div>
 
 
@@ -363,11 +347,6 @@ Select User
 
 
 
-
-
-
-
-<!-- MESSAGE DISPLAY -->
 
 
 <div class="message-area">
@@ -388,25 +367,20 @@ Select User
 
 
 
-<!-- CALL DISPLAY -->
+<!-- CALL AREA -->
 
 
 <div id="call-area"
 class="call-area hidden">
 
 
-
 <div class="video-box">
 
 
 <video
-
 id="localVideo"
-
 autoplay
-
 muted>
-
 </video>
 
 
@@ -424,9 +398,10 @@ You
 <div class="video-box">
 
 
-<div id="remoteVideo">
-
-</div>
+<video
+id="remoteVideo"
+autoplay>
+</video>
 
 
 <span>
@@ -437,9 +412,8 @@ Remote
 </div>
 
 
+
 </div>
-
-
 
 
 
@@ -460,21 +434,16 @@ Remote
 
 <label class="attach-btn">
 
-
 📎
 
 
 <input
-
 id="file"
-
 type="file"
-
 hidden
-
 accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"
-
-onchange="uploadFile()">
+onchange="uploadFile()"
+>
 
 
 </label>
@@ -485,11 +454,8 @@ onchange="uploadFile()">
 
 
 
-
 <button
-
 class="emoji-btn"
-
 onclick="toggleEmoji()">
 
 😊
@@ -502,21 +468,12 @@ onclick="toggleEmoji()">
 
 
 
-
-
 <input
-
 id="message"
-
 type="text"
-
 placeholder="Type a message..."
-
-onkeypress="enterSend(event)">
-
-
-</input>
-
+onkeypress="enterSend(event)"
+>
 
 
 
@@ -525,16 +482,12 @@ onkeypress="enterSend(event)">
 
 
 <button
-
 class="send-btn"
-
 onclick="sendMessage()">
 
 ➤
 
 </button>
-
-
 
 
 
@@ -553,7 +506,6 @@ onclick="sendMessage()">
 
 <div id="emoji-panel"
 class="emoji-panel hidden">
-
 
 
 <button onclick="addEmoji('😀')">
@@ -613,8 +565,6 @@ class="file-preview hidden">
 
 
 
-
-
 <!-- GROUP CALL MODAL -->
 
 
@@ -633,12 +583,11 @@ Group Call
 
 
 <input
-
 id="roomId"
-
 type="text"
+placeholder="Room ID"
+>
 
-placeholder="Room ID">
 
 
 
@@ -677,7 +626,6 @@ Close
 </main>
 
 
-
 </div>
 
 
@@ -693,8 +641,8 @@ Close
 
 
 
-
 <script src="/static/app.js"></script>
+
 
 
 </div>
