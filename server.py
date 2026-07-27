@@ -554,19 +554,19 @@ async def websocket_endpoint(
 
 
 
-            # =========================
-            # ENCRYPTED PRIVATE MESSAGE
-            # =========================
+ # =========================
+ # ENCRYPTED PRIVATE MESSAGE
+ # =========================
 
-            if msg_type == "message":
+if msg_type == "message":
 
-               receiver = data["receiver"].strip()
-               encrypted_text = data["message"]
+    receiver = data["receiver"].strip()
+    encrypted_text = data["message"]
 
-               sender_account = get_user_by_username(username)
-               receiver_account = get_user_by_username(receiver)
+    sender_account = get_user_by_username(username)
+    receiver_account = get_user_by_username(receiver)
 
-               message_id = None
+        message_id = None
 
            if sender_account and receiver_account:
               chat_id = get_or_create_chat(
@@ -580,7 +580,7 @@ async def websocket_endpoint(
                encrypted_text
         )
 
-       await manager.send_private_message(
+          await manager.send_private_message(
             receiver,
         {
               "type": "message",
@@ -590,23 +590,23 @@ async def websocket_endpoint(
         }
     )
 
-    notification = message_notification(
-        username,
-        receiver,
-        encrypted_text
+          notification = message_notification(
+            username,
+            receiver,
+            encrypted_text
     )
 
-    if receiver in device_tokens:
-        send_push_notification(
-            device_tokens[receiver],
-            f"New message from {username}",
-            encrypted_text
+         if receiver in device_tokens:
+            send_push_notification(
+              device_tokens[receiver],
+              f"New message from {username}",
+              encrypted_text
         )
-            # -----------------------------
-            # FILE MESSAGE
-            # -----------------------------
+ # -----------------------------
+ # FILE MESSAGE
+ # -----------------------------
 
-            elif msg_type == "file":
+         elif msg_type == "file":
 
 
                 await manager.send_private_message(
@@ -620,11 +620,11 @@ async def websocket_endpoint(
 
 
 
-            # -----------------------------
-            # TYPING
-            # -----------------------------
+ # -----------------------------
+ # TYPING
+ # -----------------------------
 
-            elif msg_type == "typing":
+        elif msg_type == "typing":
 
 
                 await manager.send_typing_status(
@@ -640,11 +640,11 @@ async def websocket_endpoint(
 
 
 
-            # -----------------------------
-            # WEBRTC PRIVATE SIGNAL
-            # -----------------------------
+ # -----------------------------
+ # WEBRTC PRIVATE SIGNAL
+ # -----------------------------
 
-            elif msg_type in [
+        elif msg_type in [
 
                 "offer",
 
@@ -667,14 +667,14 @@ async def websocket_endpoint(
 
                     }
 
-                )
+                );
 
 
 
 
-            # -----------------------------
-            # CREATE GROUP CALL
-            # -----------------------------
+ # -----------------------------
+ # CREATE GROUP CALL
+ # -----------------------------
 
             elif msg_type == "create_call":
 
@@ -698,14 +698,14 @@ async def websocket_endpoint(
 
                     })
 
-                )
+                );
 
 
 
 
-            # -----------------------------
-            # JOIN GROUP CALL
-            # -----------------------------
+     # -----------------------------
+     # JOIN GROUP CALL
+     # -----------------------------
 
             elif msg_type == "join_call":
 
