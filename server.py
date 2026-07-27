@@ -555,8 +555,8 @@ async def websocket_endpoint(
 
 
  # =========================
- # ENCRYPTED PRIVATE MESSAGE
- # =========================
+# ENCRYPTED PRIVATE MESSAGE
+# =========================
 
 if msg_type == "message":
 
@@ -566,57 +566,56 @@ if msg_type == "message":
     sender_account = get_user_by_username(username)
     receiver_account = get_user_by_username(receiver)
 
-        message_id = None
+    message_id = None
 
-           if sender_account and receiver_account:
-              chat_id = get_or_create_chat(
-              sender_account["id"],
-              receiver_account["id"]
+    if sender_account and receiver_account:
+
+        chat_id = get_or_create_chat(
+            sender_account["id"],
+            receiver_account["id"]
         )
 
-             message_id = save_message(
-               chat_id,
-               sender_account["id"],
-               encrypted_text
+        message_id = save_message(
+            chat_id,
+            sender_account["id"],
+            encrypted_text
         )
 
-          await manager.send_private_message(
+        await manager.send_private_message(
             receiver,
-        {
-              "type": "message",
-              "sender": username,
-              "message": encrypted_text,
-              "message_id": message_id
-        }
-    )
+            {
+                "type": "message",
+                "sender": username,
+                "message": encrypted_text,
+                "message_id": message_id
+            }
+        )
 
-          notification = message_notification(
+        notification = message_notification(
             username,
             receiver,
             encrypted_text
-    )
-
-         if receiver in device_tokens:
-            send_push_notification(
-              device_tokens[receiver],
-              f"New message from {username}",
-              encrypted_text
         )
- # -----------------------------
- # FILE MESSAGE
- # -----------------------------
 
-         elif msg_type == "file":
+        if receiver in device_tokens:
+
+            send_push_notification(
+                device_tokens[receiver],
+                f"New message from {username}",
+                encrypted_text
+            )
 
 
-                await manager.send_private_message(
+# -----------------------------
+# FILE MESSAGE
+# -----------------------------
 
-                    data["receiver"],
+elif msg_type == "file":
 
-                    data
-
-                )
-
+    await manager.send_private_message(
+        data["receiver"],
+        data
+    )
 
 
 
