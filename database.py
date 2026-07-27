@@ -2496,7 +2496,53 @@ def delete_chat_messages(
 
     conn.close()
 
+# =====================================
+# UPDATE PROFILE PICTURE
+# =====================================
 
+
+def update_profile_picture(
+
+    user_id,
+
+    image_url
+
+):
+
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+
+
+    cursor.execute(
+
+    """
+
+    UPDATE users
+
+    SET avatar=?
+
+    WHERE id=?
+
+    """,
+
+    (
+
+        image_url,
+
+        user_id
+
+    )
+
+    )
+
+
+
+    conn.commit()
+
+    conn.close()
 
 
 
