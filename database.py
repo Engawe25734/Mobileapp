@@ -102,9 +102,19 @@ def initialize_database():
     """)
 
 
+    #========================================
+     #Pubic key
+    #======================================
+     cursor.execute("""
+    CREATE TABLE user_keys(
 
+        id INTEGER PRIMARY KEY,
 
+        username TEXT UNIQUE,
 
+        public_key TEXT
+
+    ) """)
     # =====================================
     # PRIVATE CHAT TABLE
     # =====================================
