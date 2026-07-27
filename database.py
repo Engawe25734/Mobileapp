@@ -102,19 +102,25 @@ def initialize_database():
     """)
 
 
-    #========================================
-     #Pubic key
-    #======================================
-     cursor.execute("""
-    CREATE TABLE user_keys(
+    # =====================================
+    # PUBLIC KEY TABLE
+    # =====================================
 
-        id INTEGER PRIMARY KEY,
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS user_keys(
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
 
         username TEXT UNIQUE,
 
-        public_key TEXT
+        public_key TEXT,
 
-    ) """)
+        FOREIGN KEY(username)
+
+        REFERENCES users(username)
+
+    )
+    """)
     # =====================================
     # PRIVATE CHAT TABLE
     # =====================================
@@ -504,7 +510,8 @@ def initialize_database():
     print(
         "✅ ChatMe database initialized successfully"
     )
-    # =====================================
+    
+# =====================================
 # USER MANAGEMENT
 # =====================================
 
