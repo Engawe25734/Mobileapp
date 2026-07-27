@@ -1,16 +1,21 @@
 /*
-ChatMe Frontend Controller
+ChatMe app.js
 
-Connected to:
+Connected with:
 - server.py
 - auth.py
 - api_routes.py
 
+Features:
+- Authentication
+- JWT session
+- WebSocket messaging
+- Message history
 */
 
 
 // =====================================
-// CONFIG
+// CONFIGURATION
 // =====================================
 
 
@@ -23,6 +28,7 @@ const WS_URL = "ws://localhost:8000";
 let username =
 localStorage.getItem("username") || "";
 
+
 let token =
 localStorage.getItem("access_token") || "";
 
@@ -31,6 +37,7 @@ let socket = null;
 
 
 let selectedUser = "";
+
 
 let localStream = null;
 
@@ -43,7 +50,8 @@ let localStream = null;
 
 
 // =====================================
-// REGISTER
+// REGISTER USER
+// Matches server.py /register
 // =====================================
 
 
@@ -51,19 +59,24 @@ async function register(){
 
 
     const usernameInput =
-    document.getElementById("username")
-    .value.trim();
+    document
+    .getElementById("username")
+    .value
+    .trim();
 
 
 
     const phone =
-    document.getElementById("phone")
-    .value.trim();
+    document
+    .getElementById("phone")
+    .value
+    .trim();
 
 
 
     const password =
-    document.getElementById("password")
+    document
+    .getElementById("password")
     .value;
 
 
@@ -86,6 +99,7 @@ async function register(){
                 "application/json"
 
             },
+
 
             body:JSON.stringify({
 
@@ -135,7 +149,8 @@ async function register(){
 
 
 // =====================================
-// LOGIN
+// LOGIN USER
+// Matches server.py /login
 // =====================================
 
 
@@ -143,13 +158,16 @@ async function login(){
 
 
     const phone =
-    document.getElementById("phone")
-    .value.trim();
+    document
+    .getElementById("phone")
+    .value
+    .trim();
 
 
 
     const password =
-    document.getElementById("password")
+    document
+    .getElementById("password")
     .value;
 
 
@@ -160,30 +178,30 @@ async function login(){
         const response =
         await fetch(
 
-        `${API_URL}/login`,
+            `${API_URL}/login`,
 
-        {
+            {
 
-        method:"POST",
+            method:"POST",
 
-        headers:{
+            headers:{
 
-        "Content-Type":
-        "application/json"
+                "Content-Type":
+                "application/json"
 
-        },
-
-
-        body:JSON.stringify({
-
-            phone:phone,
-
-            password:password
-
-        })
+            },
 
 
-        }
+            body:JSON.stringify({
+
+                phone:phone,
+
+                password:password
+
+            })
+
+
+            }
 
         );
 
@@ -195,8 +213,8 @@ async function login(){
 
 
 
-
         if(response.ok){
+
 
 
             username =
@@ -206,6 +224,7 @@ async function login(){
 
             token =
             data.access_token;
+
 
 
 
@@ -241,7 +260,8 @@ async function login(){
             document
             .getElementById("authMessage")
             .innerText =
-            data.detail || "Login failed";
+            data.detail ||
+            "Login failed";
 
 
         }
@@ -268,7 +288,7 @@ async function login(){
 
 
 // =====================================
-// OPEN CHAT
+// OPEN CHAT APPLICATION
 // =====================================
 
 
@@ -277,13 +297,15 @@ function openChat(){
 
     document
     .getElementById("auth-page")
-    .classList.add("hidden");
+    .classList
+    .add("hidden");
 
 
 
     document
     .getElementById("chat-page")
-    .classList.remove("hidden");
+    .classList
+    .remove("hidden");
 
 
 
@@ -333,9 +355,7 @@ function connectSocket(){
 
 
         console.log(
-
-            "ChatMe WebSocket connected"
-
+            "ChatMe connected"
         );
 
 
@@ -347,7 +367,6 @@ function connectSocket(){
 
 
     };
-
 
 
 
@@ -366,93 +385,92 @@ function connectSocket(){
 
 
 
-        switch(data.type){
+
+        if(data.type==="message"){
 
 
-            case "message":
+            displayMessage({
 
+                sender:data.sender,
 
-                displayMessage({
+                message:data.message
 
-                    sender:data.sender,
-
-                    message:data.message
-
-                });
-
-
-            break;
-
-
-
-
-
-            case "file":
-
-
-                displayMessage({
-
-                    sender:data.sender,
-
-                    message:
-                    "📎 "+data.filename
-
-                });
-
-
-            break;
-
-
-
-
-
-            case "typing":
-
-
-                document
-                .getElementById("typing")
-                .innerText =
-                data.typing
-                ?
-                "Typing..."
-                :
-                "";
-
-            break;
-
-
-
-
-
-            case "offer":
-
-                receiveOffer(data);
-
-            break;
-
-
-
-            case "answer":
-
-                receiveAnswer(data);
-
-            break;
-
-
-
-            case "candidate":
-
-                receiveCandidate(data);
-
-            break;
+            });
 
 
         }
 
 
+
+
+        else if(data.type==="file"){
+
+
+            displayMessage({
+
+                sender:data.sender,
+
+                message:
+                "📎 " + data.filename
+
+            });
+
+
+        }
+
+
+
+
+        else if(data.type==="typing"){
+
+
+            document
+            .getElementById("typing")
+            .innerText =
+            data.typing
+            ?
+            "Typing..."
+            :
+            "";
+
+        }
+
+
+
+
+        else if(data.type==="offer"){
+
+
+            receiveOffer(data);
+
+
+        }
+
+
+
+
+        else if(data.type==="answer"){
+
+
+            receiveAnswer(data);
+
+
+        }
+
+
+
+
+        else if(data.type==="candidate"){
+
+
+            receiveCandidate(data);
+
+
+        }
+
+
+
     };
-
-
 
 
 
@@ -483,11 +501,11 @@ function connectSocket(){
 
 // =====================================
 // SEND MESSAGE
+// WebSocket message
 // =====================================
 
 
 function sendMessage(){
-
 
 
     const input =
@@ -501,8 +519,13 @@ function sendMessage(){
 
 
 
-    if(!text || !selectedUser)
-    return;
+
+    if(!text || !selectedUser){
+
+        return;
+
+    }
+
 
 
 
@@ -520,6 +543,7 @@ function sendMessage(){
         })
 
     );
+
 
 
 
@@ -548,6 +572,7 @@ function sendMessage(){
 
 // =====================================
 // LOAD MESSAGE HISTORY
+// API: /messages/user1/user2
 // =====================================
 
 
@@ -557,12 +582,18 @@ async function loadMessages(){
     selectedUser =
     document
     .getElementById("receiver")
-    .value.trim();
+    .value
+    .trim();
 
 
 
-    if(!selectedUser)
-    return;
+
+    if(!selectedUser){
+
+        return;
+
+    }
+
 
 
 
@@ -578,14 +609,16 @@ async function loadMessages(){
     const response =
     await fetch(
 
-    `${API_URL}/messages/${username}/${selectedUser}`
+        `${API_URL}/messages/${username}/${selectedUser}`
 
     );
 
 
 
+
     const data =
     await response.json();
+
 
 
 
@@ -596,6 +629,7 @@ async function loadMessages(){
 
 
     list.innerHTML="";
+
 
 
 
@@ -615,6 +649,7 @@ async function loadMessages(){
     });
 
 
+
 }
 
 
@@ -629,21 +664,21 @@ function displayMessage(data){
 
 
     const list =
-    document.getElementById("messages");
+    document
+    .getElementById("messages");
 
 
 
     const item =
-    document.createElement("li");
+    document
+    .createElement("li");
 
 
 
     item.innerHTML =
 
     `
-    <strong>
-    ${data.sender}
-    </strong>
+    <strong>${data.sender}</strong>
     :
     ${data.message}
     `;
@@ -651,6 +686,7 @@ function displayMessage(data){
 
 
     list.appendChild(item);
+
 
 
 }
@@ -672,366 +708,5 @@ function enterSend(event){
 
     }
 
-}
-
-
-
-
-
-
-
-
-
-// =====================================
-// FILE UPLOAD
-// =====================================
-
-
-async function uploadFile(){
-
-
-    const file =
-    document
-    .getElementById("file")
-    .files[0];
-
-
-
-    if(!file)
-    return;
-
-
-
-    const form =
-    new FormData();
-
-
-
-    form.append(
-
-        "file",
-
-        file
-
-    );
-
-
-
-    const response =
-    await fetch(
-
-        `${API_URL}/upload`,
-
-        {
-
-        method:"POST",
-
-        body:form
-
-        }
-
-    );
-
-
-
-    const data =
-    await response.json();
-
-
-
-    socket.send(
-
-        JSON.stringify({
-
-            type:"file",
-
-            receiver:selectedUser,
-
-            filename:data.filename,
-
-            url:data.url,
-
-            file_type:data.type
-
-
-        })
-
-    );
-
 
 }
-
-
-
-
-
-
-
-
-
-// =====================================
-// EMOJI
-// =====================================
-
-
-function toggleEmoji(){
-
-
-    document
-    .getElementById("emoji-panel")
-    .classList.toggle("hidden");
-
-
-}
-
-
-
-function addEmoji(emoji){
-
-
-    document
-    .getElementById("message")
-    .value += emoji;
-
-
-}
-
-
-
-
-
-
-
-
-
-// =====================================
-// DARK MODE
-// =====================================
-
-
-function toggleTheme(){
-
-
-    document.body
-    .classList.toggle("dark");
-
-
-}
-
-
-
-
-
-
-
-
-
-// =====================================
-// AUDIO CALL
-// =====================================
-
-
-async function startAudioCall(){
-
-
-    localStream =
-    await navigator
-    .mediaDevices
-    .getUserMedia({
-
-        audio:true
-
-    });
-
-
-
-    alert(
-        "Audio call started"
-    );
-
-
-}
-
-
-
-
-
-
-
-
-
-// =====================================
-// VIDEO CALL
-// =====================================
-
-
-async function startVideoCall(){
-
-
-    localStream =
-    await navigator
-    .mediaDevices
-    .getUserMedia({
-
-        video:true,
-
-        audio:true
-
-    });
-
-
-
-    document
-    .getElementById("localVideo")
-    .srcObject =
-    localStream;
-
-
-
-    document
-    .getElementById("call-area")
-    .classList
-    .remove("hidden");
-
-
-}
-
-
-
-
-
-
-
-
-
-// =====================================
-// GROUP CALL
-// =====================================
-
-
-function createGroupCall(){
-
-
-    document
-    .getElementById("group-call-modal")
-    .classList
-    .remove("hidden");
-
-
-}
-
-
-
-
-
-function joinGroupCall(){
-
-
-    const room =
-    document
-    .getElementById("roomId")
-    .value;
-
-
-
-    socket.send(
-
-        JSON.stringify({
-
-            type:"join_call",
-
-            room:room
-
-
-        })
-
-    );
-
-
-}
-
-
-
-
-
-function closeModal(){
-
-
-    document
-    .getElementById("group-call-modal")
-    .classList
-    .add("hidden");
-
-
-}
-
-
-
-
-
-
-
-
-
-// =====================================
-// WEBRTC PLACEHOLDERS
-// =====================================
-
-
-function receiveOffer(data){
-
-    console.log(
-        "Offer received",
-        data
-    );
-
-}
-
-
-
-function receiveAnswer(data){
-
-    console.log(
-        "Answer received",
-        data
-    );
-
-}
-
-
-
-function receiveCandidate(data){
-
-    console.log(
-        "Candidate received",
-        data
-    );
-
-}
-
-
-
-
-
-
-
-
-
-// =====================================
-// START APPLICATION
-// =====================================
-
-
-window.onload=function(){
-
-
-    if(username){
-
-
-        openChat();
-
-
-    }
-
-
-};
