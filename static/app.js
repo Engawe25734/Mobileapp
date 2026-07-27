@@ -281,6 +281,49 @@ async function login(){
 
 
 
+// =====================================
+// REGISTER DEVICE FOR PUSH NOTIFICATIONS
+// =====================================
+
+async function registerDevice(token){
+
+    try{
+
+        await fetch(
+
+            `${API_URL}/device/register`,
+
+            {
+
+                method:"POST",
+
+                headers:{
+
+                    "Content-Type":"application/json"
+
+                },
+
+                body:JSON.stringify({
+
+                    username:username,
+
+                    token:token
+
+                })
+
+            }
+
+        );
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+    }
+
+}
 
 
 
