@@ -540,7 +540,7 @@ async function sendMessage(){
 
 
   const encryptedMessage =
-await encryptMessage(
+  await encryptMessage(
     text,
     receiverPublicKey
 );
