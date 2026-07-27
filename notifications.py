@@ -391,53 +391,59 @@ def send_push_notification(
 
 ):
 
-    """
-    Firebase Cloud Messaging integration point.
 
-    Later replace this function with:
+    try:
 
-    firebase_admin.messaging.send()
-
-    """
+        from firebase_admin import messaging
 
 
 
-    print(
+        notification = messaging.Notification(
 
-        "Push notification sent"
+            title=title,
 
-    )
+            body=body
 
-
-    print(
-
-        "Token:",
-
-        token
-
-    )
-
-
-    print(
-
-        "Title:",
-
-        title
-
-    )
-
-
-    print(
-
-        "Message:",
-
-        body
-
-    )
+        )
 
 
 
-    return True
+        message = messaging.Message(
+
+            notification=notification,
+
+            token=token
+
+        )
+
+
+
+        response = messaging.send(
+
+            message
+
+        )
+
+
+
+        return response
+
+
+
+    except Exception as e:
+
+
+        print(
+
+            "Firebase Error:",
+
+            e
+
+        )
+
+
+        return False
+
 
 
 
