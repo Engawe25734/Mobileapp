@@ -354,7 +354,53 @@ def register_user_device(
 
 
 
+# =====================================
+# LOAD USER PROFILE
+# =====================================
 
+
+@app.get("/user/{username}")
+def get_user_profile(
+
+    username:str
+
+):
+
+
+    user = get_user_by_username(
+
+        username
+
+    )
+
+
+    if not user:
+
+
+        raise HTTPException(
+
+            status_code=404,
+
+            detail="User not found"
+
+        )
+
+
+    return {
+
+        "username":user["username"],
+
+        "avatar":user.get(
+            "avatar",
+            "/static/default-avatar.png"
+        ),
+
+        "bio":user.get(
+            "bio",
+            ""
+        )
+
+    }
 
 
 
