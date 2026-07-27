@@ -578,6 +578,60 @@ socket.send(
 }
 
 
+// =====================================
+// CHATME NOTIFICATIONS
+// =====================================
+
+
+function requestNotificationPermission(){
+
+
+    if("Notification" in window){
+
+
+        Notification.requestPermission();
+
+
+    }
+
+
+}
+
+
+
+
+
+
+function showNotification(sender, message){
+
+
+
+    if(Notification.permission === "granted"){
+
+
+
+        new Notification(
+
+            "ChatMe - New Message",
+
+            {
+
+                body:
+                sender + ": " + message,
+
+
+                icon:
+                "/static/icon.png"
+
+            }
+
+        );
+
+
+    }
+
+
+}
 
 
 
