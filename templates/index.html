@@ -172,7 +172,6 @@ class="chat-container hidden">
 
 <div class="profile-area">
 
-
 <div class="avatar">
 
 <img
@@ -180,23 +179,30 @@ id="profile-picture"
 src="/static/default-avatar.png"
 alt="Profile">
 
-</di>
+</div>
 
 
-<div>
+<div class="profile-info">
 
 <h2>
 ChatMe
 </h2>
-
 
 <span id="status">
 Offline
 </span>
 
 
-</div>
+<button 
+class="settings-btn"
+onclick="openSettings()">
 
+⚙️ Settings
+
+</button>
+
+
+</div>
 
 </div>
 
@@ -222,10 +228,6 @@ Offline
 
 <button onclick="toggleTheme()" title="Dark Mode">
 🌙
-</button>
-
-<button onclick="openSettings()" title="Settings">
-⚙️
 </button>
 
 </div>
