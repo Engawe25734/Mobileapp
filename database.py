@@ -100,7 +100,33 @@ def initialize_database():
 
     )
     """)
+     cursor.execute(
+        "PRAGMA table_info(users)"
+    )
 
+    columns = [
+
+        column[1]
+
+        for column in cursor.fetchall()
+
+    ]
+
+
+    if "avatar" not in columns:
+
+        cursor.execute("""
+        ALTER TABLE users
+        ADD COLUMN avatar TEXT DEFAULT '/static/default-avatar.png'
+        """)
+
+
+    if "bio" not in columns:
+
+        cursor.execute("""
+        ALTER TABLE users
+        ADD COLUMN bio TEXT DEFAULT ''
+        """)
 
     # =====================================
     # PUBLIC KEY TABLE
