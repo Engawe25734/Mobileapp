@@ -80,7 +80,6 @@ def initialize_database():
     # USERS TABLE
     # =====================================
 
-
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users(
 
@@ -100,7 +99,9 @@ def initialize_database():
 
     )
     """)
-     cursor.execute(
+
+
+    cursor.execute(
         "PRAGMA table_info(users)"
     )
 
@@ -528,37 +529,42 @@ def initialize_database():
 # =====================================
 
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS profile_settings(
+    # =====================================
+    # PROFILE SETTINGS TABLE
+    # =====================================
 
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-    user_id INTEGER UNIQUE,
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS profile_settings(
 
-    privacy_last_seen TEXT DEFAULT 'Everyone',
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-    privacy_online_status TEXT DEFAULT 'Everyone',
+        user_id INTEGER UNIQUE,
 
-    privacy_picture TEXT DEFAULT 'Everyone',
+        privacy_last_seen TEXT DEFAULT 'Everyone',
 
-    read_receipts INTEGER DEFAULT 1,
+        privacy_online_status TEXT DEFAULT 'Everyone',
 
-    typing_indicator INTEGER DEFAULT 1,
+        privacy_picture TEXT DEFAULT 'Everyone',
 
-    message_notifications INTEGER DEFAULT 1,
+        read_receipts INTEGER DEFAULT 1,
 
-    call_notifications INTEGER DEFAULT 1,
+        typing_indicator INTEGER DEFAULT 1,
 
-    group_notifications INTEGER DEFAULT 1,
+        message_notifications INTEGER DEFAULT 1,
 
-    theme TEXT DEFAULT 'light',
+        call_notifications INTEGER DEFAULT 1,
 
-    FOREIGN KEY(user_id)
+        group_notifications INTEGER DEFAULT 1,
 
-    REFERENCES users(id)
+        theme TEXT DEFAULT 'light',
 
-)
-""")
+        FOREIGN KEY(user_id)
+
+        REFERENCES users(id)
+
+    )
+    """)
 
 
 
