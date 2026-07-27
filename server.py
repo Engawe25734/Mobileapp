@@ -560,77 +560,48 @@ async def websocket_endpoint(
 
             if msg_type == "message":
 
+    receiver = data["receiver"].strip()
+    encrypted_text = data["message"]
 
-                receiver = data["receiver"].strip()
+    sender_account = get_user_by_username(username)
+    receiver_account = get_user_by_username(receiver)
 
+    message_id = None
 
-                # Already encrypted by app.js
-                encrypted_text = data["message"]
+    if sender_account and receiver_account:
+        chat_id = get_or_create_chat(
+            sender_account["id"],
+            receiver_account["id"]
+        )
 
+        message_id = save_message(
+            chat_id,
+            sender_account["id"],
+            encrypted_text
+        )
 
-
-                sender_account = get_user_by_username(
-                    username
-                )
-
-
-                receiver_account = get_user_by_username(
-                    receiver
-                )
-
-
-                message_id = None
-
-
-
-                if sender_account and receiver_account:
-
-                   chat_id = get_or_create_chat(
-                     sender_account["id"],
-                     receiver_account["id"]
+    await manager.send_private_message(
+        receiver,
+        {
+            "type": "message",
+            "sender": username,
+            "message": encrypted_text,
+            "message_id": message_id
+        }
     )
 
-                   message_id = save_message(
-                     chat_id,
-                     sender_account["id"],
-                     encrypted_text
+    notification = message_notification(
+        username,
+        receiver,
+        encrypted_text
     )
 
-           # Send encrypted message to receiver
-           await manager.send_private_message(
-                receiver,
-          {
-                   "type": "message",
-                   "sender": username,
-                   "message": encrypted_text,
-                   "message_id": message_id
-         }
-     )
-
-                # CREATE notification
-                notification = message_notification(
-
-                    username,
-
-                    receiver,
-
-                    encrypted_text
-
-                )
-
-
-                # Send push notification if receiver is offline
-                if receiver in device_tokens:
-
-                    send_push_notification(
-
-                        device_tokens[receiver],
-
-                        "New message from " + username,
-
-                        "You received a new encrypted message"
-
-                    )
+    if receiver in device_tokens:
+        send_push_notification(
+            device_tokens[receiver],
+            f"New message from {username}",
+            encrypted_text
+        )
             # -----------------------------
             # FILE MESSAGE
             # -----------------------------
