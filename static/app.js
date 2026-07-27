@@ -515,7 +515,7 @@ function connectSocket(){
 // =====================================
 
 
-function sendMessage(){
+async function sendMessage(){
 
 
     const input =
