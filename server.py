@@ -46,7 +46,8 @@ from database import (
 from notifications import (
     message_notification,
     send_push_notification,
-    device_tokens
+    device_tokens,
+    register_device
 )
 
 from auth import (
