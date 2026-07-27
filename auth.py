@@ -1,43 +1,56 @@
 """
-auth.py
-
-Authentication system for mobile app.
+ChatMe Authentication System
 
 Features:
-- Secure password hashing
+- Password hashing
 - User registration
 - User login
-- JWT authentication
+- JWT token creation
+- JWT token verification
 """
 
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
 
 from passlib.context import CryptContext
+
 
 from jose import jwt, JWTError
 
 
+
 from database import (
+
     create_user,
+
     get_user_by_phone
+
 )
 
 
 
-# ------------------------------------
-# Security configuration
-# ------------------------------------
 
-SECRET_KEY = "CHANGE_THIS_TO_A_RANDOM_SECRET_KEY"
+
+# =====================================
+# SECURITY CONFIGURATION
+# =====================================
+
+
+# Replace this before production deployment
+SECRET_KEY = "CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_KEY"
+
 
 ALGORITHM = "HS256"
+
 
 TOKEN_EXPIRE_MINUTES = 60
 
 
 
-# Password encryption engine
+
+
+# Password hashing
 
 password_context = CryptContext(
 
@@ -49,31 +62,40 @@ password_context = CryptContext(
 
 
 
-# ------------------------------------
-# Password functions
-# ------------------------------------
 
-def hash_password(password: str):
 
-    """
-    Converts plain password into encrypted hash
-    """
+
+
+
+
+# =====================================
+# PASSWORD FUNCTIONS
+# =====================================
+
+
+def hash_password(password:str):
+
 
     return password_context.hash(
+
         password
+
     )
 
 
 
 
+
+
+
 def verify_password(
-    plain_password,
-    hashed_password
+
+    plain_password:str,
+
+    hashed_password:str
+
 ):
 
-    """
-    Checks if password matches stored hash
-    """
 
     return password_context.verify(
 
@@ -86,35 +108,59 @@ def verify_password(
 
 
 
-# ------------------------------------
-# User registration
-# ------------------------------------
+
+
+
+
+
+# =====================================
+# REGISTER USER
+# =====================================
+
 
 def register_user(
-    username,
-    phone,
-    password
+
+    username:str,
+
+    phone:str,
+
+    password:str
+
 ):
 
+
     existing_user = get_user_by_phone(
+
         phone
+
     )
+
 
 
     if existing_user:
 
+
         return {
 
-            "status": "error",
 
-            "message": "Phone number already registered"
+            "status":"error",
+
+
+            "message":
+            "Phone number already registered"
+
 
         }
 
 
 
+
+
+
     password_hash = hash_password(
+
         password
+
     )
 
 
@@ -133,46 +179,75 @@ def register_user(
 
     return {
 
-        "status": "success",
 
-        "message": "Account created",
+        "status":"success",
 
-        "user_id": user_id
+
+        "message":
+        "Account created successfully",
+
+
+        "user_id":
+        user_id
+
 
     }
 
 
 
 
-# ------------------------------------
-# User login
-# ------------------------------------
+
+
+
+
+
+# =====================================
+# LOGIN USER
+# =====================================
+
 
 def authenticate_user(
-    phone,
-    password
+
+    phone:str,
+
+    password:str
+
 ):
 
+
     user = get_user_by_phone(
+
         phone
+
     )
 
 
+
     if not user:
+
 
         return None
 
 
 
-    if not verify_password(
+
+
+    password_correct = verify_password(
 
         password,
 
         user["password_hash"]
 
-    ):
+    )
+
+
+
+    if not password_correct:
+
 
         return None
+
+
 
 
 
@@ -181,29 +256,53 @@ def authenticate_user(
 
 
 
-# ------------------------------------
-# JWT creation
-# ------------------------------------
+
+
+
+
+
+
+
+# =====================================
+# CREATE JWT TOKEN
+# =====================================
+
 
 def create_access_token(
-    user_id,
-    username
+
+    user_id:int,
+
+    username:str
+
 ):
 
-    expiration = datetime.utcnow() + timedelta(
+
+    expire = datetime.now(
+
+        timezone.utc
+
+    ) + timedelta(
 
         minutes=TOKEN_EXPIRE_MINUTES
 
     )
 
 
+
     payload = {
 
-        "user_id": user_id,
 
-        "username": username,
+        "user_id":
+        user_id,
 
-        "exp": expiration
+
+        "username":
+        username,
+
+
+        "exp":
+        expire
+
 
     }
 
@@ -220,21 +319,32 @@ def create_access_token(
     )
 
 
+
     return token
 
 
 
 
 
-# ------------------------------------
-# JWT verification
-# ------------------------------------
+
+
+
+
+
+# =====================================
+# VERIFY JWT TOKEN
+# =====================================
+
 
 def verify_token(
-    token
+
+    token:str
+
 ):
 
+
     try:
+
 
         payload = jwt.decode(
 
@@ -253,28 +363,41 @@ def verify_token(
 
     except JWTError:
 
+
         return None
 
 
 
 
 
-# ------------------------------------
-# Test authentication
-# ------------------------------------
 
-if __name__ == "__main__":
+
+
+
+
+
+# =====================================
+# TEST AUTHENTICATION
+# =====================================
+
+
+if __name__=="__main__":
 
 
     from database import initialize_database
 
 
+
     initialize_database()
 
 
+
     print(
-        "\n--- Creating Test User ---"
+
+        "Creating test user..."
+
     )
+
 
 
     result = register_user(
@@ -288,12 +411,15 @@ if __name__ == "__main__":
     )
 
 
+
     print(result)
 
 
 
     print(
-        "\n--- Testing Login ---"
+
+        "Testing login..."
+
     )
 
 
@@ -311,7 +437,7 @@ if __name__ == "__main__":
     if user:
 
 
-        token = create_access_token(
+        token=create_access_token(
 
             user["id"],
 
@@ -320,13 +446,11 @@ if __name__ == "__main__":
         )
 
 
+
         print(
+
             "Login successful"
-        )
 
-
-        print(
-            "JWT Token:"
         )
 
 
@@ -336,6 +460,9 @@ if __name__ == "__main__":
 
     else:
 
+
         print(
+
             "Login failed"
+
         )
