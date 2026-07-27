@@ -1740,3 +1740,654 @@ window.onload=function(){
 
 
 };
+// =====================================
+// CHATME SETTINGS SYSTEM
+// =====================================
+
+
+const API_URL = "http://localhost:8000";
+
+
+
+
+// =====================================
+// OPEN SETTINGS
+// =====================================
+
+function openSettings(){
+
+
+    document
+    .getElementById("settings-panel")
+    .classList
+    .remove("hidden");
+
+
+}
+
+
+
+
+// =====================================
+// CLOSE SETTINGS
+// =====================================
+
+function closeSettings(){
+
+
+    document
+    .getElementById("settings-panel")
+    .classList
+    .add("hidden");
+
+
+}
+
+
+
+
+// =====================================
+// OPEN PROFILE SETTINGS
+// =====================================
+
+function openProfileSettings(){
+
+
+    hideAllSettingsPages();
+
+
+    document
+    .getElementById("profile-page")
+    .classList
+    .remove("hidden");
+
+
+}
+
+
+
+
+// =====================================
+// OPEN PRIVACY SETTINGS
+// =====================================
+
+function openPrivacySettings(){
+
+
+    hideAllSettingsPages();
+
+
+    document
+    .getElementById("privacy-page")
+    .classList
+    .remove("hidden");
+
+
+}
+
+
+
+
+// =====================================
+// OPEN NOTIFICATION SETTINGS
+// =====================================
+
+function openNotificationSettings(){
+
+
+    hideAllSettingsPages();
+
+
+    document
+    .getElementById("notification-page")
+    .classList
+    .remove("hidden");
+
+
+}
+
+
+
+
+// =====================================
+// OPEN APPEARANCE SETTINGS
+// =====================================
+
+function openAppearanceSettings(){
+
+
+    hideAllSettingsPages();
+
+
+    document
+    .getElementById("appearance-page")
+    .classList
+    .remove("hidden");
+
+
+}
+
+
+
+
+// =====================================
+// OPEN STORAGE
+// =====================================
+
+function openStorageSettings(){
+
+
+    alert(
+        "Cloud storage coming soon"
+    );
+
+
+}
+
+
+
+
+// =====================================
+// OPEN ACCOUNT
+// =====================================
+
+function openAccountSettings(){
+
+
+    hideAllSettingsPages();
+
+
+    document
+    .getElementById("account-page")
+    .classList
+    .remove("hidden");
+
+
+}
+
+
+
+
+// =====================================
+// HIDE SETTINGS PAGES
+// =====================================
+
+function hideAllSettingsPages(){
+
+
+    let pages = [
+
+        "profile-page",
+
+        "privacy-page",
+
+        "notification-page",
+
+        "appearance-page",
+
+        "account-page"
+
+    ];
+
+
+
+    pages.forEach(function(page){
+
+
+        let element =
+        document.getElementById(page);
+
+
+
+        if(element){
+
+
+            element
+            .classList
+            .add("hidden");
+
+
+        }
+
+
+    });
+
+
+}
+
+
+
+
+
+// =====================================
+// UPLOAD PROFILE PICTURE
+// =====================================
+
+async function uploadProfilePicture(){
+
+
+    const file =
+
+    document
+    .getElementById("profile-upload")
+    .files[0];
+
+
+
+    if(!file){
+
+        return;
+
+    }
+
+
+
+    let formData = new FormData();
+
+
+    formData.append(
+
+        "file",
+
+        file
+
+    );
+
+
+
+    try{
+
+
+        const response = await fetch(
+
+            `${API_URL}/profile/${username}/picture`,
+
+            {
+
+                method:"POST",
+
+                body:formData
+
+            }
+
+        );
+
+
+
+        const data =
+        await response.json();
+
+
+
+        document
+        .getElementById("profile-picture")
+        .src =
+        data.profile_picture;
+
+
+
+        document
+        .getElementById("settings-avatar")
+        .src =
+        data.profile_picture;
+
+
+
+        document
+        .getElementById("edit-avatar")
+        .src =
+        data.profile_picture;
+
+
+
+    }
+
+
+    catch(error){
+
+
+        console.error(
+
+            "Profile upload error:",
+
+            error
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+// =====================================
+// SAVE PROFILE
+// =====================================
+
+async function saveProfile(){
+
+
+    const bio =
+
+    document
+    .getElementById("edit-bio")
+    .value;
+
+
+
+    try{
+
+
+        await fetch(
+
+            `${API_URL}/profile/${username}/bio`,
+
+            {
+
+                method:"PUT",
+
+                headers:{
+
+
+                    "Content-Type":
+
+                    "application/json"
+
+
+                },
+
+
+                body:JSON.stringify({
+
+                    bio:bio
+
+                })
+
+
+            }
+
+        );
+
+
+
+        alert(
+
+            "Profile updated"
+
+        );
+
+
+    }
+
+
+    catch(error){
+
+
+        console.error(error);
+
+
+    }
+
+
+}
+
+
+
+
+
+
+// =====================================
+// SAVE PRIVACY SETTINGS
+// =====================================
+
+async function savePrivacy(){
+
+
+    const settings = {
+
+
+        last_seen:
+
+        document
+        .getElementById("last-seen")
+        .value,
+
+
+
+        online_status:
+
+        document
+        .getElementById("online-status")
+        .value,
+
+
+
+        profile_picture:
+
+        document
+        .getElementById("profile-privacy")
+        .value,
+
+
+
+        read_receipts:
+
+        document
+        .getElementById("read-receipts")
+        .checked,
+
+
+
+        typing_indicator:
+
+        document
+        .getElementById("typing-status")
+        .checked
+
+
+    };
+
+
+
+    await fetch(
+
+        `${API_URL}/profile/${username}/privacy`,
+
+        {
+
+            method:"PUT",
+
+            headers:{
+
+                "Content-Type":
+
+                "application/json"
+
+            },
+
+
+            body:JSON.stringify(settings)
+
+
+        }
+
+    );
+
+
+
+    alert(
+
+        "Privacy saved"
+
+    );
+
+
+}
+
+
+
+
+
+
+// =====================================
+// SAVE NOTIFICATIONS
+// =====================================
+
+async function saveNotifications(){
+
+
+    const settings = {
+
+
+        messages:
+
+        document
+        .getElementById("message-notifications")
+        .checked,
+
+
+
+        calls:
+
+        document
+        .getElementById("call-notifications")
+        .checked,
+
+
+
+        groups:
+
+        document
+        .getElementById("group-notifications")
+        .checked
+
+
+    };
+
+
+
+    await fetch(
+
+        `${API_URL}/profile/${username}/notifications`,
+
+        {
+
+            method:"PUT",
+
+            headers:{
+
+                "Content-Type":
+
+                "application/json"
+
+            },
+
+
+            body:JSON.stringify(settings)
+
+
+        }
+
+    );
+
+
+    alert(
+
+        "Notification settings saved"
+
+    );
+
+
+}
+
+
+
+
+
+
+// =====================================
+// SAVE APPEARANCE
+// =====================================
+
+function saveAppearance(){
+
+
+    const dark =
+
+    document
+    .getElementById("dark-mode")
+    .checked;
+
+
+
+    if(dark){
+
+
+        document
+        .body
+        .classList
+        .add("dark-mode");
+
+
+    }
+
+    else{
+
+
+        document
+        .body
+        .classList
+        .remove("dark-mode");
+
+
+    }
+
+
+
+    localStorage.setItem(
+
+        "theme",
+
+        dark ? "dark" : "light"
+
+    );
+
+
+}
+
+
+
+
+
+
+// =====================================
+// LOGOUT
+// =====================================
+
+function logout(){
+
+
+    localStorage.removeItem(
+
+        "token"
+
+    );
+
+
+    localStorage.removeItem(
+
+        "username"
+
+    );
+
+
+
+    window.location.reload();
+
+
+}
