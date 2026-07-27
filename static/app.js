@@ -1626,7 +1626,7 @@ function endCall(){
 
 window.onload=function(){
 
-
+    requestNotificationPermission();
 
     if(username){
 
