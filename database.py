@@ -567,14 +567,19 @@ def create_user(
     cursor = conn.cursor()
 
 
-
     cursor.execute(
 
-        """
+    """
 
-        INSERT INTO users
+    INSERT INTO users
 
-        (
+    (username,phone,password_hash)
+
+    VALUES (?,?,?)
+
+    """,
+
+    (
 
         username,
 
@@ -582,45 +587,39 @@ def create_user(
 
         password_hash
 
-        )
-
-        VALUES(?,?,?)
-
-        """,
-
-        (
-
-            username,
-
-            phone,
-
-            password_hash
-
-        )
-
     )
 
-
-
-    conn.commit()
-
+    )
 
 
     user_id = cursor.lastrowid
 
 
 
-    conn.close()
+    cursor.execute(
 
+    """
 
+    INSERT INTO profile_settings
 
-    # Automatically create profile
+    (user_id)
 
-    create_profile(
+    VALUES (?)
 
-        user_id
+    """,
+
+    (
+
+        user_id,
 
     )
+
+    )
+
+
+    conn.commit()
+
+    conn.close()
 
 
     return user_id
