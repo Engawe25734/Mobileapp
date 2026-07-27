@@ -18,7 +18,9 @@ from fastapi import (
     File,
     HTTPException
 )
+from fastapi import Body
 
+from notifications import register_device
 
 import os
 
