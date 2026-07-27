@@ -310,7 +310,57 @@ def update_privacy(
 
     }
 
+# =====================================
+# UPDATE NOTIFICATION SETTINGS
+# =====================================
 
+
+@router.put("/profile/{username}/notifications")
+def update_notifications(
+
+    username:str,
+
+    settings:dict = Body(...)
+
+):
+
+
+    user = get_user_by_username(
+
+        username
+
+    )
+
+
+    if not user:
+
+
+        raise HTTPException(
+
+            status_code=404,
+
+            detail="User not found"
+
+        )
+
+
+
+    update_notification_settings(
+
+        user["id"],
+
+        settings
+
+    )
+
+
+
+    return {
+
+
+        "status":"notifications updated"
+
+    }
 
 # =====================================
 # UPDATE BIO
