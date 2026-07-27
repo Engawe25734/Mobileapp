@@ -42,11 +42,10 @@ from database import (
     get_or_create_chat
 )
 
-from notification import(
+from notifications import (
     message_notification,
     send_push_notification,
     device_tokens
-
 )
 
 from auth import (
