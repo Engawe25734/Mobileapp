@@ -363,6 +363,46 @@ def update_notifications(
     }
 
 # =====================================
+# GET PROFILE SETTINGS
+# =====================================
+
+
+@router.get("/profile/{username}/settings")
+def profile_settings(
+
+    username:str
+
+):
+
+
+    user = get_user_by_username(
+
+        username
+
+    )
+
+
+    if not user:
+
+
+        raise HTTPException(
+
+            status_code=404,
+
+            detail="User not found"
+
+        )
+
+
+
+    return get_profile_settings(
+
+        user["id"]
+
+    )
+
+
+# =====================================
 # UPDATE BIO
 # =====================================
 
