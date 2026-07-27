@@ -407,6 +407,11 @@ function connectSocket(){
 
     });
 
+        showNotification(
+            data.sender,
+            data.message
+
+    );
 
 }
 
