@@ -560,13 +560,13 @@ async def websocket_endpoint(
 
             if msg_type == "message":
 
-    receiver = data["receiver"].strip()
-    encrypted_text = data["message"]
+               receiver = data["receiver"].strip()
+               encrypted_text = data["message"]
 
-    sender_account = get_user_by_username(username)
-    receiver_account = get_user_by_username(receiver)
+               sender_account = get_user_by_username(username)
+               receiver_account = get_user_by_username(receiver)
 
-    message_id = None
+               message_id = None
 
     if sender_account and receiver_account:
         chat_id = get_or_create_chat(
