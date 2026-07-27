@@ -515,7 +515,7 @@ async def websocket_endpoint(
 
 
 
-                # Send encrypted message to receiver
+                               # Send encrypted message to receiver
                 await manager.send_private_message(
 
                     receiver,
@@ -534,27 +534,31 @@ async def websocket_endpoint(
 
                 )
 
-             # CREATE notification
-             notification = message_notification(
-               username,
-               receiver,
-               encrypted_text
-         )
+
+                # CREATE notification
+                notification = message_notification(
+
+                    username,
+
+                    receiver,
+
+                    encrypted_text
+
+                )
 
 
-             # Send push notification if receiver is offline
-             if receiver in device_tokens:
+                # Send push notification if receiver is offline
+                if receiver in device_tokens:
 
-                send_push_notification(
+                    send_push_notification(
 
-                  device_tokens[receiver],
+                        device_tokens[receiver],
 
-                  "New message from " + username,
+                        "New message from " + username,
 
-                   encrypted_text
+                        encrypted_text
 
-         )
-
+                    )
             # -----------------------------
             # FILE MESSAGE
             # -----------------------------
