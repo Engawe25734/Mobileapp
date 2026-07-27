@@ -21,28 +21,31 @@ import datetime
 import uuid
 import firebase_admin
 from firebase_admin import credentials
-from firebase_admin import messaging
+from firebase_admin import messaging 
 
 # =====================================
-
 # FIREBASE INITIALIZATION
-
 # =====================================
 
-if not firebase_admin._apps:
+try:
 
-    cred = credentials.Certificate(
+    if not firebase_admin._apps:
 
-        "firebase-service-account.json"
+        cred = credentials.Certificate(
+            "firebase-service-account.json"
+        )
 
+        firebase_admin.initialize_app(
+            cred
+        )
+
+
+except Exception as e:
+
+    print(
+        "Firebase initialization failed:",
+        e
     )
-
-    firebase_admin.initialize_app(
-
-        cred
-
-    )
-
 # =====================================
 # NOTIFICATION STORAGE
 # =====================================
@@ -412,31 +415,22 @@ def send_push_notification(
 
 ):
 
-
     try:
-
-        from firebase_admin import messaging
-
-
-
-        notification = messaging.Notification(
-
-            title=title,
-
-            body=body
-
-        )
-
 
 
         message = messaging.Message(
 
-            notification=notification,
+            notification=messaging.Notification(
+
+                title=title,
+
+                body=body
+
+            ),
 
             token=token
 
         )
-
 
 
         response = messaging.send(
@@ -444,7 +438,6 @@ def send_push_notification(
             message
 
         )
-
 
 
         return response
@@ -455,16 +448,12 @@ def send_push_notification(
 
 
         print(
-
-            "Firebase Error:",
-
+            "Push notification failed:",
             e
-
         )
 
 
-        return False
-
+        return None
 
 
 
