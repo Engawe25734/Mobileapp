@@ -373,7 +373,7 @@ function connectSocket(){
 
 
 
-    socket.onmessage=function(event){
+    socket.onmessage = async function(event) {
 
 
         const data =
@@ -389,16 +389,26 @@ function connectSocket(){
         if(data.type==="message"){
 
 
-            displayMessage({
+          const decrypted =
+          await decryptMessage(
 
-                sender:data.sender,
+               data.message,
 
-                message:data.message
+               privateKey
 
-            });
+    );
 
 
-        }
+         displayMessage({
+
+              sender:data.sender,
+
+             message:decrypted
+
+    });
+
+
+}
 
 
 
