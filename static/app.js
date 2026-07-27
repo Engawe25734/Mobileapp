@@ -529,21 +529,26 @@ function sendMessage(){
 
 
 
-    socket.send(
-
-        JSON.stringify({
-
-            type:"message",
-
-            receiver:selectedUser,
-
-            message:text
+  const encryptedMessage =
+await encryptMessage(
+    text,
+    receiverPublicKey
+);
 
 
-        })
+socket.send(
 
-    );
+    JSON.stringify({
 
+        type:"message",
+
+        receiver:selectedUser,
+
+        message:encryptedMessage
+
+    })
+
+);
 
 
 
