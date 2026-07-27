@@ -32,15 +32,23 @@ from database import (
 
     get_user_by_username,
 
+    get_user_messages,
+
     get_profile,
 
+    update_profile_picture,
+
     update_profile_bio,
+
+    update_privacy_settings,
+
+    update_notification_settings,
+
+    get_profile_settings,
 
     save_message,
 
     save_attachment,
-
-    get_user_messages,
 
     get_or_create_chat
 
