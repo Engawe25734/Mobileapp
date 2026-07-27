@@ -2668,6 +2668,54 @@ def update_notification_settings(
     conn.close()
 
 # =====================================
+# UPDATE BIO
+# =====================================
+
+
+def update_profile_bio(
+
+    user_id,
+
+    bio
+
+):
+
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+
+
+    cursor.execute(
+
+    """
+
+    UPDATE users
+
+    SET bio=?
+
+    WHERE id=?
+
+    """,
+
+    (
+
+        bio,
+
+        user_id
+
+    )
+
+    )
+
+
+
+    conn.commit()
+
+    conn.close()
+
+# =====================================
 # DATABASE CLEANUP
 # =====================================
 
