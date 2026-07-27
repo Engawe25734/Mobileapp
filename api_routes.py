@@ -71,7 +71,31 @@ os.makedirs(
 
 
 
+# =====================================
+# REGISTER DEVICE TOKEN
+# =====================================
 
+@router.post("/device/register")
+def register_device_token(
+
+    data:dict = Body(...)
+
+):
+
+
+    username = data["username"]
+
+    token = data["token"]
+
+
+
+    return register_device(
+
+        username,
+
+        token
+
+    )
 
 
 # =====================================
