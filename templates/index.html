@@ -803,7 +803,95 @@ Save Changes
 </button>
 
 </div>
-  
+ <div
+id="privacy-page"
+class="settings-page hidden">
+
+<h2>
+
+Privacy
+
+</h2>
+
+<label>
+
+Last Seen
+
+</label>
+
+<select id="last-seen">
+
+<option>Everyone</option>
+
+<option>Contacts</option>
+
+<option>Nobody</option>
+
+</select>
+
+<label>
+
+Online Status
+
+</label>
+
+<select id="online-status">
+
+<option>Everyone</option>
+
+<option>Contacts</option>
+
+<option>Nobody</option>
+
+</select>
+
+<label>
+
+Profile Picture
+
+</label>
+
+<select id="profile-privacy">
+
+<option>Everyone</option>
+
+<option>Contacts</option>
+
+<option>Nobody</option>
+
+</select>
+
+<label>
+
+Read Receipts
+
+</label>
+
+<input
+id="read-receipts"
+type="checkbox"
+checked>
+
+<label>
+
+Typing Indicator
+
+</label>
+
+<input
+id="typing-status"
+type="checkbox"
+checked>
+
+<button
+class="primary-btn"
+onclick="savePrivacy()">
+
+Save
+
+</button>
+
+</div> 
 
 
 <script src="/static/app.js"></script>
