@@ -2761,6 +2761,62 @@ def update_theme(
     conn.commit()
 
     conn.close()
+
+# =====================================
+# GET SETTINGS
+# =====================================
+
+
+def get_profile_settings(
+
+    user_id
+
+):
+
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+
+
+    cursor.execute(
+
+    """
+
+    SELECT *
+
+    FROM profile_settings
+
+    WHERE user_id=?
+
+    """,
+
+    (
+
+        user_id,
+
+    )
+
+    )
+
+
+
+    row = cursor.fetchone()
+
+
+
+    conn.close()
+
+
+
+    if not row:
+
+        return {}
+
+
+
+    return dict(row)
 # =====================================
 # DATABASE CLEANUP
 # =====================================
