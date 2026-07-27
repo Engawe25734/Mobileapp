@@ -2610,7 +2610,62 @@ def update_privacy_settings(
 
     conn.close()
 
+# =====================================
+# UPDATE NOTIFICATIONS
+# =====================================
 
+
+def update_notification_settings(
+
+    user_id,
+
+    settings
+
+):
+
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+
+
+    cursor.execute(
+
+    """
+
+    UPDATE profile_settings
+
+    SET
+
+    message_notifications=?,
+
+    call_notifications=?,
+
+    group_notifications=?
+
+    WHERE user_id=?
+
+    """,
+
+    (
+
+        int(settings.get("messages")),
+
+        int(settings.get("calls")),
+
+        int(settings.get("groups")),
+
+        user_id
+
+    )
+
+    )
+
+
+    conn.commit()
+
+    conn.close()
 
 # =====================================
 # DATABASE CLEANUP
