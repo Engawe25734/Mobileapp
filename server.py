@@ -24,7 +24,7 @@ from fastapi import (
     Body
 )
 
-
+from fastapi import Request
 from fastapi.staticfiles import StaticFiles
 
 from fastapi.templating import Jinja2Templates
@@ -206,12 +206,10 @@ app.mount(
 async def home(request: Request):
 
     return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request
-        }
+        request=request,
+        name="index.html",
+        context={}
     )
-
 
 
 
