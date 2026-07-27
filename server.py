@@ -126,7 +126,13 @@ app.add_middleware(
 
 initialize_database()
 
+print(
+    "ChatMe database initialized"
+)
 
+print(
+    "Push notification service ready"
+)
 
 
 
