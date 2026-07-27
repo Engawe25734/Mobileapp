@@ -585,48 +585,27 @@ async def websocket_endpoint(
 
                 if sender_account and receiver_account:
 
+                   chat_id = get_or_create_chat(
+                     sender_account["id"],
+                     receiver_account["id"]
+    )
 
-                    chat_id = get_or_create_chat(
+                   message_id = save_message(
+                     chat_id,
+                     sender_account["id"],
+                     encrypted_text
+    )
 
-                        sender_account["id"],
-
-                        receiver_account["id"]
-
-                    )
-
-
-                    # Store encrypted message only
-                    message_id = save_message(
-
-                        chat_id,
-
-                        sender_account["id"],
-
-                        encrypted_text
-
-                    )
-
-
-
-                               # Send encrypted message to receiver
-                await manager.send_private_message(
-
-                    receiver,
-
-                    {
-
-                        "type": "message",
-
-                        "sender": username,
-
-                        "message": encrypted_text,
-
-                        "message_id": message_id
-
-                    }
-
-                )
-
+           # Send encrypted message to receiver
+           await manager.send_private_message(
+                receiver,
+          {
+                   "type": "message",
+                   "sender": username,
+                   "message": encrypted_text,
+                   "message_id": message_id
+         }
+     )
 
                 # CREATE notification
                 notification = message_notification(
