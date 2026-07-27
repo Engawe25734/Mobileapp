@@ -649,7 +649,98 @@ Close
 
 
 
+<!-- =====================================
+SETTINGS PANEL
+===================================== -->
 
+<div id="settings-panel"
+class="settings-panel hidden">
+
+<div class="settings-header">
+
+<h2>
+Settings
+</h2>
+
+<button onclick="closeSettings()">
+✖
+</button>
+
+</div>
+
+
+<!-- PROFILE -->
+
+<div class="settings-profile">
+
+<img
+id="settings-avatar"
+src="/static/default-avatar.png">
+
+<h3 id="settings-name">
+Username
+</h3>
+
+<p id="settings-bio">
+No bio yet.
+</p>
+
+<label
+class="profile-upload">
+
+📷 Change Profile Picture
+
+<input
+
+id="profile-upload"
+
+type="file"
+
+accept="image/*"
+
+hidden
+
+onchange="uploadProfilePicture()">
+
+</label>
+
+</div>
+
+
+<div class="settings-list">
+
+<button onclick="openProfileSettings()">
+👤 Profile
+</button>
+
+<button onclick="openPrivacySettings()">
+🔒 Privacy
+</button>
+
+<button onclick="openNotificationSettings()">
+🔔 Notifications
+</button>
+
+<button onclick="openAppearanceSettings()">
+🌙 Appearance
+</button>
+
+<button onclick="openStorageSettings()">
+☁ Storage
+</button>
+
+<button onclick="openAccountSettings()">
+🔑 Account
+</button>
+
+<button onclick="logout()">
+🚪 Logout
+</button>
+
+</div>
+
+</div>
+  
 
 
 <script src="/static/app.js"></script>
