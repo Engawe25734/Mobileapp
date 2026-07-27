@@ -1,44 +1,44 @@
 """
-api_routes.py
-
 ChatMe API Routes
 
 Features:
 - User profiles
 - Profile updates
-- Private messaging
+- Private messages
 - Message history
 - File uploads
 - Attachments
 - Health check
-
-Used by:
-server.py
 """
 
 
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import (
+    APIRouter,
+    UploadFile,
+    File,
+    HTTPException
+)
+
 
 import os
 
 import shutil
 
 
+
 from database import (
 
     get_user_by_username,
 
-    get_user_messages,
-
     get_profile,
-
-    update_profile_picture,
 
     update_profile_bio,
 
     save_message,
 
     save_attachment,
+
+    get_user_messages,
 
     get_or_create_chat
 
@@ -69,6 +69,9 @@ os.makedirs(
 
 
 
+
+
+
 # =====================================
 # USER PROFILE
 # =====================================
@@ -80,9 +83,10 @@ def profile(username:str):
 
     user = get_profile(
 
-        username
+        username.strip()
 
     )
+
 
 
     if not user:
@@ -101,15 +105,24 @@ def profile(username:str):
     return {
 
 
-        "username": user["username"],
+        "username":
+        user["username"],
 
-        "phone": user["phone"],
 
-        "profile_picture": user["avatar"],
+        "phone":
+        user["phone"],
 
-        "bio": user["bio"]
+
+        "profile_picture":
+        user.get("avatar"),
+
+
+        "bio":
+        user.get("bio","")
 
     }
+
+
 
 
 
@@ -132,11 +145,12 @@ def update_bio(
 ):
 
 
-    user = get_user_by_username(
+    user=get_user_by_username(
 
-        username
+        username.strip()
 
     )
+
 
 
     if not user:
@@ -165,7 +179,9 @@ def update_bio(
     return {
 
 
-        "status":"bio updated"
+        "status":"success",
+
+        "message":"Bio updated"
 
     }
 
@@ -175,8 +191,11 @@ def update_bio(
 
 
 
+
+
 # =====================================
 # SEND MESSAGE API
+# (REST alternative)
 # =====================================
 
 
@@ -194,16 +213,18 @@ def send_message_api(
 
     sender_user = get_user_by_username(
 
-        sender
+        sender.strip()
 
     )
+
 
 
     receiver_user = get_user_by_username(
 
-        receiver
+        receiver.strip()
 
     )
+
 
 
     if not sender_user or not receiver_user:
@@ -256,6 +277,8 @@ def send_message_api(
 
 
 
+
+
 # =====================================
 # MESSAGE HISTORY
 # =====================================
@@ -271,16 +294,17 @@ def message_history(
 ):
 
 
-    first = get_user_by_username(
+    first=get_user_by_username(
 
-        user1
+        user1.strip()
 
     )
 
 
-    second = get_user_by_username(
 
-        user2
+    second=get_user_by_username(
+
+        user2.strip()
 
     )
 
@@ -299,7 +323,7 @@ def message_history(
 
 
 
-    messages = get_user_messages(
+    messages=get_user_messages(
 
         first["id"],
 
@@ -318,13 +342,20 @@ def message_history(
 
         result.append({
 
-            "sender":msg["username"],
+            "sender":
+            msg["username"],
 
-            "message":msg["message"],
 
-            "type":msg["message_type"],
+            "message":
+            msg["message"],
 
-            "time":msg["timestamp"]
+
+            "type":
+            msg.get("message_type"),
+
+
+            "timestamp":
+            msg.get("timestamp")
 
         })
 
@@ -336,6 +367,8 @@ def message_history(
         "messages":result
 
     }
+
+
 
 
 
@@ -356,7 +389,7 @@ async def upload_attachment(
 ):
 
 
-    filepath = os.path.join(
+    filepath=os.path.join(
 
         UPLOAD_FOLDER,
 
@@ -388,18 +421,20 @@ async def upload_attachment(
     return {
 
 
-        "filename":file.filename,
+        "filename":
+        file.filename,
 
 
-        "filepath":filepath,
+        "filepath":
+        filepath,
 
 
         "url":
+        "/uploads/" + file.filename,
 
-        "/uploads/"+file.filename,
 
-
-        "type":file.content_type
+        "type":
+        file.content_type
 
     }
 
@@ -409,8 +444,10 @@ async def upload_attachment(
 
 
 
+
+
 # =====================================
-# SAVE ATTACHMENT TO MESSAGE
+# SAVE ATTACHMENT
 # =====================================
 
 
@@ -465,8 +502,10 @@ def save_file_attachment(
 
 
 
+
+
 # =====================================
-# ONLINE HEALTH CHECK
+# HEALTH CHECK
 # =====================================
 
 
